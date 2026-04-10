@@ -1,36 +1,70 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# TimeLog Web
 
-## Getting Started
+Family-facing web console for browsing, playing, and managing private stories recorded in TimeLog.
 
-First, run the development server:
+## Tooling
+
+- Node.js 20.19.0
+- pnpm 10.33.0
+- Next.js 16.2.2
+- React 19.2.4
+
+If pnpm is not already available, enable it with Corepack:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+corepack enable
+corepack prepare pnpm@10.33.0 --activate
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Environment
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Create `.env` from `.env.example` and provide:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```env
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
+```
 
-## Learn More
+Do not expose privileged secrets with a `NEXT_PUBLIC_` prefix.
 
-To learn more about Next.js, take a look at the following resources:
+## Development
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+pnpm install
+pnpm dev
+pnpm dev:host
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+`pnpm dev` uses webpack by default. This is intentional: on some Windows + pnpm setups, Turbopack can mis-detect the project root and fail to resolve `tailwindcss`, causing runaway CPU or memory pressure. Use `pnpm dev:turbo` only when you explicitly want to validate Turbopack behavior.
 
-## Deploy on Vercel
+## Quality Gates
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+pnpm lint
+pnpm typecheck
+pnpm test
+pnpm build
+pnpm check
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## CI
+
+GitHub Actions runs the same `pnpm` quality gates defined locally:
+
+- `pnpm install --frozen-lockfile`
+- `pnpm lint`
+- `pnpm typecheck`
+- `pnpm test`
+- `pnpm build`
+
+Workflow file:
+
+- `.github/workflows/ci.yml`
+
+## Deployment
+
+Vercel will auto-detect `pnpm` from `pnpm-lock.yaml`. The repo also includes an explicit deploy contract in `vercel.json`:
+
+- `pnpm install --frozen-lockfile`
+- `pnpm build`
