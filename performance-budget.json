@@ -1,0 +1,23 @@
+{
+  "performance": {
+    "lcp": 2500,
+    "fid": 100,
+    "cls": 0.1,
+    "ttfb": 600,
+    "fcp": 1800
+  },
+  "resourceSizes": {
+    "js": 300,
+    "css": 50,
+    "images": 1000,
+    "fonts": 100,
+    "total": 2000
+  },
+  "resourceCounts": {
+    "js": 15,
+    "css": 5,
+    "images": 20,
+    "fonts": 2,
+    "total": 50
+  }
+}
