@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { getAuditOverview } from "@/features/audit/queries";
+import { getAuditOverview, type AuditOverview, type AuditEventView } from "@/features/audit/queries";
 import { storyRoute } from "@/lib/routes";
 import { History, Activity, MessageSquare, Clock } from "lucide-react";
 import { useTranslation } from "@/lib/hooks/use-translation";
@@ -29,7 +29,7 @@ const itemVariants = {
   },
 };
 
-export function AuditMetrics({ overview }: { overview: any }) {
+export function AuditMetrics({ overview }: { overview: AuditOverview }) {
   const { t } = useTranslation();
 
   return (
@@ -88,7 +88,7 @@ export function AuditMetrics({ overview }: { overview: any }) {
   );
 }
 
-export function ActivityTimeline({ overview }: { overview: any }) {
+export function ActivityTimeline({ overview }: { overview: AuditOverview }) {
   const { t } = useTranslation();
 
   return (
@@ -102,7 +102,7 @@ export function ActivityTimeline({ overview }: { overview: any }) {
 
       <div className="space-y-8">
         {overview.items.length > 0 ? (
-          overview.items.map((item: any, i: number) => {
+          overview.items.map((item: AuditEventView, i: number) => {
             const content = (
               <motion.div variants={itemVariants} className="relative pl-0 md:pl-16">
                 <div className="absolute left-4 top-4 h-4 w-4 rounded-full border-4 border-panel bg-accent shadow-sm hidden md:block" />

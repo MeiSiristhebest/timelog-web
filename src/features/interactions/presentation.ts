@@ -7,6 +7,8 @@ export type InteractionCommentRow = {
   created_at: string | null;
 };
 
+type TranslateFunction = (key: string, options?: Record<string, any>) => string;
+
 export type InteractionReactionRow = {
   id: string;
   story_id: string;
@@ -53,7 +55,7 @@ function toSortValue(value: string | null): string {
   return date.toISOString();
 }
 
-function deriveActorLabel(userId: string | null, t: any): string {
+function deriveActorLabel(userId: string | null, t: TranslateFunction): string {
   if (!userId) return t("actorLabel");
 
   const compact = userId.replace(/[^a-zA-Z0-9]/g, "");
@@ -64,7 +66,7 @@ function deriveActorLabel(userId: string | null, t: any): string {
   return `${t("actorLabel")} ${compact.slice(-8)}`;
 }
 
-function describeReaction(type: string | null, t: any): string {
+function describeReaction(type: string | null, t: TranslateFunction): string {
   const value = (type ?? "reaction").trim().toLowerCase();
   
   // Try to use typed reaction label from i18n
@@ -81,7 +83,7 @@ export function buildInteractionFeed({
   comments: InteractionCommentRow[];
   reactions: InteractionReactionRow[];
   locale: string;
-  t: any;
+  t: TranslateFunction;
 }): InteractionItem[] {
   const comments = rawComments.map((row) => ({
     id: row.id,

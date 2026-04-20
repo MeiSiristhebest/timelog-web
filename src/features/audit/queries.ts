@@ -1,6 +1,8 @@
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { getTranslations, getLocale } from "next-intl/server";
 
+type TFunction = Awaited<ReturnType<typeof getTranslations>>;
+
 type ActivityEventRow = {
   id: string;
   type: string | null;
@@ -94,7 +96,7 @@ async function formatDateLabel(input: string, locale: string): Promise<string> {
   }).format(date);
 }
 
-function toAuditSummary(row: ActivityEventRow, t: any): string {
+function toAuditSummary(row: ActivityEventRow, t: TFunction): string {
   const storyTitle = row.metadata?.storyTitle?.trim() || t("untitledStory");
 
   if (row.type === "comment") {
@@ -108,7 +110,7 @@ function toAuditSummary(row: ActivityEventRow, t: any): string {
   return t("summaryActivity", { title: storyTitle });
 }
 
-function toAuditDetail(row: ActivityEventRow, t: any): string {
+function toAuditDetail(row: ActivityEventRow, t: TFunction): string {
   if (row.type === "comment") {
     return row.metadata?.commentText?.trim() || t("previewDetail") || "No comment preview was stored.";
   }
@@ -120,7 +122,7 @@ function toAuditDetail(row: ActivityEventRow, t: any): string {
   return t("detailUnknown") || "Operational signal captured in the family activity stream.";
 }
 
-async function mapAuditEvent(row: ActivityEventRow, t: any, locale: string): Promise<AuditEventView> {
+async function mapAuditEvent(row: ActivityEventRow, t: TFunction, locale: string): Promise<AuditEventView> {
   const kindKey = row.type ? row.type : "activity";
   const kind = t(`kinds.${kindKey}`);
   

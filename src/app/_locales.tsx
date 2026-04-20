@@ -1,6 +1,6 @@
 "use client";
 
-import { NextIntlClientProvider } from "next-intl";
+import { NextIntlClientProvider, AbstractIntlMessages } from "next-intl";
 import { LocaleProvider } from "@/lib/hooks/use-translation";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 
@@ -11,7 +11,7 @@ export function LocalesProvider({
 }: { 
   children: React.ReactNode;
   locale?: string;
-  messages?: any;
+  messages?: AbstractIntlMessages;
 }) {
   return (
     <ThemeProvider

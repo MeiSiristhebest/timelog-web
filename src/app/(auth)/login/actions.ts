@@ -40,8 +40,8 @@ export async function loginAction(
     if (error) {
       return { error: error.message };
     }
-  } catch (err: any) {
-    if (err.message?.includes('fetch failed')) {
+  } catch (err: unknown) {
+    if (err instanceof Error && err.message?.includes('fetch failed')) {
       return { error: "Network connection reset. If you are using a proxy or VPN, please check your settings." };
     }
     return { error: "An unexpected connection error occurred. Please try again." };

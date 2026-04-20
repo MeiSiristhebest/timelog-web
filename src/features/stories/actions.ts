@@ -178,8 +178,9 @@ export async function batchArchiveStoriesAction(ids: string[]): Promise<StoryAct
     revalidatePath("/archive/trash");
     revalidatePath("/overview");
     return { status: "success", message: `成功归档 ${ids.length} 项故事` };
-  } catch (error: any) {
-    return { status: "error", message: error.message };
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Unknown error";
+    return { status: "error", message };
   }
 }
 
@@ -202,8 +203,9 @@ export async function batchRestoreStoriesAction(ids: string[]): Promise<StoryAct
     revalidatePath("/archive/trash");
     revalidatePath("/overview");
     return { status: "success", message: `成功恢复 ${ids.length} 项故事` };
-  } catch (error: any) {
-    return { status: "error", message: error.message };
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Unknown error";
+    return { status: "error", message };
   }
 }
 
@@ -225,8 +227,9 @@ export async function batchPermanentlyDeleteStoriesAction(ids: string[]): Promis
     revalidatePath("/stories");
     revalidatePath("/archive/trash");
     return { status: "success", message: `已永久移除 ${ids.length} 项资产` };
-  } catch (error: any) {
-    return { status: "error", message: error.message };
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Unknown error";
+    return { status: "error", message };
   }
 }
 /**
@@ -326,7 +329,8 @@ export async function toggleStoryReactionAction(
       revalidatePath(`/stories/${storyId}`);
       return { status: "success", message: "Heart sent to the archive." };
     }
-  } catch (error: any) {
-    return { status: "error", message: error.message };
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Unknown error";
+    return { status: "error", message };
   }
 }

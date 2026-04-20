@@ -4,7 +4,10 @@ import {
   buildInteractionFeed,
   type InteractionCommentRow,
   type InteractionReactionRow,
+  type InteractionItem,
 } from "./presentation";
+
+type TFunction = Awaited<ReturnType<typeof getTranslations>>;
 
 type StoryTitleRow = {
   id: string;
@@ -17,7 +20,7 @@ export type InteractionsOverview = {
     reactionCount: number;
     storiesTouched: number;
   };
-  items: any[]; // Decoupled from hardcoded return type to avoid circularity issues if any
+  items: InteractionItem[];
 };
 
 async function getStoryTitles(

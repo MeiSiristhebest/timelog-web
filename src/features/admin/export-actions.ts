@@ -4,7 +4,7 @@ import { createServerSupabaseClient } from "@/lib/supabase/server";
 
 export type ExportActionState = {
   status: "idle" | "success" | "error";
-  data: any | null;
+  data: object | null;
   message: string | null;
 };
 
@@ -67,8 +67,9 @@ export async function exportAllDataAction(): Promise<ExportActionState> {
       data: backupData,
       message: "家族档案数据已成功聚合，准备开始导出流程。",
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Export error:", error);
-    return { status: "error", data: null, message: error.message };
+    const message = error instanceof Error ? error.message : "Unknown error";
+    return { status: "error", data: null, message };
   }
 }

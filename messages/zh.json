@@ -1,7 +1,7 @@
 {
   "Branding": {
     "heritage": "传承",
-    "timeLog": "时光家书",
+    "timeLog": "生命故事档案库",
     "archiveAdmin": "档案馆管理员",
     "cloudSyncEnabled": "云端同步已开启"
   },
@@ -47,11 +47,11 @@
     "subtitle": "一个守护家庭记忆的圣地，永远保存。",
     "description": "回顾新录制的故事，以温情回应，管理家庭成员访问，并将每一份珍贵的记忆保留在安全、私密的空间中。",
     "signIn": "登录",
-    "familyConsoleAccess": "家书档案馆访问",
-    "protectedPlayback": "安全可靠",
-    "protectedPlaybackDesc": "每一段录音都经过加密保护，仅限您的家庭成员内部聆听。",
-    "familyControls": "连接家人",
-    "familyControlsDesc": "邀请兄弟姐妹，管理录音设备，通过统一的入口守护家族传承。",
+    "familyConsoleAccess": "家书档案馆治理中枢访问",
+    "protectedPlayback": "主权级安全保护",
+    "protectedPlaybackDesc": "每一段录音都经过 AES-256 二进制加密，确保家族记忆的绝对私密与主权归属。",
+    "familyControls": "互动问答机制",
+    "familyControlsDesc": "邀请家属参与，发起基于语义理解的交互式提问，通过提问开启更深层的回忆。",
     "email": "邮箱",
     "password": "密码",
     "continue": "继续",
@@ -61,9 +61,9 @@
   },
   "Dashboard": {
     "overview": "概览",
-    "stories": "故事库",
-    "interactions": "互动记录",
-    "family": "家庭成员",
+    "stories": "生命故事库",
+    "interactions": "互动问答机制",
+    "family": "家族治理中心",
     "devices": "记录仪连接",
     "archive": "档案抽屉",
     "audit": "家庭动态",
@@ -206,9 +206,9 @@
     "inviteToken": "邀请令牌"
   },
   "Interactions": {
-    "pageTitle": "情感链接与回忆引导",
-    "pageDescription": "在这里，您可以查看家族成员的评论与情感反馈，更重要的是，您可以向长辈发起提问，引导他们开启一段新的回忆。",
-    "eyebrow": "家族互动",
+    "pageTitle": "生命故事互动问答机制",
+    "pageDescription": "基于底层核心引导逻辑，您可以向长辈发起基于特定主题或情感锚点的提问，开启一段全新的、具有深度价值的生命回忆。",
+    "eyebrow": "档案互动",
     "formTitle": "向长辈提问",
     "formSubtitle": "一个用心的提问，能唤起长辈一生的回忆",
     "selectStoryteller": "选择讲述人",

@@ -16,7 +16,7 @@ interface DataCardProps {
     value: string
     isUp: boolean
   }
-  data?: any[]
+  data?: unknown[]
   dataKey?: string
   color?: string
   className?: string

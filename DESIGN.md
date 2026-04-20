@@ -30,3 +30,21 @@ The "TimeLog Family Web" interface is designed as a **Premium Listening Room**. 
 *   **Grid Alignment:** Follows a flexible grid system, often using asymmetric layouts (e.g., `1.05fr_0.95fr`) to create visual interest while maintaining balance.
 *   **Focus:** The UI is designed to draw the eye toward the content (the stories) while keeping operational controls (settings, devices) secondary.
 *   **Performance-First UI:** Use skeletons (`animate-pulse`) for all async data loading to maintain layout stability and reduce perceived latency.
+
+## 6. Architectural Sovereignty: The Heritage Oracle
+The TimeLog Family Web is not a peripheral dashboard; it is the **Central Governance Oracle** of the distributed system. Its primary mission is the long-term stewardship and semantic enrichment of family legacy.
+
+### 6.1 Semantic Engine (pgvector)
+To transition from passive storage to active heritage, the system utilizes a **pgvector-driven Semantic Topograph**.
+*   **Vectorization**: Transcripts are processed into high-dimensional embeddings (GTE-Small/Gemini-Embedding).
+*   **Semantic Mapping**: Enables the "Intergenerational Dialogue" by matching family questions to dormant memory clusters via cosine similarity.
+*   **Discovery**: The "Topics" engine uses vector clusters to identify unexplored areas of the senior's life history.
+
+### 6.2 Governance Hierarchy
+*   **The Terminal (Mobile)**: Responsible for high-fidelity edge capture and emotional state transmission. It is an "Appliance" for the senior.
+*   **The Archive (Web)**: Responsible for archival-grade management, transcript correction, and physical data export. It is a "Platform" for the family admin.
+*   **Interactions**: Defined by the **"Interactive Q&A Mechanism"**, where family inquiries are treated as "Heritage Triggers" to elicit deeper narratives.
+
+## 7. Performance & Sovereignty
+*   **Data Sovereignty**: Implemented via a full-archive JSON export, ensuring families are never locked into the platform.
+*   **Security**: Source-to-cloud AES-256 binary encryption protocol is strictly enforced.

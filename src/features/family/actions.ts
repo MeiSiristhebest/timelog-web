@@ -153,7 +153,8 @@ export async function createFamilyInviteAction(
       message: "The invitation has been successfully inscribed.", 
       inviteToken: data.id 
     };
-  } catch (error: any) {
-    return { status: "error", message: error.message, inviteToken: null };
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Unknown error";
+    return { status: "error", message, inviteToken: null };
   }
 }

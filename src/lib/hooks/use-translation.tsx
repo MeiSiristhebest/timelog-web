@@ -25,7 +25,7 @@ export function LocaleProvider({
   initialLocale?: string;
 }) {
   let locale = initialLocale;
-  let t_intl: any = null;
+  let t_intl: ((key: string, params?: Record<string, string | number>) => string) | null = null;
 
   // We wrap next-intl hooks in a try/catch to handle SSR race conditions safely.
   // If they throw, we fall back to the initialLocale and a basic identify function.
@@ -50,10 +50,10 @@ export function LocaleProvider({
     });
   };
 
-  const t = (key: string, params?: Record<string, any>): string => {
+  const t = (key: string, params?: Record<string, string | number>): string => {
     if (!t_intl) return key;
     try {
-      return t_intl(key as any, params);
+      return t_intl(key, params);
     } catch {
       return key;
     }
