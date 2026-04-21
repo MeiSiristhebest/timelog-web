@@ -1,4 +1,5 @@
 import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { mockDevices } from "@/lib/mock-data";
 
 export type DeviceView = {
   id: string;
@@ -60,8 +61,16 @@ export async function getDevices(): Promise<DeviceView[]> {
   }
 
   const { data, error } = await supabase.rpc("list_family_devices");
-  if (error || !data) {
-    return previewDevices;
+  if (error || !data || data.length === 0) {
+    return mockDevices.map(row => ({
+      id: row.id,
+      deviceName: row.name,
+      createdAt: formatAbsolute(row.created_at, "Linked"),
+      lastSeenAt: row.revoked_at
+        ? formatAbsolute(row.revoked_at, "Revoked")
+        : formatAbsolute(row.last_activeAt, "Seen"),
+      status: row.revoked_at ? "revoked" : "active",
+    }));
   }
 
   return (data as DeviceRow[]).map((row) => ({

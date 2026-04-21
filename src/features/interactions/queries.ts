@@ -6,6 +6,7 @@ import {
   type InteractionReactionRow,
   type InteractionItem,
 } from "./presentation";
+import { mockInteractions } from "@/lib/mock-data";
 
 type TFunction = Awaited<ReturnType<typeof getTranslations>>;
 
@@ -57,11 +58,15 @@ export async function getInteractionsOverview(): Promise<InteractionsOverview> {
   const tInteractions = await getTranslations("Interactions");
   const locale = await getLocale();
   
-  const supabase = await createServerSupabaseClient();
+const supabase = await createServerSupabaseClient();
   if (!supabase) {
     return {
-      metrics: { commentCount: 0, reactionCount: 0, storiesTouched: 0 },
-      items: []
+      metrics: { 
+        commentCount: mockInteractions.filter(i => i.kind === "评论").length, 
+        reactionCount: mockInteractions.filter(i => i.kind === "心意").length, 
+        storiesTouched: new Set(mockInteractions.map(i => i.storyId)).size 
+      },
+      items: mockInteractions
     };
   }
 
@@ -71,9 +76,13 @@ export async function getInteractionsOverview(): Promise<InteractionsOverview> {
 
   if (!user) {
     return {
-       metrics: { commentCount: 0, reactionCount: 0, storiesTouched: 0 },
-       items: []
-    };
+       metrics: { 
+         commentCount: mockInteractions.filter(i => i.kind === "评论").length, 
+         reactionCount: mockInteractions.filter(i => i.kind === "心意").length, 
+         storiesTouched: new Set(mockInteractions.map(i => i.storyId)).size 
+       },
+       items: mockInteractions
+     };
   }
 
   const [commentsResponse, reactionsResponse] = await Promise.all([
@@ -89,12 +98,16 @@ export async function getInteractionsOverview(): Promise<InteractionsOverview> {
       .limit(12),
   ]);
 
-  if (commentsResponse.error || reactionsResponse.error) {
+if (commentsResponse.error || reactionsResponse.error) {
      return {
-        metrics: { commentCount: 0, reactionCount: 0, storiesTouched: 0 },
-        items: []
-     };
-  }
+       metrics: { 
+         commentCount: mockInteractions.filter(i => i.kind === "评论").length, 
+         reactionCount: mockInteractions.filter(i => i.kind === "心意").length, 
+         storiesTouched: new Set(mockInteractions.map(i => i.storyId)).size 
+       },
+       items: mockInteractions
+      };
+   }
 
   const commentRows = (commentsResponse.data ??
     []) as Array<Omit<InteractionCommentRow, "story_title">>;

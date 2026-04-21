@@ -1,5 +1,6 @@
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { getTranslations } from "next-intl/server";
+import { mockFamilyMembers } from "@/lib/mock-data";
 
 export type FamilyMemberView = {
   id: string;
@@ -113,16 +114,25 @@ export async function getFamilyMembers(): Promise<FamilyMemberView[]> {
     .order("invited_at", { ascending: false });
 
   if (error || !data) {
-    return [
-      {
-        id: "family-error-fallback",
-        label: "Database Error",
-        email: "service@timelog",
-        role: "system",
-        status: "error",
-        joinedAt: "--",
-      },
-    ];
+    return mockFamilyMembers.map(row => ({
+      id: row.id,
+      label: row.display_name ?? row.email,
+      email: row.email ?? t("noEmail"),
+      role: row.role ?? "member",
+      status: row.status ?? "unknown",
+      joinedAt: new Date(row.created_at).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" }),
+    }));
+  }
+
+  if (data.length === 0) {
+    return mockFamilyMembers.map(row => ({
+      id: row.id,
+      label: row.display_name ?? row.email,
+      email: row.email ?? t("noEmail"),
+      role: row.role ?? "member",
+      status: row.status ?? "unknown",
+      joinedAt: new Date(row.created_at).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" }),
+    }));
   }
 
   return Promise.all(

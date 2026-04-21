@@ -1,5 +1,6 @@
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { getTranslations, getLocale } from "next-intl/server";
+import { mockAuditEvents } from "@/lib/mock-data";
 
 type TFunction = Awaited<ReturnType<typeof getTranslations>>;
 
@@ -47,38 +48,14 @@ export type AuditOverview = {
 };
 
 async function getPreviewAuditOverview(): Promise<AuditOverview> {
-  const t = await getTranslations("Audit");
-  const locale = await getLocale();
-
   return {
     metrics: {
-      unreadSignals: 3,
+      unreadSignals: mockAuditEvents.filter(e => e.status === "unread").length,
       pendingInvites: 1,
-      revokedDevices: 2,
-      recentEvents: 5,
+      revokedDevices: 1,
+      recentEvents: mockAuditEvents.length,
     },
-    items: [
-      {
-        id: "audit-preview-comment",
-        kind: t("kinds.comment"),
-        actorLabel: "Daughter Account",
-        summary: t("summaryComment", { title: "Summer Train to Hangzhou" }),
-        detail: "I want to ask about the station platform next time.",
-        timestampLabel: new Intl.DateTimeFormat(locale, { month: "long", day: "numeric", year: "numeric" }).format(new Date("2026-04-07")),
-        status: "unread",
-        storyId: "preview-train",
-      },
-      {
-        id: "audit-preview-reaction",
-        kind: t("kinds.reaction"),
-        actorLabel: "Cousin Account",
-        summary: t("summaryReaction", { title: "The Restaurant Ledger" }),
-        detail: t("detailReaction", { type: "heart" }),
-        timestampLabel: new Intl.DateTimeFormat(locale, { month: "long", day: "numeric", year: "numeric" }).format(new Date("2026-04-07")),
-        status: "read",
-        storyId: "preview-ledger",
-      },
-    ],
+    items: mockAuditEvents,
   };
 }
 
