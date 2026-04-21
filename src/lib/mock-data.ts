@@ -657,6 +657,404 @@ The discipline taught me self-reliance. Whatever challenges life brings, I can h
       expiresAtEpochMs: null
     },
     isFavorite: false
+  },
+  "story-003": {
+    id: "story-003",
+    title: "How I Met Your Grandpa",
+    speakerLabel: "Grandma",
+    startedAtLabel: "March 5, 2026",
+    durationLabel: "18m 30s",
+    syncStatus: "synced",
+    transcriptPreview: "I met your grandpa in 1975 at a factory dance party...",
+    transcript: `I met your grandpa in 1975 at a factory dance party. He was so shy that evening - wouldn't even ask me to dance!
+
+Your grandfather was working in the machinery department. I was in quality control. We would see each other in the cafeteria but never spoke.
+
+Then came the annual Spring Festival celebration. The factory organized a big party with music and dancing. His friend finally pushed him toward me.
+
+He said, "Would you like to dance?" I could see his hands were shaking. I laughed and said yes.
+
+We danced three songs that night. His dancing was terrible, but his sincerity was charming. From that night on, we were inseparable.
+
+We got married the following year. The wedding was simple - just close family and coworkers. But I was the happiest bride in the world.`,
+    commentCount: 5,
+    reactionCount: 12,
+    comments: [
+      {
+        id: "comment-006",
+        content: "What a romantic story!",
+        createdAtLabel: "April 14, 2026",
+        actorLabel: "Li Si"
+      },
+      {
+        id: "comment-007",
+        content: "Grandpa dancing sounds hilarious!",
+        createdAtLabel: "April 13, 2026",
+        actorLabel: "Wang Wu"
+      },
+      {
+        id: "comment-008",
+        content: "They've been together for almost 50 years!",
+        createdAtLabel: "April 12, 2026",
+        actorLabel: "Zhao Liu"
+      }
+    ],
+    reactions: [
+      { type: "heart", label: "Heart", count: 8 },
+      { type: "laugh", label: "Laugh", count: 3 },
+      { type: "celebrate", label: "Celebrate", count: 1 }
+    ],
+    viewerHasHearted: true,
+    playback: {
+      isReady: true,
+      signedUrl: null,
+      expiresAtEpochMs: null
+    },
+    isFavorite: true
+  },
+  "story-004": {
+    id: "story-004",
+    title: "Family Migration History",
+    speakerLabel: "Grandpa",
+    startedAtLabel: "February 28, 2026",
+    durationLabel: "32m 15s",
+    syncStatus: "synced",
+    transcriptPreview: "Our Zhou family originally came from Shandong province as refugees...",
+    transcript: `Our Zhou family originally came from Shandong province as refugees during the famine years of the 1940s.
+
+My grandfather was just a boy when they left their ancestral village. The Japanese invasion had destroyed everything. With nothing but the clothes on their backs, they walked south.
+
+The journey took three months. Many from our village didn't survive. But my grandfather's family pressed on, hoping to find work and a new life.
+
+They finally settled in Beijing when the city was being rebuilt after the war. My grandfather started as a street vendor, selling small goods from a wooden cart.
+
+Through hard work and perseverance, he eventually opened a small shop. Then another. He married, had children, and built a home.
+
+That's why I always say: no matter how far you travel, home is where your roots are. Our roots are here in Beijing, but our story spans provinces.`,
+    commentCount: 1,
+    reactionCount: 3,
+    comments: [
+      {
+        id: "comment-009",
+        content: "What an incredible journey!",
+        createdAtLabel: "April 10, 2026",
+        actorLabel: "Zhang Ming"
+      }
+    ],
+    reactions: [
+      { type: "heart", label: "Heart", count: 2 },
+      { type: "think", label: "Think", count: 1 }
+    ],
+    viewerHasHearted: false,
+    playback: {
+      isReady: true,
+      signedUrl: null,
+      expiresAtEpochMs: null
+    },
+    isFavorite: false
+  },
+  "story-005": {
+    id: "story-005",
+    title: "Childhood in Xisi Hutong",
+    speakerLabel: "Dad",
+    startedAtLabel: "February 20, 2026",
+    durationLabel: "15m 50s",
+    syncStatus: "synced",
+    transcriptPreview: "I grew up in Xisi Hutong playing jump rope and marbles with other kids...",
+    transcript: `I grew up in Xisi Hutong playing jump rope and marbles with other kids from the neighborhood.
+
+Every afternoon after school, we would gather in the courtyard. There must have been 20 of us kids, ranging from 6 to 14 years old.
+
+We played all kinds of games: Chinese jump rope made from rubber bands, marbles, shuttlecock kicking, and hide and seek.
+
+The summers were the best. We would run through the hutongs with water guns, spray each other from the public tap, and drink iced barley water sold by the old man on the corner.
+
+My grandmother would call me home for dinner with her distinctive whistle. The whole hutong could hear her!
+
+I miss those simple days. No smartphones, no screens - just friends, laughter, and the sound of ping pong balls echoing through the alleys.`,
+    commentCount: 4,
+    reactionCount: 7,
+    comments: [
+      {
+        id: "comment-010",
+        content: "Xisi Hutong! I played there too as a child!",
+        createdAtLabel: "April 10, 2026",
+        actorLabel: "Li Si"
+      },
+      {
+        id: "comment-011",
+        content: "The simple joys of childhood!",
+        createdAtLabel: "April 8, 2026",
+        actorLabel: "Sun Qi"
+      }
+    ],
+    reactions: [
+      { type: "heart", label: "Heart", count: 4 },
+      { type: "laugh", label: "Laugh", count: 2 },
+      { type: "miss", label: "Miss", count: 1 }
+    ],
+    viewerHasHearted: false,
+    playback: {
+      isReady: true,
+      signedUrl: null,
+      expiresAtEpochMs: null
+    },
+    isFavorite: true
+  },
+  "story-006": {
+    id: "story-006",
+    title: "First Day at Factory",
+    speakerLabel: "Dad",
+    startedAtLabel: "February 15, 2026",
+    durationLabel: "28m 10s",
+    syncStatus: "synced",
+    transcriptPreview: "My first day working at the state-owned factory was in 1992...",
+    transcript: `My first day working at the state-owned factory was in 1992. I was 22 years old and nervous beyond words.
+
+The factory employed over 3,000 workers. The main assembly line stretched for half a kilometer. Everything was massive and intimidating.
+
+My mentor was a veteran worker named Uncle Wang. He had been at the factory since it opened in 1965. He taught me everything I know.
+
+"Follow the procedures exactly," he said. "There's no room for shortcuts in industrial work. One mistake can endanger everyone."
+
+I started as a line worker, checking component quality. Every day was the same routine. But there was pride in that routine.
+
+The factory was like a small city. We had our own dormitories, cafeteria, clinic, and even a cinema. Many workers spent their entire careers there.
+
+When the factory restructured in 2005, I was one of the lucky ones who kept their job. But many friends weren't so fortunate. Change is inevitable, but it doesn't make it easier.`,
+    commentCount: 2,
+    reactionCount: 4,
+    comments: [
+      {
+        id: "comment-012",
+        content: "Factory life sounds like a different world!",
+        createdAtLabel: "April 5, 2026",
+        actorLabel: "Wang Wu"
+      },
+      {
+        id: "comment-013",
+        content: "Uncle Wang sounds like a great mentor.",
+        createdAtLabel: "April 4, 2026",
+        actorLabel: "Zhou Ba"
+      }
+    ],
+    reactions: [
+      { type: "heart", label: "Heart", count: 2 },
+      { type: "clap", label: "Clap", count: 1 },
+      { type: "think", label: "Think", count: 1 }
+    ],
+    viewerHasHearted: false,
+    playback: {
+      isReady: true,
+      signedUrl: null,
+      expiresAtEpochMs: null
+    },
+    isFavorite: false
+  },
+  "story-007": {
+    id: "story-007",
+    title: "Traditional Chinese Cooking",
+    speakerLabel: "Grandma",
+    startedAtLabel: "February 10, 2026",
+    durationLabel: "20m 35s",
+    syncStatus: "synced",
+    transcriptPreview: "Let me teach you how to make my famous braised pork...",
+    transcript: `Let me teach you how to make my famous braised pork, hong shao rou. This recipe has been passed down from my mother.
+
+First, you need good pork belly. Cut it into 3-centimeter cubes. Don't use lean meat - the fat is essential for the flavor.
+
+Blanch the pork in boiling water for 5 minutes. This removes impurities and ensures the meat stays tender. Then drain and set aside.
+
+Now for the sauce. In a wok, heat oil and add rock sugar. Stir until it melts and turns golden. Be patient - rushing this step will make the sauce bitter.
+
+Add the pork and stir-fry until coated with the caramelized sugar. Then add soy sauce, Shaoxing wine, ginger, and star anise.
+
+Pour in enough water to cover the meat. Bring to a boil, then simmer on low heat for 90 minutes. The longer you cook, the more tender the meat becomes.
+
+Finally, reduce the sauce until it's thick and glossy. The pork should be reddish-brown and melt in your mouth.
+
+Remember: good cooking takes time and love. Never rush a recipe passed down through generations.`,
+    commentCount: 3,
+    reactionCount: 6,
+    comments: [
+      {
+        id: "comment-014",
+        content: "Can you share the sauce recipe please?",
+        createdAtLabel: "April 12, 2026",
+        actorLabel: "Sun Qi"
+      },
+      {
+        id: "comment-015",
+        content: "My mouth is watering!",
+        createdAtLabel: "April 11, 2026",
+        actorLabel: "Li Si"
+      }
+    ],
+    reactions: [
+      { type: "heart", label: "Heart", count: 4 },
+      { type: "laugh", label: "Laugh", count: 2 }
+    ],
+    viewerHasHearted: true,
+    playback: {
+      isReady: true,
+      signedUrl: null,
+      expiresAtEpochMs: null
+    },
+    isFavorite: true
+  },
+  "story-008": {
+    id: "story-008",
+    title: "Wedding Day Memories",
+    speakerLabel: "Grandpa",
+    startedAtLabel: "February 5, 2026",
+    durationLabel: "35m 00s",
+    syncStatus: "synced",
+    transcriptPreview: "Our wedding was a simple ceremony in the courtyard...",
+    transcript: `Our wedding was a simple ceremony in the courtyard of my parents' home. It was January 1976, and the air was crisp and cold.
+
+I woke up before dawn, nervous and excited. My best man helped me dress in my new suit - the first new clothes I'd owned in years.
+
+The ceremony was traditional. We bowed to heaven and earth, to our parents, and to each other. Your grandmother wore a red dress that her mother had sewn by hand.
+
+About 50 guests attended - family and close friends. The food was simple but abundant: dumplings, noodles, and plenty of rice wine.
+
+Your grandmother's father gave a speech. He said, "I'm entrusting my daughter to you. Treat her well, and she'll be your treasure. Hurt her, and she'll be your regret."
+
+I promised him I would. Fifty years later, I can say I've kept that promise every single day.
+
+The celebration lasted until midnight. We danced, sang, and shared stories. By the end, everyone was family.
+
+That was the best day of my life - not because of the ceremony, but because I gained a partner for life.`,
+    commentCount: 4,
+    reactionCount: 9,
+    comments: [
+      {
+        id: "comment-016",
+        content: "This is so beautiful!",
+        createdAtLabel: "April 10, 2026",
+        actorLabel: "Zhang Ming"
+      },
+      {
+        id: "comment-017",
+        content: "A love story for the ages!",
+        createdAtLabel: "April 9, 2026",
+        actorLabel: "Zhao Liu"
+      },
+      {
+        id: "comment-018",
+        content: "50 years of marriage - goals!",
+        createdAtLabel: "April 8, 2026",
+        actorLabel: "Sun Qi"
+      }
+    ],
+    reactions: [
+      { type: "heart", label: "Heart", count: 7 },
+      { type: "celebrate", label: "Celebrate", count: 2 }
+    ],
+    viewerHasHearted: true,
+    playback: {
+      isReady: true,
+      signedUrl: null,
+      expiresAtEpochMs: null
+    },
+    isFavorite: true
+  },
+  "story-009": {
+    id: "story-009",
+    title: "School Years in Beijing",
+    speakerLabel: "Mom",
+    startedAtLabel: "January 28, 2026",
+    durationLabel: "22m 45s",
+    syncStatus: "synced",
+    transcriptPreview: "I attended primary school near Dongzhimen in the 1970s...",
+    transcript: `I attended primary school near Dongzhimen in the 1970s. The school was an old courtyard building that had been converted into a school.
+
+Every morning, I would walk 20 minutes to school with my neighbors. We wore blue cotton uniforms and carried our books in a canvas bag.
+
+The classroom had wooden desks with ink stains from years of use. We wrote with fountain pens - ballpoints were a luxury we couldn't afford.
+
+Our teacher, Ms. Li, was strict but fair. She made us recite poems and practice calligraphy every morning. I still remember the smell of ink on rice paper.
+
+After class, we would play in the schoolyard. Girls jumped rope while boys played basketball. The older students would help the younger ones with homework.
+
+The Cultural Revolution had just ended, so school was serious but hopeful. We knew education was our ticket to a better future.
+
+I graduated top of my class in 1982. That achievement opened doors that would have been closed otherwise.
+
+Education changed my life. Even now, at my age, I still read every night. Learning never stops.`,
+    commentCount: 2,
+    reactionCount: 5,
+    comments: [
+      {
+        id: "comment-019",
+        content: "I went to a similar school in Chaoyang District!",
+        createdAtLabel: "April 5, 2026",
+        actorLabel: "Li Si"
+      },
+      {
+        id: "comment-020",
+        content: "Ms. Li sounds like an amazing teacher!",
+        createdAtLabel: "April 3, 2026",
+        actorLabel: "Wang Wu"
+      }
+    ],
+    reactions: [
+      { type: "heart", label: "Heart", count: 3 },
+      { type: "clap", label: "Clap", count: 1 },
+      { type: "think", label: "Think", count: 1 }
+    ],
+    viewerHasHearted: false,
+    playback: {
+      isReady: true,
+      signedUrl: null,
+      expiresAtEpochMs: null
+    },
+    isFavorite: false
+  },
+  "story-010": {
+    id: "story-010",
+    title: "Ancient Temple Visit",
+    speakerLabel: "Grandpa",
+    startedAtLabel: "January 20, 2026",
+    durationLabel: "12m 20s",
+    syncStatus: "synced",
+    transcriptPreview: "The whole family visited the old temple during Spring Festival 1995...",
+    transcript: `The whole family visited the old temple during Spring Festival 1995. It was our annual tradition, a pilgrimage to seek blessings for the new year.
+
+The temple was over 500 years old. Its bronze bells dated from the Ming Dynasty. When the monks rang them at midnight, the sound traveled for miles.
+
+We arrived at dawn to avoid the crowds. The temple grounds were covered in morning frost. Incense smoke curled into the cold air.
+
+First, we lit incense sticks and knelt before the Buddha statues. I prayed for health, prosperity, and happiness for our family.
+
+Then we fed the temple cats - there were always a dozen or so lounging in the sun. Your grandmother believed that feeding animals brought good karma.
+
+We ended at the fortune-telling booth. I shook the bamboo sticks until one fell out. The monk read my fortune: "A year of growth and unexpected joy awaits."
+
+Looking back, he was right. That was the year we moved to our new apartment and welcomed your father into our family.
+
+Traditions connect us to our ancestors. Every incense stick I light reminds me of those who came before.`,
+    commentCount: 1,
+    reactionCount: 2,
+    comments: [
+      {
+        id: "comment-021",
+        content: "What a meaningful tradition!",
+        createdAtLabel: "April 1, 2026",
+        actorLabel: "Zhang Ming"
+      }
+    ],
+    reactions: [
+      { type: "heart", label: "Heart", count: 1 },
+      { type: "think", label: "Think", count: 1 }
+    ],
+    viewerHasHearted: false,
+    playback: {
+      isReady: true,
+      signedUrl: null,
+      expiresAtEpochMs: null
+    },
+    isFavorite: true
   }
 };
 
