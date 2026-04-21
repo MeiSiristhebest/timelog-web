@@ -527,3 +527,143 @@ export const mockInteractions: InteractionItem[] = [
     sortValue: "2026-04-01T00:00:00.000Z",
   },
 ];
+
+export interface MockStoryDetail {
+  id: string;
+  title: string;
+  speakerLabel: string;
+  startedAtLabel: string;
+  durationLabel: string;
+  syncStatus: string;
+  transcriptPreview: string;
+  transcript: string;
+  commentCount: number;
+  reactionCount: number;
+  comments: Array<{
+    id: string;
+    content: string;
+    createdAtLabel: string;
+    actorLabel: string;
+  }>;
+  reactions: Array<{
+    type: string;
+    label: string;
+    count: number;
+  }>;
+  viewerHasHearted: boolean;
+  playback: {
+    isReady: boolean;
+    signedUrl: string | null;
+    expiresAtEpochMs: number | null;
+  };
+  isFavorite: boolean;
+}
+
+export const mockStoryDetails: Record<string, MockStoryDetail> = {
+  "story-001": {
+    id: "story-001",
+    title: "1980s Old Beijing Memories",
+    speakerLabel: "Grandpa",
+    startedAtLabel: "March 15, 2026",
+    durationLabel: "23m 45s",
+    syncStatus: "synced",
+    transcriptPreview: "It was winter 1984 when we moved out of the hutong to a new apartment building...",
+    transcript: `It was winter 1984 when we moved out of the hutong to a new apartment building. The old courtyard had been our home for three generations.
+
+I remember the day we packed our things. My grandmother was reluctant to leave - she had lived there since she was a young bride. But the city was modernizing, and the old hutongs were being replaced with tall buildings.
+
+The new apartment was on the 6th floor. When we first moved in, I was afraid to look down from the window. The ground seemed so far away! But gradually, we all got used to it.
+
+The neighbors were different too. In the hutong, everyone knew everyone. Here, we had to knock on doors to introduce ourselves. Some things were lost, but new conveniences were gained.
+
+I still visit the site sometimes. The hutong is gone now, replaced by a shopping mall. But the memories remain.`,
+    commentCount: 3,
+    reactionCount: 5,
+    comments: [
+      {
+        id: "comment-001",
+        content: "Those hutong days were really special. I miss the neighbors!",
+        createdAtLabel: "April 20, 2026",
+        actorLabel: "Li Si"
+      },
+      {
+        id: "comment-002",
+        content: "Can you tell us more about the old courtyard?",
+        createdAtLabel: "April 18, 2026",
+        actorLabel: "Wang Wu"
+      },
+      {
+        id: "comment-003",
+        content: "My grandmother lived in a similar hutong!",
+        createdAtLabel: "April 15, 2026",
+        actorLabel: "Sun Qi"
+      }
+    ],
+    reactions: [
+      { type: "heart", label: "Heart", count: 3 },
+      { type: "laugh", label: "Laugh", count: 1 },
+      { type: "think", label: "Think", count: 1 }
+    ],
+    viewerHasHearted: false,
+    playback: {
+      isReady: true,
+      signedUrl: null,
+      expiresAtEpochMs: null
+    },
+    isFavorite: true
+  },
+  "story-002": {
+    id: "story-002",
+    title: "Military Service Years in Northeast",
+    speakerLabel: "Grandpa",
+    startedAtLabel: "March 10, 2026",
+    durationLabel: "45m 20s",
+    syncStatus: "synced",
+    transcriptPreview: "In winter 1968, I answered the call to serve in the northeast army...",
+    transcript: `In winter 1968, I answered the call to serve in the northeast army. I was just 18 years old.
+
+The train took three days to reach our garrison. The cold was unbelievable - minus 30 degrees! We had to wear everything we owned to stay warm.
+
+Basic training was harsh. We woke up at 5 AM, ran 10 kilometers, then returned for breakfast. By noon, the sun would melt the ice on our eyelashes.
+
+I made lifelong friends there. We shared everything - food, letters from home, and the burden of service. One friend from Zhejiang became my best man at my wedding.
+
+The discipline taught me self-reliance. Whatever challenges life brings, I can handle them. That army service made me who I am.`,
+    commentCount: 2,
+    reactionCount: 8,
+    comments: [
+      {
+        id: "comment-004",
+        content: "Thank you for your service to the country!",
+        createdAtLabel: "April 18, 2026",
+        actorLabel: "Zhang Ming"
+      },
+      {
+        id: "comment-005",
+        content: "The friendship sounds amazing!",
+        createdAtLabel: "April 16, 2026",
+        actorLabel: "Zhou Ba"
+      }
+    ],
+    reactions: [
+      { type: "heart", label: "Heart", count: 5 },
+      { type: "clap", label: "Clap", count: 2 },
+      { type: "salute", label: "Salute", count: 1 }
+    ],
+    viewerHasHearted: true,
+    playback: {
+      isReady: true,
+      signedUrl: null,
+      expiresAtEpochMs: null
+    },
+    isFavorite: false
+  }
+};
+
+export function getMockStoryById(id: string): MockStoryDetail | undefined {
+  return mockStoryDetails[id];
+}
+
+export function getAllMockStoryIds(): string[] {
+  return mockStories.map(s => s.id);
+}

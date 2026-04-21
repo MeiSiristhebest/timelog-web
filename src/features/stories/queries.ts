@@ -10,7 +10,7 @@ import {
 } from "./presentation";
 import { buildStoryPlayback, type StoryPlayback } from "./playback";
 import { createSignedStoryPlayback } from "./playback.server";
-import { mockStories } from "@/lib/mock-data";
+import { mockStories, getMockStoryById, getAllMockStoryIds } from "@/lib/mock-data";
 
 const shouldUseMock = () => process.env.NEXT_PUBLIC_USE_MOCK === "true";
 
@@ -309,6 +309,44 @@ export async function getArchivedStories(): Promise<StoryListItem[]> {
 }
 
 export async function getStoryById(id: string): Promise<StoryDetail | null> {
+  if (shouldUseMock()) {
+    const mock = getMockStoryById(id);
+    if (mock) {
+      const listItem = mockStories.find(s => s.id === id);
+      return {
+        id: mock.id,
+        title: mock.title,
+        speakerLabel: mock.speakerLabel,
+        startedAtLabel: mock.startedAtLabel,
+        durationLabel: mock.durationLabel,
+        syncStatus: mock.syncStatus,
+        transcriptPreview: mock.transcriptPreview,
+        transcript: mock.transcript,
+        commentCount: mock.commentCount,
+        reactionCount: mock.reactionCount,
+        comments: mock.comments.map(c => ({
+          id: c.id,
+          userId: "user-mock",
+          authorLabel: c.actorLabel,
+          content: c.content,
+          createdAtLabel: c.createdAtLabel,
+          type: "text" as const
+        })),
+        reactions: mock.reactions,
+        viewerHasHearted: mock.viewerHasHearted,
+        playback: {
+          sourcePath: "/mock/audio/story-001.m4a",
+          signedUrl: mock.playback.signedUrl,
+          expiresLabel: "Mock expiry",
+          expiresAtEpochMs: mock.playback.expiresAtEpochMs,
+          isReady: mock.playback.isReady
+        },
+        isFavorite: mock.isFavorite
+      };
+    }
+    return null;
+  }
+
   const supabase = await createServerSupabaseClient();
   if (!supabase) {
     return null;
