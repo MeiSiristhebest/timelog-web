@@ -43,38 +43,38 @@ async function StoryDetailContent({ storyPromise }: { storyPromise: Promise<Stor
         channelName={`story-detail-${story.id}`}
         targets={buildStoryDetailRealtimeTargets(story.id)}
       />
-      
-      <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
-        <div className="flex-1">
+
+      {/* Header Section */}
+      <div className="flex flex-col gap-6">
+        <div className="flex items-center justify-between">
           <p className="eyebrow flex items-center gap-3">
             {td("storyDetail")}
             {story.isFavorite && (
-              <span className="flex items-center gap-1.5 px-3 py-1 bg-amber-400/10 text-amber-600 rounded-full text-[10px] tracking-widest font-bold border border-amber-400/20">
+              <span className="flex items-center gap-1.5 px-2.5 py-0.5 bg-amber-400/10 text-amber-600 rounded-full text-[9px] tracking-widest font-bold border border-amber-400/20">
                 {t("activeVault")}
               </span>
             )}
           </p>
-          
-          <div className="flex items-start justify-between gap-6">
-            <EditableStoryTitle storyId={story.id} initialTitle={story.title} />
-            <div className="mt-6">
-              <FavoriteButton storyId={story.id} initialValue={story.isFavorite} />
-            </div>
-          </div>
+          <FavoriteButton storyId={story.id} initialValue={story.isFavorite} />
+        </div>
 
-          <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm uppercase tracking-[0.2em] text-muted">
-            <span className="flex items-center gap-2">
-               <div className="w-1 h-4 bg-accent" />
+        <div className="space-y-2">
+          <EditableStoryTitle storyId={story.id} initialTitle={story.title} />
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm uppercase tracking-[0.15em] text-muted/80 font-medium">
+            <span className="flex items-center gap-1.5">
+               <div className="w-1 h-3 bg-accent rounded-full" />
                {story.speakerLabel}
             </span>
+            <span className="text-muted/60">•</span>
             <span>{story.startedAtLabel}</span>
+            <span className="text-muted/60">•</span>
             <span>{story.durationLabel}</span>
           </div>
         </div>
       </div>
 
       {/* Audio Player Section */}
-      <section className="ambient-ring rounded-[2rem] overflow-hidden">
+      <section className="ambient-ring rounded-[1.75rem] overflow-hidden mt-8">
         {story.playback.isReady && story.playback.signedUrl ? (
           <WaveformPlayer
             storyId={story.id}
@@ -83,74 +83,80 @@ async function StoryDetailContent({ storyPromise }: { storyPromise: Promise<Stor
             onRefreshUrl={handleRefreshUrl}
           />
         ) : (
-          <div className="rounded-[2rem] border border-line bg-black/10 p-10 text-center">
-            <p className="display text-3xl text-ink">{story.syncStatus}</p>
-            <p className="mt-4 text-muted max-w-md mx-auto leading-relaxed">
+          <div className="rounded-[1.75rem] border border-line bg-black/5 p-8 text-center">
+            <p className="display text-2xl text-ink">{story.syncStatus}</p>
+            <p className="mt-3 text-sm text-muted max-w-sm mx-auto leading-relaxed">
               {t("playbackProcessingNote")}
             </p>
           </div>
         )}
       </section>
 
-      {/* Statistics Cards */}
-      <aside className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="rounded-[1.5rem] border border-line bg-black/10 p-5">
-          <p className="eyebrow">{t("community")}</p>
-          <div className="mt-6 flex items-baseline gap-2">
-             <span className="display text-3xl text-ink">{story.reactionCount}</span>
-             <span className="text-xs uppercase tracking-widest text-muted">{t("reactions", { count: story.reactionCount })}</span>
+      {/* Statistics Cards - Compact Grid */}
+      <div className="grid grid-cols-3 gap-3 mt-6">
+        <div className="rounded-xl border border-line/60 bg-canvas-elevated/50 p-4 text-center">
+          <p className="eyebrow text-[10px] mb-2">{t("community")}</p>
+          <div className="flex items-baseline justify-center gap-1">
+             <span className="display text-2xl text-ink font-bold">{story.reactionCount}</span>
+             <span className="text-[10px] uppercase tracking-wider text-muted/70">{t("reactions", { count: story.reactionCount })}</span>
           </div>
         </div>
-        <div className="rounded-[1.5rem] border border-line bg-black/10 p-5">
-          <p className="eyebrow">{t("dialogue")}</p>
-          <div className="mt-6 flex items-baseline gap-2">
-             <span className="display text-3xl text-ink">{story.commentCount}</span>
-             <span className="text-xs uppercase tracking-widest text-muted">{t("comments", { count: story.commentCount })}</span>
+        <div className="rounded-xl border border-line/60 bg-canvas-elevated/50 p-4 text-center">
+          <p className="eyebrow text-[10px] mb-2">{t("dialogue")}</p>
+          <div className="flex items-baseline justify-center gap-1">
+             <span className="display text-2xl text-ink font-bold">{story.commentCount}</span>
+             <span className="text-[10px] uppercase tracking-wider text-muted/70">{t("comments", { count: story.commentCount })}</span>
           </div>
         </div>
-        <div className="rounded-[1.5rem] border border-line bg-black/10 p-5 col-span-2 md:col-span-2">
-          <p className="eyebrow">{t("duration")}</p>
-          <div className="mt-6 flex items-baseline gap-2">
-             <span className="display text-3xl text-ink">{story.durationLabel}</span>
-             <span className="text-xs uppercase tracking-widest text-muted">{t("playbackTime")}</span>
+        <div className="rounded-xl border border-line/60 bg-canvas-elevated/50 p-4 text-center">
+          <p className="eyebrow text-[10px] mb-2">{t("duration")}</p>
+          <div className="flex items-baseline justify-center gap-1">
+             <span className="display text-xl text-ink font-bold">{story.durationLabel}</span>
           </div>
         </div>
-      </aside>
+      </div>
 
       {/* Transcript Section */}
-      <section className="panel rounded-[2rem] p-6 md:p-8 border border-line/50 bg-white/5 backdrop-blur-sm">
+      <section className="panel rounded-xl p-5 md:p-6 border border-line/40 bg-canvas-elevated/30 backdrop-blur-sm mt-8">
         <InteractiveTranscript storyId={story.id} content={story.transcript} />
       </section>
 
       {/* Interactions Section */}
-      <div className="mt-12 space-y-8">
+      <div className="mt-10 space-y-6">
         {/* Reactions Section */}
-        <article className="rounded-[2rem] border border-line bg-black/10 p-6 md:p-8">
-          <p className="eyebrow">{t("interactions")}</p>
-          <div className="mt-6">
+        <article className="rounded-xl border border-line/60 bg-canvas-elevated/40 p-5">
+          <div className="flex items-center justify-between mb-4">
+            <p className="eyebrow">{t("interactions")}</p>
+            <div className="text-xs text-muted/70 uppercase tracking-wider">
+              {story.reactions.length} reactions
+            </div>
+          </div>
+
+          <div className="mb-5">
             <StoryReactionForm
               storyId={story.id}
               hasHearted={story.viewerHasHearted}
             />
           </div>
-          <div className="mt-8 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
             {story.reactions.length > 0 ? (
               story.reactions.map((reaction) => (
                 <div
                   key={reaction.type}
-                  className="flex items-center justify-between rounded-[1.25rem] border border-line bg-canvas-depth px-4 py-3"
+                  className="flex items-center justify-between rounded-lg border border-line/40 bg-canvas-depth/50 px-3 py-2.5 hover:bg-canvas-depth/70 transition-colors"
                 >
-                  <span className="text-xs uppercase tracking-[0.2em] text-muted font-medium">
+                  <span className="text-xs uppercase tracking-[0.15em] text-muted/80 font-medium">
                     {reaction.label}
                   </span>
-                  <span className="display text-2xl text-ink">
+                  <span className="display text-xl text-ink font-bold">
                     {reaction.count}
                   </span>
                 </div>
               ))
             ) : (
-              <div className="col-span-full text-center py-8">
-                <p className="text-sm text-muted italic">
+              <div className="col-span-full text-center py-6">
+                <p className="text-sm text-muted/70 italic">
                   {t("noReactionsYet")}
                 </p>
               </div>
@@ -159,18 +165,18 @@ async function StoryDetailContent({ storyPromise }: { storyPromise: Promise<Stor
         </article>
 
         {/* Comments Section */}
-        <article className="rounded-[2rem] border border-line bg-black/10 p-6 md:p-8 flex flex-col">
-          <div className="flex items-center justify-between mb-6">
+        <article className="rounded-xl border border-line/60 bg-canvas-elevated/40 p-5 flex flex-col">
+          <div className="flex items-center justify-between mb-5">
             <p className="eyebrow">{t("householdConversation")}</p>
-            <div className="text-xs text-muted uppercase tracking-widest">
+            <div className="text-xs text-muted/70 uppercase tracking-wider">
               {story.comments.length} {t("comments", { count: story.comments.length })}
             </div>
           </div>
 
-          <div className="space-y-6 flex-1">
+          <div className="space-y-5 flex-1">
             <StoryCommentForm storyId={story.id} />
 
-            <div className="space-y-6 pt-6 border-t border-line">
+            <div className="space-y-4 pt-5 border-t border-line/30">
               {story.comments.length > 0 ? (
                 story.comments.map((comment) => (
                   <StoryCommentItem
@@ -180,8 +186,8 @@ async function StoryDetailContent({ storyPromise }: { storyPromise: Promise<Stor
                   />
                 ))
               ) : (
-                <div className="rounded-[1.5rem] border border-line border-dashed p-12 text-center opacity-50">
-                  <p className="text-sm text-muted">
+                <div className="rounded-lg border border-line/30 border-dashed p-8 text-center opacity-60">
+                  <p className="text-sm text-muted/70">
                     {t("noCommentsYet")}
                   </p>
                 </div>
@@ -189,7 +195,7 @@ async function StoryDetailContent({ storyPromise }: { storyPromise: Promise<Stor
             </div>
           </div>
 
-          <div className="mt-8 pt-6 border-t border-line/30 flex justify-end">
+          <div className="mt-6 pt-4 border-t border-line/30 flex justify-end">
             <ArchiveButton storyId={story.id} />
           </div>
         </article>
@@ -222,13 +228,35 @@ export default async function StoryDetailPage({
 
 function StoryDetailSkeleton() {
   return (
-    <div className="animate-pulse space-y-8">
-      <div className="h-4 w-24 bg-muted/10 rounded" />
-      <div className="h-12 w-3/4 bg-ink/10 rounded" />
-      <div className="h-4 w-1/2 bg-muted/10 rounded" />
-      <div className="grid gap-4 xl:grid-cols-[0.9fr_1.1fr]">
-        <div className="h-64 bg-black/5 rounded-[1.5rem]" />
-        <div className="h-64 bg-black/5 rounded-[1.5rem]" />
+    <div className="animate-pulse space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div className="h-4 w-20 bg-muted/10 rounded" />
+        <div className="h-8 w-8 bg-muted/10 rounded-full" />
+      </div>
+
+      <div className="space-y-2">
+        <div className="h-10 w-3/4 bg-ink/10 rounded" />
+        <div className="h-4 w-1/2 bg-muted/10 rounded" />
+      </div>
+
+      {/* Audio Player */}
+      <div className="h-48 bg-black/5 rounded-xl mt-6" />
+
+      {/* Stats Cards */}
+      <div className="grid grid-cols-3 gap-3">
+        <div className="h-16 bg-muted/10 rounded-lg" />
+        <div className="h-16 bg-muted/10 rounded-lg" />
+        <div className="h-16 bg-muted/10 rounded-lg" />
+      </div>
+
+      {/* Transcript */}
+      <div className="h-64 bg-muted/10 rounded-lg mt-6" />
+
+      {/* Interactions */}
+      <div className="space-y-4">
+        <div className="h-32 bg-muted/10 rounded-lg" />
+        <div className="h-48 bg-muted/10 rounded-lg" />
       </div>
     </div>
   );
