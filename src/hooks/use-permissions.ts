@@ -9,8 +9,14 @@ export function usePermissions() {
 
   return useMemo(() => ({
     userRole,
-    hasPermission: (permission: string) =>
-      hasPermission(userRole, permission as any) ?? false,
+    hasPermission: (permission: string) => {
+      try {
+        return hasPermission(userRole, permission as any);
+      } catch (error) {
+        console.error('Permission check error:', permission, error);
+        return false;
+      }
+    },
     hasRoleLevel: (minRole: UserRole) => hasRoleLevel(userRole, minRole),
     isRole: (targetRole: UserRole) => userRole === targetRole,
   }), [userRole]);

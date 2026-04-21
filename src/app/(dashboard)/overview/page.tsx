@@ -16,18 +16,30 @@ import {
 } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { KpiGrid } from "@/components/dashboard/kpi-grid";
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
 } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
 
+
+
+
 async function OverviewContent({ storiesPromise }: { storiesPromise: Promise<StoryListItem[]> }) {
   const t = await getTranslations();
+
+  return (
+    <Suspense fallback={<OverviewSkeleton />}>
+      <OverviewContentInner storiesPromise={storiesPromise} t={t} />
+    </Suspense>
+  );
+}
+
+async function OverviewContentInner({ storiesPromise, t }: { storiesPromise: Promise<StoryListItem[]>; t: any }) {
   const [stories, devices, storageMetrics, members] = await Promise.all([
     storiesPromise,
     getDevices(),
