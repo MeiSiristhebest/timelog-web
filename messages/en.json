@@ -169,7 +169,9 @@
     "noMatchingMemories": "No matching memories",
     "searchAdjust": "Try adjusting your search terms or filters to find what you're looking for.",
     "selectedCounts": "selected",
-    "clearSelection": "Clear selection"
+    "clearSelection": "Clear selection",
+    "duration": "Duration",
+    "playbackTime": "Playback Time"
   },
   "Family": {
     "title": "Family Members",

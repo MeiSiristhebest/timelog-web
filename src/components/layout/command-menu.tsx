@@ -55,9 +55,10 @@ export function CommandMenu() {
 
   return (
     <>
+      {/* Desktop Search */}
       <button
         onClick={() => setOpen(true)}
-        className="hidden lg:flex items-center flex-1 max-w-md mx-8 relative w-full group"
+        className="hidden md:flex items-center flex-1 max-w-md mx-8 relative w-full group"
       >
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted group-hover:text-accent transition-colors" />
         <div className="w-full bg-canvas-elevated border border-line-strong rounded-full py-2 pl-10 pr-4 text-sm text-left text-muted font-bold group-hover:border-accent/40 transition-all">
@@ -66,6 +67,15 @@ export function CommandMenu() {
             ⌘K
           </CommandShortcut>
         </div>
+      </button>
+
+      {/* Mobile Search Button */}
+      <button
+        onClick={() => setOpen(true)}
+        className="md:hidden p-2 rounded-full hover:bg-canvas-depth transition-colors text-muted hover:text-ink"
+        aria-label="Search"
+      >
+        <Search className="h-5 w-5" />
       </button>
 
       <CommandDialog open={open} onOpenChange={setOpen}>

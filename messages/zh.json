@@ -169,7 +169,9 @@
     "noMatchingMemories": "未找到匹配的回忆",
     "searchAdjust": "请尝试调整搜索词或筛选条件。",
     "selectedCounts": "已选择",
-    "clearSelection": "清除选择"
+    "clearSelection": "清除选择",
+    "duration": "时长",
+    "playbackTime": "播放时长"
   },
   "Family": {
     "title": "家庭成员",

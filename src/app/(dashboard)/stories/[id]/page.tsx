@@ -73,84 +73,101 @@ async function StoryDetailContent({ storyPromise }: { storyPromise: Promise<Stor
         </div>
       </div>
 
-      <div className="mt-12 grid gap-8 xl:grid-cols-[1.2fr_0.8fr]">
-        <div className="space-y-8">
-          <section className="ambient-ring rounded-[2rem] overflow-hidden">
-            {story.playback.isReady && story.playback.signedUrl ? (
-              <WaveformPlayer
-                storyId={story.id}
-                src={story.playback.signedUrl}
-                expiresAtEpochMs={story.playback.expiresAtEpochMs}
-                onRefreshUrl={handleRefreshUrl}
-              />
-            ) : (
-              <div className="rounded-[2rem] border border-line bg-black/10 p-10 text-center">
-                <p className="display text-3xl text-ink">{story.syncStatus}</p>
-                <p className="mt-4 text-muted max-w-md mx-auto leading-relaxed">
-                  {t("playbackProcessingNote")}
-                </p>
-              </div>
-            )}
-          </section>
+      {/* Audio Player Section */}
+      <section className="ambient-ring rounded-[2rem] overflow-hidden">
+        {story.playback.isReady && story.playback.signedUrl ? (
+          <WaveformPlayer
+            storyId={story.id}
+            src={story.playback.signedUrl}
+            expiresAtEpochMs={story.playback.expiresAtEpochMs}
+            onRefreshUrl={handleRefreshUrl}
+          />
+        ) : (
+          <div className="rounded-[2rem] border border-line bg-black/10 p-10 text-center">
+            <p className="display text-3xl text-ink">{story.syncStatus}</p>
+            <p className="mt-4 text-muted max-w-md mx-auto leading-relaxed">
+              {t("playbackProcessingNote")}
+            </p>
+          </div>
+        )}
+      </section>
 
-          <aside className="grid grid-cols-2 gap-4">
-              <div className="rounded-[1.5rem] border border-line bg-black/10 p-5">
-                <p className="eyebrow">{t("community")}</p>
-                <div className="mt-8 flex items-baseline gap-2">
-                   <span className="display text-4xl text-ink">{story.reactionCount}</span>
-                   <span className="text-xs uppercase tracking-widest text-muted">{t("reactions", { count: story.reactionCount })}</span>
-                </div>
-             </div>
-              <div className="rounded-[1.5rem] border border-line bg-black/10 p-5">
-                <p className="eyebrow">{t("dialogue")}</p>
-                <div className="mt-8 flex items-baseline gap-2">
-                   <span className="display text-4xl text-ink">{story.commentCount}</span>
-                   <span className="text-xs uppercase tracking-widest text-muted">{t("comments", { count: story.commentCount })}</span>
-                </div>
-             </div>
-          </aside>
+      {/* Statistics Cards */}
+      <aside className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="rounded-[1.5rem] border border-line bg-black/10 p-5">
+          <p className="eyebrow">{t("community")}</p>
+          <div className="mt-6 flex items-baseline gap-2">
+             <span className="display text-3xl text-ink">{story.reactionCount}</span>
+             <span className="text-xs uppercase tracking-widest text-muted">{t("reactions", { count: story.reactionCount })}</span>
+          </div>
         </div>
+        <div className="rounded-[1.5rem] border border-line bg-black/10 p-5">
+          <p className="eyebrow">{t("dialogue")}</p>
+          <div className="mt-6 flex items-baseline gap-2">
+             <span className="display text-3xl text-ink">{story.commentCount}</span>
+             <span className="text-xs uppercase tracking-widest text-muted">{t("comments", { count: story.commentCount })}</span>
+          </div>
+        </div>
+        <div className="rounded-[1.5rem] border border-line bg-black/10 p-5 col-span-2 md:col-span-2">
+          <p className="eyebrow">{t("duration")}</p>
+          <div className="mt-6 flex items-baseline gap-2">
+             <span className="display text-3xl text-ink">{story.durationLabel}</span>
+             <span className="text-xs uppercase tracking-widest text-muted">{t("playbackTime")}</span>
+          </div>
+        </div>
+      </aside>
 
-        <section className="panel rounded-[2rem] p-8 min-h-[500px] border border-line/50 bg-white/5 backdrop-blur-sm">
-           <InteractiveTranscript storyId={story.id} content={story.transcript} />
-        </section>
-      </div>
+      {/* Transcript Section */}
+      <section className="panel rounded-[2rem] p-6 md:p-8 border border-line/50 bg-white/5 backdrop-blur-sm">
+        <InteractiveTranscript storyId={story.id} content={story.transcript} />
+      </section>
 
-      <div className="mt-12 grid gap-8 xl:grid-cols-[0.8fr_1.2fr]">
-        <article className="rounded-[2rem] border border-line bg-black/10 p-8">
+      {/* Interactions Section */}
+      <div className="mt-12 space-y-8">
+        {/* Reactions Section */}
+        <article className="rounded-[2rem] border border-line bg-black/10 p-6 md:p-8">
           <p className="eyebrow">{t("interactions")}</p>
-          <div className="mt-8">
+          <div className="mt-6">
             <StoryReactionForm
               storyId={story.id}
               hasHearted={story.viewerHasHearted}
             />
           </div>
-          <div className="mt-10 space-y-4">
+          <div className="mt-8 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {story.reactions.length > 0 ? (
               story.reactions.map((reaction) => (
                 <div
                   key={reaction.type}
-                  className="flex items-center justify-between rounded-[1.25rem] border border-line bg-black/10 px-6 py-4"
+                  className="flex items-center justify-between rounded-[1.25rem] border border-line bg-canvas-depth px-4 py-3"
                 >
                   <span className="text-xs uppercase tracking-[0.2em] text-muted font-medium">
                     {reaction.label}
                   </span>
-                  <span className="display text-3xl text-ink">
+                  <span className="display text-2xl text-ink">
                     {reaction.count}
                   </span>
                 </div>
               ))
             ) : (
-              <p className="text-sm text-muted italic text-center py-4">
-                {t("noReactionsYet")}
-              </p>
+              <div className="col-span-full text-center py-8">
+                <p className="text-sm text-muted italic">
+                  {t("noReactionsYet")}
+                </p>
+              </div>
             )}
           </div>
         </article>
 
-        <article className="rounded-[2rem] border border-line bg-black/10 p-8 flex flex-col">
-          <p className="eyebrow mb-8">{t("householdConversation")}</p>
-          <div className="space-y-8 flex-1">
+        {/* Comments Section */}
+        <article className="rounded-[2rem] border border-line bg-black/10 p-6 md:p-8 flex flex-col">
+          <div className="flex items-center justify-between mb-6">
+            <p className="eyebrow">{t("householdConversation")}</p>
+            <div className="text-xs text-muted uppercase tracking-widest">
+              {story.comments.length} {t("comments", { count: story.comments.length })}
+            </div>
+          </div>
+
+          <div className="space-y-6 flex-1">
             <StoryCommentForm storyId={story.id} />
 
             <div className="space-y-6 pt-6 border-t border-line">
@@ -172,7 +189,7 @@ async function StoryDetailContent({ storyPromise }: { storyPromise: Promise<Stor
             </div>
           </div>
 
-          <div className="mt-12 pt-8 border-t border-line/30 flex justify-end">
+          <div className="mt-8 pt-6 border-t border-line/30 flex justify-end">
             <ArchiveButton storyId={story.id} />
           </div>
         </article>
