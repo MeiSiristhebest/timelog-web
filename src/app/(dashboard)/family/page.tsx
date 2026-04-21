@@ -28,11 +28,11 @@ export default async function FamilyPage() {
             <div className="flex items-center gap-2 mt-2">
               <Badge variant="secondary" className="flex items-center gap-1">
                 <Crown className="h-3 w-3" />
-                <span className="text-xs">家庭所有者</span>
+                <span className="text-xs">管理员</span>
               </Badge>
               <Badge variant="outline" className="flex items-center gap-1">
                 <Shield className="h-3 w-3" />
-                <span className="text-xs">管理员权限</span>
+                <span className="text-xs">完整权限</span>
               </Badge>
             </div>
          </div>
