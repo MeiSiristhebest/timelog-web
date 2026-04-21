@@ -32,13 +32,26 @@ export async function loginAction(
   }
 
   try {
-    const { error } = await supabase.auth.signInWithPassword({
+    const { error, data } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
 
     if (error) {
+      // Provide more helpful error messages
+      if (error.message.includes('Invalid login credentials')) {
+        return {
+          error: "Invalid email or password. Please check your credentials and ensure your email is verified. If you haven't verified your email yet, please check your inbox for the verification link."
+        };
+      }
       return { error: error.message };
+    }
+
+    // Check if we got a session
+    if (!data.session) {
+      return {
+        error: "Login successful but no session created. This might be due to email verification requirements."
+      };
     }
   } catch (err: unknown) {
     if (err instanceof Error && err.message?.includes('fetch failed')) {

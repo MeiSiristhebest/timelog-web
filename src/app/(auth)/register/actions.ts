@@ -38,7 +38,7 @@ export async function registerAction(
   }
 
   // 3. Execute SignUp
-  // Using options.data for automatic metadata sync. 
+  // Using options.data for automatic metadata sync.
   // We've removed the manual profiles insert to avoid RLS issues during preview/dev.
   const { data, error: signUpError } = await supabase.auth.signUp({
     email,
@@ -48,6 +48,13 @@ export async function registerAction(
         display_name: displayName,
         full_name: displayName,
       },
+      emailRedirectTo: process.env.VERCEL_URL
+        ? `https://${process.env.VERCEL_URL}/overview`
+        : process.env.NETLIFY_URL
+        ? `${process.env.NETLIFY_URL}/overview`
+        : process.env.NODE_ENV === 'production'
+        ? 'https://timelog-web.netlify.app/overview'
+        : 'http://localhost:3000/overview'
     },
   });
 
