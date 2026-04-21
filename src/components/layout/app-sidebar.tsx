@@ -53,7 +53,13 @@ export function AppSidebar({
 }) {
   const pathname = usePathname();
   const { isSidebarCollapsed, toggleSidebar } = useUiStore();
-  const { hasPermission } = usePermissions();
+  const { hasPermission, userRole } = usePermissions();
+
+  // Debug logging
+  console.log('AppSidebar - userRole:', userRole);
+  console.log('AppSidebar - hasPermission canViewStories:', hasPermission('canViewStories'));
+  console.log('AppSidebar - hasPermission canViewAudit:', hasPermission('canViewAudit'));
+
   const navItems = getNavItems(hasPermission);
   const { t, locale, toggleLocale } = useTranslation();
   const initials = (userDisplayName || userEmail || "A")[0].toUpperCase();

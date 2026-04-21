@@ -46,8 +46,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               // Validate role
               const validRoles: UserRole[] = ['super_admin', 'family_owner', 'family_member', 'guest'];
               if (validRoles.includes(profile.role as UserRole)) {
+                console.log('AuthContext - Setting user role from profile:', profile.role);
                 setUserRole(profile.role as UserRole);
               } else {
+                console.log('AuthContext - Invalid role from profile, defaulting to member');
                 setUserRole('family_member'); // Default to member
               }
             } else {
@@ -58,6 +60,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
               if (!countError && count === 0) {
                 // First user automatically becomes admin
+                console.log('AuthContext - First user detected, setting as admin');
                 setUserRole('family_owner');
                 // Update the profile with admin role
                 await supabase
