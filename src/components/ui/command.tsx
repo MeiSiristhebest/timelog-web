@@ -93,7 +93,7 @@ const CommandGroup = React.forwardRef<
   <CommandPrimitive.Group
     ref={ref}
     className={cn(
-      "overflow-hidden [&_[cmdk-group-heading]]:px-4 [&_[cmdk-group-heading]]:py-2 [&_[cmdk-group-heading]]:text-sm [&_[cmdk-group-heading]]:font-semibold [&_[cmdk-group-heading]]:text-ink [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:tracking-wider",
+      "overflow-hidden py-2 [&_[cmdk-group-heading]]:px-4 [&_[cmdk-group-heading]]:py-3 [&_[cmdk-group-heading]]:text-sm [&_[cmdk-group-heading]]:font-semibold [&_[cmdk-group-heading]]:text-ink [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:tracking-wider [&_[cmdk-group-heading]]:mb-2",
       className
     )}
     {...props}
@@ -108,7 +108,7 @@ const CommandSeparator = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <CommandPrimitive.Separator
     ref={ref}
-    className={cn("-mx-1 h-px bg-border", className)}
+    className={cn("mx-4 my-3 h-px bg-line/40", className)}
     {...props}
   />
 ))
@@ -121,7 +121,7 @@ const CommandItem = React.forwardRef<
   <CommandPrimitive.Item
     ref={ref}
     className={cn(
-      "relative flex cursor-default select-none items-center rounded-lg px-4 py-3 text-sm outline-none aria-selected:bg-accent/20 aria-selected:text-ink hover:bg-accent/10 data-[disabled]:pointer-events-none data-[disabled]:opacity-50 transition-colors",
+      "relative flex cursor-default select-none items-center rounded-lg px-4 py-3 mb-1 mx-1 text-sm outline-none aria-selected:bg-accent/20 aria-selected:text-ink hover:bg-accent/10 data-[disabled]:pointer-events-none data-[disabled]:opacity-50 transition-colors",
       className
     )}
     {...props}
