@@ -26,9 +26,7 @@ async function StoryDetailContent({ storyPromise }: { storyPromise: Promise<Stor
   const t = await getTranslations("Stories");
   const td = await getTranslations("Dashboard");
   const story = await storyPromise;
-  console.log("Story detail:", story); // Debug log
   if (!story) {
-    console.log("Story not found, calling notFound()"); // Debug log
     notFound();
   }
 
