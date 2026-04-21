@@ -5,6 +5,8 @@
 [build.environment]
   NODE_VERSION = "20"
   NEXT_PUBLIC_USE_MOCK = "true"
+  NEXT_PUBLIC_SUPABASE_URL = "https://cazgjzgmxsctbaqeksqo.supabase.co"
+  NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY = "sb_publishable_buvEGX7wz0rB3sAy-wixPQ_w_bNALoj"
 
 [[redirects]]
   from = "/_next/static/*"
