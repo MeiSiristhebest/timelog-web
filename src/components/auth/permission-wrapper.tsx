@@ -15,6 +15,12 @@ interface RoleWrapperProps {
   children: ReactNode;
 }
 
+interface RoleWrapperProps {
+  minRole: string;
+  fallback?: ReactNode;
+  children: ReactNode;
+}
+
 export function PermissionWrapper({ permission, fallback, children }: PermissionWrapperProps) {
   const { hasPermission } = usePermissions();
 

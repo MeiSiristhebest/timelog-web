@@ -15,7 +15,7 @@ export function usePermissions() {
   return useMemo(() => ({
     userRole,
     hasPermission: (permission: string) =>
-      hasPermission(userRole, permission as keyof typeof PERMISSIONS[UserRole]),
+      hasPermission(userRole, permission as any) ?? false,
     hasRoleLevel: (minRole: UserRole) => hasRoleLevel(userRole, minRole),
     isRole: (targetRole: UserRole) => userRole === targetRole,
   }), [userRole]);
