@@ -82,18 +82,23 @@ The first user to sign in after system initialization automatically becomes an a
 Administrators can use the "管理角色" (Manage Role) button in the Family page to change other users' roles.
 
 #### Method 4: SQL Script (Direct Database Access)
-Use the provided `supabase-role-management.sql` script in your Supabase SQL Editor:
+Use the provided `supabase-admin-setup.sql` script in your Supabase SQL Editor:
 
-1. Copy the contents of `supabase-role-management.sql`
+1. Copy the contents of `supabase-admin-setup.sql`
 2. Go to Supabase Dashboard → SQL Editor
 3. Paste and run the desired commands
-4. Replace `'user-id-here'` with actual user IDs
+4. Replace placeholders with actual values
 
 **Example**: Make a user admin by their email:
 ```sql
 UPDATE profiles
 SET role = 'family_owner'
 WHERE email = 'your-admin-email@example.com';
+```
+
+**Example**: View all users and their roles:
+```sql
+SELECT id, email, display_name, role, created_at FROM profiles ORDER BY created_at DESC;
 ```
 
 ### Available Roles

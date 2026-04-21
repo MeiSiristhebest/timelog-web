@@ -44,7 +44,6 @@ export async function registerAction(
 
   // 4. Execute SignUp
   // Using options.data for automatic metadata sync.
-  // We've removed the manual profiles insert to avoid RLS issues during preview/dev.
   const { data, error: signUpError } = await supabase.auth.signUp({
     email,
     password,
@@ -69,12 +68,46 @@ export async function registerAction(
     return { error: `Connection limit: ${signUpError.message}`, success: false };
   }
 
-  // 4. Finalize
+  // 5. Create profile record if signup successful
+  if (data.user) {
+    try {
+      // Check if profile already exists
+      const { data: existingProfile } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('id', data.user.id)
+        .single();
+
+      if (!existingProfile) {
+        // Create new profile record
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .insert({
+            id: data.user.id,
+            user_id: data.user.id,
+            email: email,
+            display_name: displayName,
+            full_name: displayName,
+            role: userRole,
+          });
+
+        if (profileError) {
+          console.error('Error creating profile:', profileError);
+          // Don't fail registration if profile creation fails
+        }
+      }
+    } catch (error) {
+      console.error('Error checking/creating profile:', error);
+      // Don't fail registration if profile creation fails
+    }
+  }
+
+  // 6. Finalize
   // If no session, it means 'Confirm Email' is still ON in your Supabase Dashboard.
   if (!data.session) {
-    return { 
-      error: null, 
-      success: true 
+    return {
+      error: null,
+      success: true
     };
   }
 
