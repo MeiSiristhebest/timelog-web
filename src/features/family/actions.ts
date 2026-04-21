@@ -85,21 +85,65 @@ export async function updateMemberRoleAction(
   const supabase = await createServerSupabaseClient();
   if (!supabase) return { status: "error", message: "Supabase not configured." };
 
-  const { error } = await supabase
+  // 获取当前用户信息
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { status: "error", message: "No authenticated user." };
+
+  // 检查当前用户是否为管理员
+  const { data: currentUserProfile } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .single();
+
+  if (!currentUserProfile || !["family_owner", "super_admin"].includes(currentUserProfile.role)) {
+    return { status: "error", message: "只有管理员才能修改用户角色。" };
+  }
+
+  // 验证新角色是否有效
+  const validRoles = ["family_owner", "family_member"];
+  if (!validRoles.includes(newRole)) {
+    return { status: "error", message: "无效的用户角色。" };
+  }
+
+  // 更新用户角色（在profiles表中）
+  const { data: member } = await supabase
+    .from("family_members")
+    .select("user_id")
+    .eq("id", memberId)
+    .single();
+
+  if (!member?.user_id) {
+    return { status: "error", message: "找不到对应的用户资料。" };
+  }
+
+  const { error: profileError } = await supabase
+    .from("profiles")
+    .update({ role: newRole })
+    .eq("id", member.user_id);
+
+  if (profileError) {
+    console.error("Error updating profile role:", profileError);
+    return { status: "error", message: profileError.message };
+  }
+
+  // 同时更新family_members表中的角色（用于一致性）
+  const { error: memberError } = await supabase
     .from("family_members")
     .update({ role: newRole })
     .eq("id", memberId);
 
-  if (error) {
-    console.error("Error updating member role:", error);
-    return { status: "error", message: error.message };
+  if (memberError) {
+    console.error("Error updating member role:", memberError);
+    // 不返回错误，因为profiles已经更新了
   }
 
   revalidatePath("/family");
+  revalidatePath("/audit");
 
   return {
     status: "success",
-    message: "成员权限级别已成功变更",
+    message: `用户角色已成功更新为${newRole === 'family_owner' ? '管理员' : '成员'}`,
   };
 }
 

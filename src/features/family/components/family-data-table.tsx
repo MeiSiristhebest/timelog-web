@@ -44,6 +44,8 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { removeFamilyMemberAction, updateMemberRoleAction } from "@/features/family/actions";
 import type { FamilyMemberView as FamilyMember } from "@/features/family/queries";
+import { usePermissions } from "@/hooks/use-permissions";
+import { RoleManagementDialog } from "@/components/admin/role-management-dialog";
 
 interface FamilyDataTableProps {
   members: FamilyMember[];
@@ -52,6 +54,7 @@ interface FamilyDataTableProps {
 export function FamilyDataTable({ members }: FamilyDataTableProps) {
   const t = useTranslations("Family");
   const commonT = useTranslations("Common");
+  const { hasPermission } = usePermissions();
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
   const [isUpdatingRole, setIsUpdatingRole] = useState<string | null>(null);
 
@@ -97,7 +100,7 @@ export function FamilyDataTable({ members }: FamilyDataTableProps) {
           </TableHeader>
           <TableBody>
             {members.map((member) => {
-              const isAdmin = member.role === "admin";
+              const isAdmin = member.role === "admin" || member.role === "family_owner";
               const isProcessing = isDeleting === member.id || isUpdatingRole === member.id;
               const initials = member.label.charAt(0).toUpperCase();
 
@@ -136,37 +139,20 @@ export function FamilyDataTable({ members }: FamilyDataTableProps) {
                     </div>
                   </TableCell>
                   <TableCell className="px-6 py-5">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <button 
-                          disabled={isProcessing} 
-                          className="flex items-center justify-between min-w-[100px] px-3 py-1.5 rounded-lg border border-line-strong bg-canvas-depth text-[10px] font-black uppercase tracking-widest text-ink hover:border-accent/40 shadow-sm transition-all disabled:opacity-50 outline-none"
-                        >
-                          {isUpdatingRole === member.id ? (
-                            <Loader2 size={10} className="animate-spin" />
-                          ) : (
-                            member.role === 'admin' ? t("setAdmin") : t("setMember")
-                          )}
-                          <ChevronDown size={10} className="ml-2 opacity-40 shrink-0" />
-                        </button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="start" className="w-[140px] mt-1 shadow-xl">
-                        <DropdownMenuItem 
-                          onClick={() => handleUpdateRole(member.id, "admin", member.role)} 
-                          className="text-[10px] font-black uppercase tracking-widest py-2"
-                        >
-                          <Shield className="mr-2 h-3.5 w-3.5 text-accent" />
-                          {t("setAdmin")}
-                        </DropdownMenuItem>
-                        <DropdownMenuItem 
-                          onClick={() => handleUpdateRole(member.id, "member", member.role)} 
-                          className="text-[10px] font-black uppercase tracking-widest py-2"
-                        >
-                          <Users className="mr-2 h-3.5 w-3.5 text-muted" />
-                          {t("setMember")}
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+{hasPermission('canManageMembers') && (
+                      <RoleManagementDialog
+                        user={{
+                          id: member.id,
+                          email: member.email,
+                          displayName: member.label,
+                          currentRole: member.role === 'admin' ? 'family_owner' : 'family_member'
+                        }}
+                        onRoleUpdate={async (userId, newRole) => {
+                          const supabaseRole = newRole === 'family_owner' ? 'admin' : 'member';
+                          await handleUpdateRole(userId, supabaseRole, member.role);
+                        }}
+                      />
+                    )}
                   </TableCell>
                   <TableCell className="px-6 py-5">
                     <div className="flex items-center gap-2 text-xs text-muted font-bold">
@@ -193,8 +179,8 @@ export function FamilyDataTable({ members }: FamilyDataTableProps) {
                         : t("statusPending")}
                     </Badge>
                   </TableCell>
-                  <TableCell className="px-6 py-5 text-right">
-                    {!isAdmin && (
+                   <TableCell className="px-6 py-5 text-right">
+                    {hasPermission('canManageMembers') && !isAdmin && (
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
                           <button className="opacity-0 group-hover:opacity-100 p-2 text-muted hover:text-danger hover:bg-danger/10 rounded-xl transition-all outline-none">

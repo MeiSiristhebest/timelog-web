@@ -34,15 +34,35 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (session?.user) {
         setUser(session.user);
 
-        // Get user role from user metadata
-        const role = session.user.user_metadata?.role || 'family_member';
+        try {
+          // Get user role from profiles table
+          const { data: profile, error } = await supabase
+            .from('profiles')
+            .select('role')
+            .eq('id', session.user.id)
+            .single();
 
-        // Validate role
-        const validRoles: UserRole[] = ['super_admin', 'family_owner', 'family_member', 'guest'];
-        if (validRoles.includes(role as UserRole)) {
-          setUserRole(role as UserRole);
-        } else {
-          setUserRole('family_member'); // Default to member
+          if (!error && profile?.role) {
+            // Validate role
+            const validRoles: UserRole[] = ['super_admin', 'family_owner', 'family_member', 'guest'];
+            if (validRoles.includes(profile.role as UserRole)) {
+              setUserRole(profile.role as UserRole);
+            } else {
+              setUserRole('family_member'); // Default to member
+            }
+          } else {
+            // Fallback to user metadata or default
+            const role = session.user.user_metadata?.role || 'family_member';
+            const validRoles: UserRole[] = ['super_admin', 'family_owner', 'family_member', 'guest'];
+            if (validRoles.includes(role as UserRole)) {
+              setUserRole(role as UserRole);
+            } else {
+              setUserRole('family_member');
+            }
+          }
+        } catch (error) {
+          console.error('Error fetching user role:', error);
+          setUserRole('family_member'); // Default fallback
         }
       } else {
         setUserRole('guest');
@@ -62,12 +82,32 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           if (session?.user) {
             setUser(session.user);
 
-            const role = session.user.user_metadata?.role || 'family_member';
+            try {
+              // Get user role from profiles table
+              const { data: profile, error } = await supabase
+                .from('profiles')
+                .select('role')
+                .eq('id', session.user.id)
+                .single();
 
-            const validRoles: UserRole[] = ['super_admin', 'family_owner', 'family_member', 'guest'];
-            if (validRoles.includes(role as UserRole)) {
-              setUserRole(role as UserRole);
-            } else {
+              if (!error && profile?.role) {
+                const validRoles: UserRole[] = ['super_admin', 'family_owner', 'family_member', 'guest'];
+                if (validRoles.includes(profile.role as UserRole)) {
+                  setUserRole(profile.role as UserRole);
+                } else {
+                  setUserRole('family_member');
+                }
+              } else {
+                const role = session.user.user_metadata?.role || 'family_member';
+                const validRoles: UserRole[] = ['super_admin', 'family_owner', 'family_member', 'guest'];
+                if (validRoles.includes(role as UserRole)) {
+                  setUserRole(role as UserRole);
+                } else {
+                  setUserRole('family_member');
+                }
+              }
+            } catch (error) {
+              console.error('Error fetching user role:', error);
               setUserRole('family_member');
             }
           } else {
