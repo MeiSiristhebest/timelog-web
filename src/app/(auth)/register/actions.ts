@@ -37,7 +37,23 @@ export async function registerAction(
     return { error: "Supabase configuration missing.", success: false };
   }
 
-  // 3. Execute SignUp
+  // 3. Check if this is the first user (should be admin)
+  let userRole = 'family_member';
+  try {
+    const { count, error: countError } = await supabase
+      .from('profiles')
+      .select('*', { count: 'exact', head: true });
+
+    if (!countError && count === 0) {
+      // First user becomes admin
+      userRole = 'family_owner';
+    }
+  } catch (err) {
+    // If we can't check, default to member
+    userRole = 'family_member';
+  }
+
+  // 4. Execute SignUp
   // Using options.data for automatic metadata sync.
   // We've removed the manual profiles insert to avoid RLS issues during preview/dev.
   const { data, error: signUpError } = await supabase.auth.signUp({
@@ -47,6 +63,7 @@ export async function registerAction(
       data: {
         display_name: displayName,
         full_name: displayName,
+        role: userRole,
       },
       emailRedirectTo: process.env.VERCEL_URL
         ? `https://${process.env.VERCEL_URL}/overview`

@@ -1,16 +1,11 @@
+"use client";
+
 import { useMemo } from 'react';
 import { UserRole, hasPermission, hasRoleLevel } from '@/lib/permissions';
-
-// 假设我们有一个获取当前用户角色的函数
-// 在实际应用中，这可能来自context或API
-const getCurrentUserRole = (): UserRole => {
-  // 这里应该是从认证系统获取的真实用户角色
-  // 暂时返回默认值
-  return 'family_owner';
-};
+import { useAuth } from '@/contexts/auth-context';
 
 export function usePermissions() {
-  const userRole = getCurrentUserRole();
+  const { userRole } = useAuth();
 
   return useMemo(() => ({
     userRole,

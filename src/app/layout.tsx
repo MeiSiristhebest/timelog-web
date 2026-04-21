@@ -4,6 +4,7 @@ import { Cormorant_Garamond, Instrument_Sans } from "next/font/google";
 import { getSiteUrl } from "@/lib/site";
 import { getLocale, getMessages } from "next-intl/server";
 import { LocalesProvider } from "./_locales";
+import { AuthProvider } from "@/contexts/auth-context";
 import { Toaster } from "sonner";
 import "./globals.css";
 
@@ -93,8 +94,10 @@ async function LocaleShell({ children }: { children: React.ReactNode }) {
   return (
     <div lang={locale} className="h-full">
       <LocalesProvider locale={locale} messages={messages}>
-        {children}
-        <Toaster position="top-right" richColors closeButton />
+        <AuthProvider>
+          {children}
+          <Toaster position="top-right" richColors closeButton />
+        </AuthProvider>
       </LocalesProvider>
     </div>
   );
