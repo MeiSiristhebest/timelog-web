@@ -15,7 +15,7 @@ const Command = React.forwardRef<
   <CommandPrimitive
     ref={ref}
     className={cn(
-      "flex h-full w-full flex-col overflow-hidden rounded-md bg-popover text-popover-foreground",
+      "flex h-full w-full flex-col overflow-hidden rounded-md bg-transparent text-ink",
       className
     )}
     {...props}
@@ -28,12 +28,12 @@ interface CommandDialogProps extends DialogProps {}
 const CommandDialog = ({ children, ...props }: CommandDialogProps) => {
   return (
     <Dialog {...props}>
-      <DialogContent className="overflow-hidden p-0 shadow-2xl bg-canvas border-line-strong max-w-2xl">
+      <DialogContent className="overflow-hidden p-0 shadow-2xl bg-canvas-elevated border-line max-w-2xl">
         <DialogTitle className="sr-only">Command Menu</DialogTitle>
         <DialogDescription className="sr-only">
           Use the command menu to search and navigate quickly.
         </DialogDescription>
-        <Command className="bg-transparent [&_[cmdk-group-heading]]:px-4 [&_[cmdk-group-heading]]:py-2 [&_[cmdk-group-heading]]:font-semibold [&_[cmdk-group-heading]]:text-ink [&_[cmdk-group]:not([hidden])~[cmdk-group]]:pt-0 [&_[cmdk-group]]:px-4 [&_[cmdk-input-wrapper]_svg]:h-5 [&_[cmdk-input-wrapper]_svg]:w-5 [&_[cmdk-input]]:h-12 [&_[cmdk-input]]:text-ink [&_[cmdk-item]]:px-4 [&_[cmdk-item]]:py-3 [&_[cmdk-item]]:rounded-lg [&_[cmdk-item]]:mx-1 [&_[cmdk-item]_svg]:h-5 [&_[cmdk-item]_svg]:w-5 [&_[cmdk-item]]:text-ink hover:[&_[cmdk-item]]:bg-accent/10 [&_[cmdk-item]]:transition-colors">
+        <Command className="bg-transparent [&_[cmdk-group-heading]]:px-4 [&_[cmdk-group-heading]]:py-3 [&_[cmdk-group-heading]]:font-semibold [&_[cmdk-group-heading]]:text-ink [&_[cmdk-group]:not([hidden])~[cmdk-group]]:pt-0 [&_[cmdk-group]]:px-4 [&_[cmdk-input-wrapper]_svg]:h-5 [&_[cmdk-input-wrapper]_svg]:w-5 [&_[cmdk-input]]:h-12 [&_[cmdk-input]]:text-ink [&_[cmdk-item]]:px-4 [&_[cmdk-item]]:py-3 [&_[cmdk-item]]:rounded-lg [&_[cmdk-item]]:mx-1 [&_[cmdk-item]_svg]:h-5 [&_[cmdk-item]_svg]:w-5 [&_[cmdk-item]]:text-ink [&_[cmdk-item]]:bg-canvas-depth/30 hover:[&_[cmdk-item]]:bg-accent/15 [&_[cmdk-item]]:transition-colors">
           {children}
         </Command>
       </DialogContent>
@@ -45,12 +45,12 @@ const CommandInput = React.forwardRef<
   React.ElementRef<typeof CommandPrimitive.Input>,
   React.ComponentPropsWithoutRef<typeof CommandPrimitive.Input>
 >(({ className, ...props }, ref) => (
-  <div className="flex items-center border-b border-line/30 px-4 py-2" cmdk-input-wrapper="">
-    <Search className="mr-3 h-5 w-5 shrink-0 text-ink/60" />
+  <div className="flex items-center border-b border-line px-4 py-3 bg-canvas-elevated/50" cmdk-input-wrapper="">
+    <Search className="mr-3 h-5 w-5 shrink-0 text-ink/70" />
     <CommandPrimitive.Input
       ref={ref}
       className={cn(
-        "flex h-12 w-full bg-transparent py-3 text-base outline-none placeholder:text-ink/40 disabled:cursor-not-allowed disabled:opacity-50",
+        "flex h-12 w-full bg-transparent py-3 text-base font-medium outline-none placeholder:text-ink/50 disabled:cursor-not-allowed disabled:opacity-50",
         className
       )}
       {...props}
@@ -66,7 +66,7 @@ const CommandList = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <CommandPrimitive.List
     ref={ref}
-    className={cn("max-h-[300px] overflow-hidden", className)}
+    className={cn("max-h-none", className)}
     {...props}
   />
 ))
