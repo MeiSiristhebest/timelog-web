@@ -267,12 +267,11 @@ export async function addStoryCommentAction(
     }
 
     const { error } = await supabase
-      .from("interactions") // 假设评论存储在 interactions 表中，且 type 为 comment
+      .from("story_comments")
       .insert({
         story_id: storyId,
         user_id: user.id,
         content: finalContent,
-        type: "comment",
       });
 
     if (error) throw error;
@@ -306,25 +305,24 @@ export async function toggleStoryReactionAction(
   try {
     // 检查是否已经点赞
     const { data: existing } = await supabase
-      .from("interactions")
+      .from("story_reactions")
       .select("id")
       .eq("story_id", storyId)
       .eq("user_id", user.id)
-      .eq("type", "heart")
+      .eq("reaction_type", "heart")
       .maybeSingle();
 
     if (existing) {
       // 移除
-      await supabase.from("interactions").delete().eq("id", existing.id);
+      await supabase.from("story_reactions").delete().eq("id", existing.id);
       revalidatePath(`/stories/${storyId}`);
       return { status: "success", message: "Heart removed." };
     } else {
       // 添加
-      await supabase.from("interactions").insert({
+      await supabase.from("story_reactions").insert({
         story_id: storyId,
         user_id: user.id,
-        type: "heart",
-        content: "heart",
+        reaction_type: "heart",
       });
       revalidatePath(`/stories/${storyId}`);
       return { status: "success", message: "Heart sent to the archive." };
