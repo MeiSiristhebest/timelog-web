@@ -3,7 +3,7 @@
   publish = ".next"
 
 [build.environment]
-  NODE_VERSION = "18"
+  NODE_VERSION = "20.18.0"
   NEXT_PUBLIC_USE_MOCK = "true"
   NEXT_PUBLIC_SUPABASE_URL = "https://cazgjzgmxsctbaqeksqo.supabase.co"
   NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY = "sb_publishable_buvEGX7wz0rB3sAy-wixPQ_w_bNALoj"

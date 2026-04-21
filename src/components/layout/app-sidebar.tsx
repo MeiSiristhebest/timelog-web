@@ -22,16 +22,27 @@ import { useTranslation } from "@/lib/hooks/use-translation";
 import { logoutAction } from "@/app/(auth)/login/actions";
 import { useUiStore } from "@/lib/store/ui-store";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { usePermissions } from "@/hooks/use-permissions";
 
-const navItems = [
-  { href: routes.overview, labelKey: "overview", icon: House },
-  { href: routes.stories, labelKey: "stories", icon: BookAudio },
-  { href: routes.interactions, labelKey: "interactions", icon: BellRing },
-  { href: routes.family, labelKey: "family", icon: Users },
-  { href: routes.devices, labelKey: "devices", icon: RadioTower },
-  { href: routes.audit, labelKey: "audit", icon: ShieldCheck },
-  { href: routes.settings, labelKey: "settings", icon: Settings },
-] as const;
+function getNavItems(hasPermission: (permission: string) => boolean) {
+  const baseItems = [
+    { href: routes.overview, labelKey: "overview", icon: House, permission: null },
+    { href: routes.stories, labelKey: "stories", icon: BookAudio, permission: 'canViewStories' },
+    { href: routes.interactions, labelKey: "interactions", icon: BellRing, permission: 'canViewInteractions' },
+    { href: routes.family, labelKey: "family", icon: Users, permission: 'canViewFamily' },
+  ];
+
+  const adminItems = [
+    { href: routes.devices, labelKey: "devices", icon: RadioTower, permission: 'canManageDevices' },
+    { href: routes.audit, labelKey: "audit", icon: ShieldCheck, permission: 'canViewAudit' },
+    { href: routes.settings, labelKey: "settings", icon: Settings, permission: 'canAccessSettings' },
+  ];
+
+  return [
+    ...baseItems.filter(item => !item.permission || hasPermission(item.permission)),
+    ...adminItems.filter(item => !item.permission || hasPermission(item.permission)),
+  ];
+}
 
 export function AppSidebar({
   userEmail,
@@ -42,6 +53,8 @@ export function AppSidebar({
 }) {
   const pathname = usePathname();
   const { isSidebarCollapsed, toggleSidebar } = useUiStore();
+  const { hasPermission } = usePermissions();
+  const navItems = getNavItems(hasPermission);
   const { t, locale, toggleLocale } = useTranslation();
   const initials = (userDisplayName || userEmail || "A")[0].toUpperCase();
 

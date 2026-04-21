@@ -37,6 +37,7 @@ import { useBatchStore } from "@/features/stories/store";
 import { storyRoute } from "@/lib/routes";
 import type { StoryListItem as Story } from "@/features/stories/queries";
 import { BatchFloatingToolbar } from "@/features/stories/components/batch-floating-toolbar";
+import { usePermissions } from "@/hooks/use-permissions";
 
 
 export function StoriesDataTable({ storiesPromise }: { storiesPromise: Promise<Story[]> }) {
@@ -44,6 +45,7 @@ export function StoriesDataTable({ storiesPromise }: { storiesPromise: Promise<S
   const { t } = useTranslation();
   const [searchQuery, setSearchQuery] = useState("");
   const debouncedSearchQuery = useDebounce(searchQuery, 300);
+  const { hasPermission } = usePermissions();
 
   const { 
     isManagementMode, 
@@ -234,9 +236,11 @@ export function StoriesDataTable({ storiesPromise }: { storiesPromise: Promise<S
                             <DropdownMenuItem className="flex items-center gap-2">
                                <Clock className="h-4 w-4" /> {t("Stories.timelineDetails")}
                             </DropdownMenuItem>
-                            <DropdownMenuItem className="text-danger focus:text-danger focus:bg-danger/10 flex items-center gap-2 font-bold">
-                               <Trash2 className="h-4 w-4" /> {t("Stories.archivalDelete")}
-                            </DropdownMenuItem>
+                            {hasPermission('canDeleteStories') && (
+                              <DropdownMenuItem className="text-danger focus:text-danger focus:bg-danger/10 flex items-center gap-2 font-bold">
+                                 <Trash2 className="h-4 w-4" /> {t("Stories.archivalDelete")}
+                              </DropdownMenuItem>
+                            )}
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </div>

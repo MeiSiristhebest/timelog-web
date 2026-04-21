@@ -3,8 +3,10 @@ import { FamilyDataTable } from "@/features/family/components/family-data-table"
 import { getFamilyMembers } from "@/features/family/queries";
 import { RealtimeRefresh } from "@/features/realtime/components/realtime-refresh";
 import { buildInteractionRealtimeTargets } from "@/features/realtime/subscriptions";
-import { Users, UserPlus } from "lucide-react";
+import { Users, UserPlus, Shield, Crown } from "lucide-react";
 import { getTranslations } from "next-intl/server";
+import { PermissionWrapper } from "@/components/auth/permission-wrapper";
+import { Badge } from "@/components/ui/badge";
 
 export default async function FamilyPage() {
   const t = await getTranslations();
@@ -23,6 +25,16 @@ export default async function FamilyPage() {
          <div>
             <h1 className="text-3xl font-bold text-ink tracking-tight">{t("Family.title")}</h1>
             <p className="text-sm text-muted mt-1">{t("Family.subtitle")}</p>
+            <div className="flex items-center gap-2 mt-2">
+              <Badge variant="secondary" className="flex items-center gap-1">
+                <Crown className="h-3 w-3" />
+                <span className="text-xs">家庭所有者</span>
+              </Badge>
+              <Badge variant="outline" className="flex items-center gap-1">
+                <Shield className="h-3 w-3" />
+                <span className="text-xs">管理员权限</span>
+              </Badge>
+            </div>
          </div>
          <div className="flex items-center gap-6">
             <div className="flex items-center gap-2">
@@ -43,32 +55,28 @@ export default async function FamilyPage() {
            <FamilyDataTable members={members} />
         </div>
 
-        {/* Invite Sidebar */}
-        <div className="space-y-6">
-          <div className="bg-[var(--canvas-elevated)] border border-[var(--line)] rounded-2xl p-6 shadow-sm">
-             <div className="flex items-center gap-2 mb-6 text-accent">
-                <UserPlus size={18} />
-                <h3 className="text-sm font-bold uppercase tracking-widest">{t("Family.invitePending")}</h3>
-             </div>
-             <FamilyInviteForm />
-             <div className="mt-6 pt-6 border-t border-line">
-                <p className="text-[10px] leading-relaxed text-muted font-bold italic">
-                  {t("Family.previewDesc")}
-                </p>
-             </div>
-          </div>
-          
-          <div className="p-6 rounded-2xl bg-accent text-white relative overflow-hidden group">
-            <div className="absolute top-0 right-0 p-4 opacity-20">
-              <Users size={60} />
+        {/* Invite Sidebar - 只有管理员可见 */}
+        <PermissionWrapper permission="canInviteMembers">
+          <div className="space-y-6">
+            <div className="bg-[var(--canvas-elevated)] border border-[var(--line)] rounded-2xl p-6 shadow-sm">
+               <div className="flex items-center gap-2 mb-6 text-accent">
+                  <UserPlus size={18} />
+                  <h3 className="font-semibold text-lg">{t("Family.inviteMember")}</h3>
+               </div>
+               <FamilyInviteForm />
             </div>
-            <h4 className="text-sm font-bold mb-2">{t("Settings.encryptionPolicy")}</h4>
-            <p className="text-xs text-white/80 leading-relaxed font-medium">
-              {t("Family.removeConfirmDesc", { name: t("Branding.heritage") })}
-            </p>
+
+            <div className="p-6 rounded-2xl bg-accent text-white relative overflow-hidden group">
+              <div className="absolute top-0 right-0 p-4 opacity-20">
+                <Shield size={60} />
+              </div>
+              <h4 className="text-sm font-bold mb-2">管理员专属功能</h4>
+              <p className="text-xs text-white/80 leading-relaxed font-medium">
+                您拥有邀请新成员和管理家庭的完整权限
+              </p>
+            </div>
           </div>
-        </div>
-      </div>
+        </PermissionWrapper>
     </div>
   );
 }
