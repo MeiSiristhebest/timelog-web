@@ -313,8 +313,10 @@ export async function getArchivedStories(): Promise<StoryListItem[]> {
 }
 
 export async function getStoryById(id: string): Promise<StoryDetail | null> {
+  console.log("getStoryById called with id:", id, "shouldUseMock:", shouldUseMock()); // Debug log
   if (shouldUseMock()) {
     const mock = getMockStoryById(id);
+    console.log("Mock story found:", !!mock, "for id:", id); // Debug log
     if (mock) {
       const listItem = mockStories.find(s => s.id === id);
       return {
