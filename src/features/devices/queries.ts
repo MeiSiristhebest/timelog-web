@@ -1,7 +1,11 @@
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { mockDevices } from "@/lib/mock-data";
 
-const shouldUseMock = () => process.env.NEXT_PUBLIC_USE_MOCK === "true";
+const shouldUseMock = () => {
+  const isMockFlag = process.env.NEXT_PUBLIC_USE_MOCK === "true";
+  const hasSupabase = Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY);
+  return isMockFlag || !hasSupabase;
+};
 
 export type DeviceView = {
   id: string;

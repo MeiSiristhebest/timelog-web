@@ -12,7 +12,11 @@ import { buildStoryPlayback, type StoryPlayback } from "./playback";
 import { createSignedStoryPlayback } from "./playback.server";
 import { mockStories, getMockStoryById, getAllMockStoryIds } from "@/lib/mock-data";
 
-const shouldUseMock = () => process.env.NEXT_PUBLIC_USE_MOCK === "true";
+const shouldUseMock = () => {
+  const isMockFlag = process.env.NEXT_PUBLIC_USE_MOCK === "true";
+  const hasSupabase = Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY);
+  return isMockFlag || !hasSupabase;
+};
 
 type StoryRow = {
   id: string;
