@@ -8,6 +8,8 @@ import {
 } from "./presentation";
 import { mockInteractions } from "@/lib/mock-data";
 
+const shouldUseMock = () => process.env.NEXT_PUBLIC_USE_MOCK === "true";
+
 type TFunction = Awaited<ReturnType<typeof getTranslations>>;
 
 type StoryTitleRow = {
@@ -55,15 +57,26 @@ async function getStoryTitles(
 }
 
 export async function getInteractionsOverview(): Promise<InteractionsOverview> {
-  const tInteractions = await getTranslations("Interactions");
-  const locale = await getLocale();
-  
-const supabase = await createServerSupabaseClient();
-  if (!supabase) {
+  if (shouldUseMock()) {
     return {
       metrics: { 
         commentCount: mockInteractions.filter(i => i.kind === "评论").length, 
         reactionCount: mockInteractions.filter(i => i.kind === "心意").length, 
+        storiesTouched: new Set(mockInteractions.map(i => i.storyId)).size 
+      },
+      items: mockInteractions
+    };
+  }
+
+  const tInteractions = await getTranslations("Interactions");
+  const locale = await getLocale();
+  
+  const supabase = await createServerSupabaseClient();
+  if (!supabase) {
+    return {
+      metrics: { 
+        commentCount: mockInteractions.filter(i => i.kind === "Comment").length, 
+        reactionCount: mockInteractions.filter(i => i.kind === "Reaction").length, 
         storiesTouched: new Set(mockInteractions.map(i => i.storyId)).size 
       },
       items: mockInteractions
@@ -77,8 +90,8 @@ const supabase = await createServerSupabaseClient();
   if (!user) {
     return {
        metrics: { 
-         commentCount: mockInteractions.filter(i => i.kind === "评论").length, 
-         reactionCount: mockInteractions.filter(i => i.kind === "心意").length, 
+         commentCount: mockInteractions.filter(i => i.kind === "Comment").length, 
+         reactionCount: mockInteractions.filter(i => i.kind === "Reaction").length, 
          storiesTouched: new Set(mockInteractions.map(i => i.storyId)).size 
        },
        items: mockInteractions

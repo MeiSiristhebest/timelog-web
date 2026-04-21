@@ -2,6 +2,8 @@ import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { getTranslations } from "next-intl/server";
 import { mockFamilyMembers } from "@/lib/mock-data";
 
+const shouldUseMock = () => process.env.NEXT_PUBLIC_USE_MOCK === "true";
+
 export type FamilyMemberView = {
   id: string;
   label: string;
@@ -124,7 +126,7 @@ export async function getFamilyMembers(): Promise<FamilyMemberView[]> {
     }));
   }
 
-  if (data.length === 0) {
+  if (shouldUseMock() || data.length === 0) {
     return mockFamilyMembers.map(row => ({
       id: row.id,
       label: row.display_name ?? row.email,

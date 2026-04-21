@@ -2,6 +2,8 @@ import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { getTranslations, getLocale } from "next-intl/server";
 import { mockAuditEvents } from "@/lib/mock-data";
 
+const shouldUseMock = () => process.env.NEXT_PUBLIC_USE_MOCK === "true";
+
 type TFunction = Awaited<ReturnType<typeof getTranslations>>;
 
 type ActivityEventRow = {
@@ -116,6 +118,10 @@ async function mapAuditEvent(row: ActivityEventRow, t: TFunction, locale: string
 }
 
 export async function getAuditOverview(): Promise<AuditOverview> {
+  if (shouldUseMock()) {
+    return getPreviewAuditOverview();
+  }
+
   const supabase = await createServerSupabaseClient();
   const t = await getTranslations("Audit");
   const locale = await getLocale();

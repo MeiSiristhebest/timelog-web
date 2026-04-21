@@ -12,6 +12,8 @@ import { buildStoryPlayback, type StoryPlayback } from "./playback";
 import { createSignedStoryPlayback } from "./playback.server";
 import { mockStories } from "@/lib/mock-data";
 
+const shouldUseMock = () => process.env.NEXT_PUBLIC_USE_MOCK === "true";
+
 type StoryRow = {
   id: string;
   title: string | null;
@@ -96,7 +98,7 @@ export async function getStorageMetrics(): Promise<{ totalDurationMs: number }> 
     .select("duration_ms")
     .is("deleted_at", null);
 
-  if (error || !data || data.length === 0) {
+  if (shouldUseMock() || error || !data || data.length === 0) {
     return { totalDurationMs: 100 * 60 * 60 * 1000 };
   }
 
@@ -235,7 +237,7 @@ export async function getStories(): Promise<StoryListItem[]> {
     .order("started_at", { ascending: false })
     .limit(24);
 
-  if (error || !data || data.length === 0) {
+  if (shouldUseMock() || error || !data || data.length === 0) {
     return mockStories;
   }
 

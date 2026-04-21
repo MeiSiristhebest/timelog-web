@@ -1,6 +1,8 @@
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { mockDevices } from "@/lib/mock-data";
 
+const shouldUseMock = () => process.env.NEXT_PUBLIC_USE_MOCK === "true";
+
 export type DeviceView = {
   id: string;
   deviceName: string;
@@ -61,7 +63,7 @@ export async function getDevices(): Promise<DeviceView[]> {
   }
 
   const { data, error } = await supabase.rpc("list_family_devices");
-  if (error || !data || data.length === 0) {
+  if (shouldUseMock() || error || !data || data.length === 0) {
     return mockDevices.map(row => ({
       id: row.id,
       deviceName: row.name,
