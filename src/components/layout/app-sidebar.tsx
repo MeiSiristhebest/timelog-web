@@ -55,10 +55,13 @@ export function AppSidebar({
   const { isSidebarCollapsed, toggleSidebar } = useUiStore();
   const { hasPermission, userRole } = usePermissions();
 
-  // Debug logging
-  console.log('AppSidebar - userRole:', userRole);
-  console.log('AppSidebar - hasPermission canViewStories:', hasPermission('canViewStories'));
-  console.log('AppSidebar - hasPermission canViewAudit:', hasPermission('canViewAudit'));
+  // Debug logging - 管理员检查
+  console.log('AppSidebar Debug:');
+  console.log('- userRole:', userRole);
+  console.log('- is family_owner:', userRole === 'family_owner');
+  console.log('- canViewStories:', hasPermission('canViewStories'));
+  console.log('- canViewAudit:', hasPermission('canViewAudit'));
+  console.log('- canManageDevices:', hasPermission('canManageDevices'));
 
   const navItems = getNavItems(hasPermission);
   const { t, locale, toggleLocale } = useTranslation();
