@@ -61,7 +61,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
           if (!error && profile?.role) {
             // Validate role
-            const validRoles: UserRole[] = ['super_admin', 'family_owner', 'family_member', 'guest'];
+            const validRoles: UserRole[] = ['family_owner', 'family_member', 'guest'];
             if (validRoles.includes(profile.role as UserRole)) {
               console.log('AuthContext - Setting user role from profile:', profile.role);
               setUserRole(profile.role as UserRole);
@@ -157,7 +157,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 .single();
 
               if (!error && profile?.role) {
-                const validRoles: UserRole[] = ['super_admin', 'family_owner', 'family_member', 'guest'];
+                const validRoles: UserRole[] = ['family_owner', 'family_member', 'guest'];
                 if (validRoles.includes(profile.role as UserRole)) {
                   setUserRole(profile.role as UserRole);
                 } else {

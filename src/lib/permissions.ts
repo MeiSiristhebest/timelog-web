@@ -1,5 +1,5 @@
 // 用户权限定义
-export type UserRole = 'super_admin' | 'family_owner' | 'family_member' | 'guest';
+export type UserRole = 'family_owner' | 'family_member' | 'guest';
 
 export interface UserPermissions {
   // 时光长廊模块权限
@@ -24,23 +24,6 @@ export interface UserPermissions {
 }
 
 export const PERMISSIONS: Record<UserRole, UserPermissions> = {
-  super_admin: {
-    // 完全控制权限
-    canViewStories: true,
-    canPlayStories: true,
-    canEditStories: true,
-    canDeleteStories: true,
-    canExportStories: true,
-    canViewFamily: true,
-    canInviteMembers: true,
-    canManageMembers: true,
-    canViewInteractions: true,
-    canCreateInteractions: true,
-    canViewAudit: true,
-    canManageDevices: true,
-    canAccessSettings: true,
-    canExportData: true,
-  },
   family_owner: {
     // 家庭所有者权限
     canViewStories: true,
@@ -110,7 +93,6 @@ export function hasRoleLevel(userRole: UserRole, minRole: UserRole): boolean {
     guest: 0,
     family_member: 1,
     family_owner: 2,
-    super_admin: 3,
   };
 
   return roleHierarchy[userRole] >= roleHierarchy[minRole];
