@@ -20,9 +20,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const getUser = async () => {
+      console.log('AuthContext - Initializing auth check');
+
       const supabase = createClient();
+      console.log('AuthContext - Supabase client created:', !!supabase);
 
       if (!supabase) {
+        console.log('AuthContext - No Supabase client, setting guest');
         setUserRole('guest');
         setUser(null);
         setIsLoading(false);
@@ -30,35 +34,44 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       // Get current session
-      const { data: { session } } = await supabase.auth.getSession();
+      console.log('AuthContext - Getting session...');
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      console.log('AuthContext - Session result:', { session: !!session, error: sessionError });
 
       if (session?.user) {
+        console.log('AuthContext - User authenticated:', session.user.email, session.user.id);
         setUser(session.user);
 
         try {
-          // First try to get user role from profiles table by id
-          let { data: profile, error } = await supabase
+          // Get user role from profiles table
+          console.log('AuthContext - Looking up profile for user:', session.user.id);
+          let profileResult = await supabase
             .from('profiles')
             .select('role, id, user_id')
             .eq('id', session.user.id)
             .single();
 
+          console.log('AuthContext - Profile lookup by id:', profileResult);
+
           // If not found by id, try by user_id
-          if (error || !profile) {
-            const { data: profileByUserId, error: userIdError } = await supabase
+          if (profileResult.error || !profileResult.data) {
+            console.log('AuthContext - Profile not found by id, trying user_id');
+            const userIdResult = await supabase
               .from('profiles')
               .select('role, id, user_id')
               .eq('user_id', session.user.id)
               .single();
 
-            if (!userIdError && profileByUserId) {
-              profile = profileByUserId;
-              error = null;
+            console.log('AuthContext - Profile lookup by user_id:', userIdResult);
+
+            if (!userIdResult.error && userIdResult.data) {
+              profileResult = userIdResult;
               console.log('AuthContext - Found profile by user_id instead of id');
             }
           }
 
-          console.log('AuthContext - Profile lookup result:', { profile, error, userId: session.user.id });
+          const { data: profile, error } = profileResult;
+          console.log('AuthContext - Final profile lookup result:', { profile, error, userId: session.user.id });
 
           if (!error && profile?.role) {
             // Validate role
