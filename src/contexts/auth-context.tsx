@@ -35,12 +35,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(session.user);
 
         try {
-          // Get user role from profiles table
-          const { data: profile, error } = await supabase
+          // First try to get user role from profiles table by id
+          let { data: profile, error } = await supabase
             .from('profiles')
-            .select('role')
+            .select('role, id, user_id')
             .eq('id', session.user.id)
             .single();
+
+          // If not found by id, try by user_id
+          if (error || !profile) {
+            const { data: profileByUserId, error: userIdError } = await supabase
+              .from('profiles')
+              .select('role, id, user_id')
+              .eq('user_id', session.user.id)
+              .single();
+
+            if (!userIdError && profileByUserId) {
+              profile = profileByUserId;
+              error = null;
+              console.log('AuthContext - Found profile by user_id instead of id');
+            }
+          }
+
+          console.log('AuthContext - Profile lookup result:', { profile, error, userId: session.user.id });
 
           if (!error && profile?.role) {
             // Validate role
@@ -53,7 +70,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               setUserRole('family_member'); // Default to member
             }
           } else {
-            // Check if this is the first user in the system
+            // Profile doesn't exist, create one or set default role
+            console.log('AuthContext - No profile found, checking if first user...');
+
             try {
               const { count, error: countError } = await supabase
                 .from('profiles')
@@ -61,31 +80,54 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
               if (!countError && count === 0) {
                 // First user automatically becomes admin
-                console.log('AuthContext - First user detected, setting as admin');
+                console.log('AuthContext - First user detected, creating admin profile');
                 setUserRole('family_owner');
 
                 // Create profile record with admin role
-                await supabase
+                const { error: upsertError } = await supabase
                   .from('profiles')
                   .upsert({
                     id: session.user.id,
                     user_id: session.user.id,
                     role: 'family_owner',
                     display_name: session.user.user_metadata?.display_name || session.user.email?.split('@')[0] || 'Admin',
-                    email: session.user.email
+                    email: session.user.email,
+                    full_name: session.user.user_metadata?.full_name || session.user.user_metadata?.display_name || 'Admin'
                   });
+
+                if (upsertError) {
+                  console.error('AuthContext - Error creating admin profile:', upsertError);
+                } else {
+                  console.log('AuthContext - Admin profile created successfully');
+                }
               } else {
-                // Profile doesn't exist or has no role, default to member
-                console.log('AuthContext - No profile role found, defaulting to member');
+                // Not first user, create regular profile if it doesn't exist
+                console.log('AuthContext - Not first user, creating member profile');
+
+                const { error: upsertError } = await supabase
+                  .from('profiles')
+                  .upsert({
+                    id: session.user.id,
+                    user_id: session.user.id,
+                    role: 'family_member',
+                    display_name: session.user.user_metadata?.display_name || session.user.email?.split('@')[0] || 'User',
+                    email: session.user.email,
+                    full_name: session.user.user_metadata?.full_name || session.user.user_metadata?.display_name || 'User'
+                  });
+
+                if (upsertError) {
+                  console.error('AuthContext - Error creating member profile:', upsertError);
+                }
+
                 setUserRole('family_member');
               }
             } catch (countError) {
-              console.error('Error checking user count:', countError);
+              console.error('AuthContext - Error checking user count:', countError);
               setUserRole('family_member');
             }
           }
         } catch (error) {
-          console.error('Error fetching user role:', error);
+          console.error('AuthContext - Error in profile lookup:', error);
           setUserRole('family_member'); // Default fallback
         }
       } else {
