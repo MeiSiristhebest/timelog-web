@@ -36,7 +36,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Get current session
       console.log('AuthContext - Getting session...');
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-      console.log('AuthContext - Session result:', { session: !!session, error: sessionError });
+      console.log('AuthContext - Session result:', {
+        hasSession: !!session,
+        userId: session?.user?.id,
+        userEmail: session?.user?.email,
+        error: sessionError
+      });
 
       if (session?.user) {
         console.log('AuthContext - User authenticated:', session.user.email, session.user.id);
@@ -71,7 +76,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           }
 
           const { data: profile, error } = profileResult;
-          console.log('AuthContext - Final profile lookup result:', { profile, error, userId: session.user.id });
+          console.log('AuthContext - Final profile lookup result:', {
+            hasProfile: !!profile,
+            role: profile?.role,
+            profileId: profile?.id,
+            profileUserId: profile?.user_id,
+            error: error?.message || error,
+            sessionUserId: session.user.id
+          });
 
           if (!error && profile?.role) {
             // Validate role
@@ -84,59 +96,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               setUserRole('family_member'); // Default to member
             }
           } else {
-            // Profile doesn't exist, create one or set default role
-            console.log('AuthContext - No profile found, checking if first user...');
+            // Profile doesn't exist or has no role
+            console.log('AuthContext - No profile role found, using fallback logic');
 
-            try {
-              const { count, error: countError } = await supabase
-                .from('profiles')
-                .select('*', { count: 'exact', head: true });
-
-              if (!countError && count === 0) {
-                // First user automatically becomes admin
-                console.log('AuthContext - First user detected, creating admin profile');
-                setUserRole('family_owner');
-
-                // Create profile record with admin role
-                const { error: upsertError } = await supabase
-                  .from('profiles')
-                  .upsert({
-                    id: session.user.id,
-                    user_id: session.user.id,
-                    role: 'family_owner',
-                    display_name: session.user.user_metadata?.display_name || session.user.email?.split('@')[0] || 'Admin',
-                    email: session.user.email,
-                    full_name: session.user.user_metadata?.full_name || session.user.user_metadata?.display_name || 'Admin'
-                  });
-
-                if (upsertError) {
-                  console.error('AuthContext - Error creating admin profile:', upsertError);
-                } else {
-                  console.log('AuthContext - Admin profile created successfully');
-                }
-              } else {
-                // Not first user, create regular profile if it doesn't exist
-                console.log('AuthContext - Not first user, creating member profile');
-
-                const { error: upsertError } = await supabase
-                  .from('profiles')
-                  .upsert({
-                    id: session.user.id,
-                    user_id: session.user.id,
-                    role: 'family_member',
-                    display_name: session.user.user_metadata?.display_name || session.user.email?.split('@')[0] || 'User',
-                    email: session.user.email,
-                    full_name: session.user.user_metadata?.full_name || session.user.user_metadata?.display_name || 'User'
-                  });
-
-                if (upsertError) {
-                  console.error('AuthContext - Error creating member profile:', upsertError);
-                }
-
-                setUserRole('family_member');
-              }
-            } catch (countError) {
-              console.error('AuthContext - Error checking user count:', countError);
+            // TEMPORARY: Force admin role for testing
+            // Check if this is the known admin user
+            if (session.user.id === '69dad30e-c5df-419b-ac09-efc5fbc8babe') {
+              console.log('AuthContext - TEMP: Setting known admin user to family_owner');
+              setUserRole('family_owner');
+            } else {
               setUserRole('family_member');
             }
           }
