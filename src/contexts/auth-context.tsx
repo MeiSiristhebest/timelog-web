@@ -8,6 +8,7 @@ interface AuthContextType {
   userRole: UserRole;
   isLoading: boolean;
   user: any;
+  isAuthenticated: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -182,8 +183,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
+  const isAuthenticated = !!user && userRole !== 'guest';
+
   return (
-    <AuthContext.Provider value={{ userRole, isLoading, user }}>
+    <AuthContext.Provider value={{ userRole, isLoading, user, isAuthenticated }}>
       {children}
     </AuthContext.Provider>
   );

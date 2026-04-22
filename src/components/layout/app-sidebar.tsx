@@ -53,11 +53,13 @@ export function AppSidebar({
 }) {
   const pathname = usePathname();
   const { isSidebarCollapsed, toggleSidebar } = useUiStore();
-  const { hasPermission, userRole } = usePermissions();
+  const { hasPermission, userRole, isLoading } = usePermissions();
 
   // Debug logging - 管理员检查
   console.log('AppSidebar Debug:');
   console.log('- userRole:', userRole);
+  console.log('- isLoading:', isLoading);
+  console.log('- isAuthenticated:', !!userEmail);
   console.log('- is family_owner:', userRole === 'family_owner');
   console.log('- canViewStories:', hasPermission('canViewStories'));
   console.log('- canViewAudit:', hasPermission('canViewAudit'));
