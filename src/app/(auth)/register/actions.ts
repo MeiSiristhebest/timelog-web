@@ -37,10 +37,24 @@ export async function registerAction(
     return { error: "Supabase configuration missing.", success: false };
   }
 
-  // 3. Default role for new users
-  // All new users start as family_member
-  // Administrators can be appointed through Supabase table management
-  const userRole = 'family_member';
+  // 3. Determine user role
+  // Check if this is the first user in the system
+  let userRole = 'family_member';
+  try {
+    const { count, error: countError } = await supabase
+      .from('profiles')
+      .select('*', { count: 'exact', head: true });
+
+    if (!countError && count === 0) {
+      // First user automatically becomes admin
+      userRole = 'family_owner';
+      console.log('RegisterAction - First user detected, assigning admin role');
+    }
+  } catch (err) {
+    console.error('Error checking user count:', err);
+    // Default to member if we can't check
+    userRole = 'family_member';
+  }
 
   // 4. Execute SignUp
   // Using options.data for automatic metadata sync.

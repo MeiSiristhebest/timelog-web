@@ -53,9 +53,36 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               setUserRole('family_member'); // Default to member
             }
           } else {
-            // Profile doesn't exist or has no role, default to member
-            console.log('AuthContext - No profile role found, defaulting to member');
-            setUserRole('family_member');
+            // Check if this is the first user in the system
+            try {
+              const { count, error: countError } = await supabase
+                .from('profiles')
+                .select('*', { count: 'exact', head: true });
+
+              if (!countError && count === 0) {
+                // First user automatically becomes admin
+                console.log('AuthContext - First user detected, setting as admin');
+                setUserRole('family_owner');
+
+                // Create profile record with admin role
+                await supabase
+                  .from('profiles')
+                  .upsert({
+                    id: session.user.id,
+                    user_id: session.user.id,
+                    role: 'family_owner',
+                    display_name: session.user.user_metadata?.display_name || session.user.email?.split('@')[0] || 'Admin',
+                    email: session.user.email
+                  });
+              } else {
+                // Profile doesn't exist or has no role, default to member
+                console.log('AuthContext - No profile role found, defaulting to member');
+                setUserRole('family_member');
+              }
+            } catch (countError) {
+              console.error('Error checking user count:', countError);
+              setUserRole('family_member');
+            }
           }
         } catch (error) {
           console.error('Error fetching user role:', error);
