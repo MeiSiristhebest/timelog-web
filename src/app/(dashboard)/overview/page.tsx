@@ -25,7 +25,7 @@ import {
   TableRow
 } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
-import { AuthDebugInfo } from "@/components/auth-debug-info";
+
 
 
 
@@ -54,8 +54,7 @@ async function OverviewContentInner({ storiesPromise, t }: { storiesPromise: Pro
 
   return (
     <div className="space-y-8 animate-in fade-in duration-700">
-      {/* Auth Debug Info */}
-      <AuthDebugInfo />
+
       {/* KPI Grid with Sparklines - uses client wrapper to avoid RSC boundary */}
       <KpiGrid
         storiesCount={stories.length}
