@@ -31,7 +31,7 @@ async function StoryDetailContent({ storyPromise }: { storyPromise: Promise<Stor
   }
 
   const handleRefreshUrl = async () => {
-    "use client";
+    "use server";
     const response = await fetch(`/api/stories/${story.id}/playback`, { cache: "no-store" });
     const data = await response.json();
     return data.signedUrl;
