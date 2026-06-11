@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import { LucideIcon } from "lucide-react"
-import { Line, LineChart, ResponsiveContainer, YAxis } from "recharts"
+import { Line, LineChart, YAxis } from "recharts"
 
 import { cn } from "@/lib/utils"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -34,10 +34,25 @@ export function DataCard({
   className,
 }: DataCardProps) {
   const [mounted, setMounted] = React.useState(false)
-  React.useEffect(() => { setMounted(true) }, [])
+  const containerRef = React.useRef<HTMLDivElement>(null)
+  const [dimensions, setDimensions] = React.useState({ width: 0, height: 40 })
+
+  React.useEffect(() => {
+    setMounted(true)
+    if (!containerRef.current) return
+    const resizeObserver = new ResizeObserver((entries) => {
+      if (!entries || entries.length === 0) return
+      const { width } = entries[0].contentRect
+      if (width > 0) {
+        setDimensions({ width, height: 40 })
+      }
+    })
+    resizeObserver.observe(containerRef.current)
+    return () => resizeObserver.disconnect()
+  }, [])
 
   return (
-    <Card className={cn("overflow-hidden group hover:border-accent/40 transition-all", className)}>
+    <Card doubleBezel className={cn("overflow-hidden group hover:border-accent/40 transition-all", className)}>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-xs font-black uppercase tracking-widest text-muted group-hover:text-ink transition-colors">
           {title}
@@ -69,9 +84,9 @@ export function DataCard({
         </p>
         
         {mounted && data && data.length > 0 && (
-          <div className="h-[40px] w-full mt-2">
-            <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
-              <LineChart data={data}>
+          <div ref={containerRef} className="h-[40px] w-full mt-2">
+            {dimensions.width > 0 && (
+              <LineChart width={dimensions.width} height={dimensions.height} data={data}>
                 <YAxis hide domain={['dataMin - 5', 'dataMax + 5']} />
                 <Line
                   type="monotone"
@@ -82,7 +97,7 @@ export function DataCard({
                   animationDuration={1000}
                 />
               </LineChart>
-            </ResponsiveContainer>
+            )}
           </div>
         )}
       </CardContent>

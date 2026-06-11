@@ -4,7 +4,7 @@ import { NextResponse, type NextRequest } from "next/server";
 const PUBLIC_PATHS = new Set(["/login", "/register"]);
 
 export async function proxy(request: NextRequest) {
-  const response = NextResponse.next({
+  let response = NextResponse.next({
     request: {
       headers: request.headers,
     },
@@ -35,32 +35,57 @@ export async function proxy(request: NextRequest) {
         return request.cookies.getAll();
       },
       setAll(cookiesToSet) {
-        cookiesToSet.forEach(({ name, value, options }) => {
-          response.cookies.set(name, value, options);
+        const isProd = process.env.NODE_ENV === "production";
+        cookiesToSet.forEach(({ name, value }) =>
+          request.cookies.set(name, value)
+        );
+        response = NextResponse.next({
+          request: {
+            headers: request.headers,
+          },
         });
+        cookiesToSet.forEach(({ name, value, options }) =>
+          response.cookies.set(name, value, {
+            ...options,
+            secure: isProd ? options?.secure : false,
+          })
+        );
       },
     },
   });
 
+  // getUser() is the secure way to get the user and refresh the session/cookies
   const {
-    data: { session },
-  } = await supabase.auth.getSession();
+    data: { user },
+  } = await supabase.auth.getUser();
 
   const pathname = request.nextUrl.pathname;
   const isPublicPath = PUBLIC_PATHS.has(pathname) || pathname === "/";
 
-  if (!session && !isPublicPath) {
+  if (!user && !isPublicPath) {
     const redirectUrl = request.nextUrl.clone();
     redirectUrl.pathname = "/login";
     redirectUrl.searchParams.set("next", pathname);
-    return NextResponse.redirect(redirectUrl);
+    
+    const redirectResponse = NextResponse.redirect(redirectUrl);
+    // Copy the set-cookie headers from response to redirectResponse
+    response.headers.getSetCookie().forEach((cookieStr) => {
+      redirectResponse.headers.append("set-cookie", cookieStr);
+    });
+    return redirectResponse;
   }
 
-  if (session && isPublicPath && pathname !== "/overview") {
+  if (user && isPublicPath && pathname !== "/overview") {
     const redirectUrl = request.nextUrl.clone();
     redirectUrl.pathname = "/overview";
     redirectUrl.searchParams.delete("next");
-    return NextResponse.redirect(redirectUrl);
+    
+    const redirectResponse = NextResponse.redirect(redirectUrl);
+    // Copy the set-cookie headers from response to redirectResponse
+    response.headers.getSetCookie().forEach((cookieStr) => {
+      redirectResponse.headers.append("set-cookie", cookieStr);
+    });
+    return redirectResponse;
   }
 
   return response;

@@ -17,8 +17,12 @@ export async function createServerSupabaseClient() {
       },
       setAll(cookiesToSet) {
         try {
+          const isProd = process.env.NODE_ENV === "production";
           cookiesToSet.forEach(({ name, value, options }) => {
-            cookieStore.set(name, value, options);
+            cookieStore.set(name, value, {
+              ...options,
+              secure: isProd ? options?.secure : false,
+            });
           });
         } catch {
           // Server Components cannot always mutate cookies during render.

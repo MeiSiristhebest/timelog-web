@@ -1,5 +1,5 @@
 import { createServerSupabaseClient } from "@/lib/supabase/server";
-import { getTranslations } from "next-intl/server";
+import { getTranslations, getLocale } from "next-intl/server";
 import {
   mapCommentRows,
   mapReactionRows,
@@ -8,15 +8,8 @@ import {
   type StoryCommentItem,
   type StoryReactionSummary,
 } from "./presentation";
-import { buildStoryPlayback, type StoryPlayback } from "./playback";
+import { type StoryPlayback } from "./playback";
 import { createSignedStoryPlayback } from "./playback.server";
-import { mockStories, getMockStoryById, getAllMockStoryIds } from "@/lib/mock-data";
-
-const shouldUseMock = () => {
-  const isMockFlag = process.env.NEXT_PUBLIC_USE_MOCK === "true";
-  const hasSupabase = Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY);
-  return isMockFlag || !hasSupabase;
-};
 
 type StoryRow = {
   id: string;
@@ -28,6 +21,26 @@ type StoryRow = {
   user_id: string | null;
   file_path: string | null;
   is_favorite: boolean | null;
+};
+
+type TranscriptSegmentRow = {
+  id: string;
+  story_id: string;
+  segment_index: number;
+  speaker: "user" | "agent";
+  text: string;
+  start_time_ms: number | null;
+  end_time_ms: number | null;
+  is_final: boolean;
+};
+
+export type StoryTranscriptSegment = {
+  id: string;
+  segmentIndex: number;
+  speaker: "user" | "agent";
+  text: string;
+  startTimeMs: number | null;
+  endTimeMs: number | null;
 };
 
 export type StoryListItem = {
@@ -45,6 +58,7 @@ export type StoryListItem = {
 
 export type StoryDetail = StoryListItem & {
   transcript: string;
+  segments: StoryTranscriptSegment[];
   comments: StoryCommentItem[];
   reactions: StoryReactionSummary[];
   viewerHasHearted: boolean;
@@ -52,7 +66,7 @@ export type StoryDetail = StoryListItem & {
 };
 
 
-async function formatDateLabel(value: string | number | null): Promise<string> {
+async function formatDateLabel(value: string | number | null, locale: string): Promise<string> {
   if (!value) {
     const t = await getTranslations("Common");
     return t("noResultsFound");
@@ -64,7 +78,7 @@ async function formatDateLabel(value: string | number | null): Promise<string> {
     return t("noResultsFound");
   }
 
-  return new Intl.DateTimeFormat("en", {
+  return new Intl.DateTimeFormat(locale, {
     month: "long",
     day: "numeric",
     year: "numeric",
@@ -82,10 +96,68 @@ export function formatDuration(durationMs: number | null): string {
     .padStart(2, "0")}s`;
 }
 
-async function deriveSpeakerLabel(userId: string | null): Promise<string> {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function deriveSpeakerLabel(supabase: any, userId: string | null): Promise<string> {
   const t = await getTranslations("Common");
   if (!userId) return t("speaker");
+  try {
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("display_name")
+      .eq("id", userId)
+      .single();
+    if (!error && data?.display_name) {
+      return data.display_name;
+    }
+  } catch (err) {
+    console.error("Error fetching display name for userId:", userId, err);
+  }
   return `${t("speaker")} ${userId.slice(0, 8)}`;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function getProfilesMap(supabase: any, userIds: (string | null)[]): Promise<Map<string, string>> {
+  const profilesMap = new Map<string, string>();
+  const uniqueUserIds = Array.from(new Set(userIds.filter(Boolean))) as string[];
+  if (uniqueUserIds.length === 0) return profilesMap;
+
+  try {
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("id, display_name")
+      .in("id", uniqueUserIds);
+
+    if (!error && data) {
+      for (const p of data) {
+        if (p.display_name) {
+          profilesMap.set(p.id, p.display_name);
+        }
+      }
+    }
+  } catch (err) {
+    console.error("Error fetching profiles map:", err);
+  }
+  return profilesMap;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function getTargetUserIds(supabase: any, currentUserId: string): Promise<string[]> {
+  const userIds = [currentUserId];
+  try {
+    const { data: connections } = await supabase
+      .from("family_connections")
+      .select("senior_id");
+    if (connections) {
+      for (const conn of connections) {
+        if (conn.senior_id) {
+          userIds.push(conn.senior_id);
+        }
+      }
+    }
+  } catch (err) {
+    console.error("Error fetching family connections:", err);
+  }
+  return userIds;
 }
 
 /**
@@ -97,22 +169,38 @@ export async function getStorageMetrics(): Promise<{ totalDurationMs: number }> 
     return { totalDurationMs: 0 };
   }
 
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { totalDurationMs: 0 };
+  }
+
+  const targetUserIds = await getTargetUserIds(supabase, user.id);
+
   const { data, error } = await supabase
     .from("audio_recordings")
     .select("duration_ms")
-    .is("deleted_at", null);
+    .is("deleted_at", null)
+    .in("user_id", targetUserIds);
 
-  if (shouldUseMock() || error || !data || data.length === 0) {
-    return { totalDurationMs: 100 * 60 * 60 * 1000 };
+  if (error) {
+    console.error("Error fetching storage metrics from Supabase:", error);
+    return { totalDurationMs: 0 };
+  }
+
+  if (!data || data.length === 0) {
+    return { totalDurationMs: 0 };
   }
 
   const total = data.reduce((acc, row) => acc + (row.duration_ms || 0), 0);
   return { totalDurationMs: total };
 }
 
-function toPreview(text: string | null): string {
+function toPreview(text: string | null, fallback: string): string {
   if (!text) {
-    return "Transcript is not available yet. This story is ready for protected playback and family interaction.";
+    return fallback;
   }
 
   const trimmed = text.trim();
@@ -225,6 +313,8 @@ export async function getStories(): Promise<StoryListItem[]> {
   if (!supabase) {
     return [];
   }
+  const t = await getTranslations("Stories");
+  const locale = await getLocale();
 
   const {
     data: { user },
@@ -234,43 +324,63 @@ export async function getStories(): Promise<StoryListItem[]> {
     return [];
   }
 
+  const targetUserIds = await getTargetUserIds(supabase, user.id);
+
   const { data, error } = await supabase
     .from("audio_recordings")
     .select("id, title, started_at, duration_ms, sync_status, transcription, user_id, is_favorite")
     .is("deleted_at", null)
+    .in("user_id", targetUserIds)
     .order("started_at", { ascending: false })
     .limit(24);
 
-  if (shouldUseMock() || error || !data || data.length === 0) {
-    return mockStories;
+  if (error) {
+    console.error("Error fetching stories from Supabase:", error);
+    return [];
+  }
+
+  if (!data || data.length === 0) {
+    return [];
   }
 
   const rows = data as StoryRow[];
   const storyIds = rows.map((row) => row.id);
-  const [commentCounts, reactionCounts] = await Promise.all([
+  const userIds = rows.map((row) => row.user_id);
+  const [commentCounts, reactionCounts, profilesMap] = await Promise.all([
     getCommentCounts(storyIds),
     getReactionCounts(storyIds),
+    getProfilesMap(supabase, userIds),
   ]);
 
+  const tCommon = await getTranslations("Common");
+
   return Promise.all(
-    rows.map(async (row) => ({
-      id: row.id,
-      title: row.title?.trim() || "Untitled memory",
-      speakerLabel: await deriveSpeakerLabel(row.user_id),
-      startedAtLabel: await formatDateLabel(row.started_at),
-      durationLabel: formatDuration(row.duration_ms),
-      syncStatus: row.sync_status ?? "unknown",
-      transcriptPreview: toPreview(row.transcription),
-      commentCount: commentCounts.get(row.id) ?? 0,
-      reactionCount: reactionCounts.get(row.id) ?? 0,
-      isFavorite: Boolean(row.is_favorite),
-    }))
+    rows.map(async (row) => {
+      const speakerLabel = row.user_id 
+        ? (profilesMap.get(row.user_id) ?? `${tCommon("speaker")} ${row.user_id.slice(0, 8)}`)
+        : tCommon("speaker");
+
+      return {
+        id: row.id,
+        title: row.title?.trim() || t("untitledStory"),
+        speakerLabel,
+        startedAtLabel: await formatDateLabel(row.started_at, locale),
+        durationLabel: formatDuration(row.duration_ms),
+        syncStatus: row.sync_status ?? "unknown",
+        transcriptPreview: toPreview(row.transcription, t("noTranscriptPreview")),
+        commentCount: commentCounts.get(row.id) ?? 0,
+        reactionCount: reactionCounts.get(row.id) ?? 0,
+        isFavorite: Boolean(row.is_favorite),
+      };
+    })
   );
 }
 
 export async function getArchivedStories(): Promise<StoryListItem[]> {
   const supabase = await createServerSupabaseClient();
   if (!supabase) return [];
+  const t = await getTranslations("Stories");
+  const locale = await getLocale();
 
   const {
     data: { user },
@@ -278,10 +388,13 @@ export async function getArchivedStories(): Promise<StoryListItem[]> {
 
   if (!user) return [];
 
+  const targetUserIds = await getTargetUserIds(supabase, user.id);
+
   const { data, error } = await supabase
     .from("audio_recordings")
     .select("id, title, started_at, duration_ms, sync_status, transcription, user_id, is_favorite")
     .not("deleted_at", "is", null)
+    .in("user_id", targetUserIds)
     .order("deleted_at", { ascending: false })
     .limit(50);
 
@@ -291,78 +404,58 @@ export async function getArchivedStories(): Promise<StoryListItem[]> {
 
   const rows = data as StoryRow[];
   const storyIds = rows.map((row) => row.id);
-  const [commentCounts, reactionCounts] = await Promise.all([
+  const userIds = rows.map((row) => row.user_id);
+  const [commentCounts, reactionCounts, profilesMap] = await Promise.all([
     getCommentCounts(storyIds),
     getReactionCounts(storyIds),
+    getProfilesMap(supabase, userIds),
   ]);
 
+  const tCommon = await getTranslations("Common");
+
   return Promise.all(
-    rows.map(async (row) => ({
-      id: row.id,
-      title: row.title?.trim() || "Untitled memory",
-      speakerLabel: await deriveSpeakerLabel(row.user_id),
-      startedAtLabel: await formatDateLabel(row.started_at),
-      durationLabel: formatDuration(row.duration_ms),
-      syncStatus: row.sync_status ?? "unknown",
-      transcriptPreview: toPreview(row.transcription),
-      commentCount: commentCounts.get(row.id) ?? 0,
-      reactionCount: reactionCounts.get(row.id) ?? 0,
-      isFavorite: Boolean(row.is_favorite),
-    }))
+    rows.map(async (row) => {
+      const speakerLabel = row.user_id 
+        ? (profilesMap.get(row.user_id) ?? `${tCommon("speaker")} ${row.user_id.slice(0, 8)}`)
+        : tCommon("speaker");
+
+      return {
+        id: row.id,
+        title: row.title?.trim() || t("untitledStory"),
+        speakerLabel,
+        startedAtLabel: await formatDateLabel(row.started_at, locale),
+        durationLabel: formatDuration(row.duration_ms),
+        syncStatus: row.sync_status ?? "unknown",
+        transcriptPreview: toPreview(row.transcription, t("noTranscriptPreview")),
+        commentCount: commentCounts.get(row.id) ?? 0,
+        reactionCount: reactionCounts.get(row.id) ?? 0,
+        isFavorite: Boolean(row.is_favorite),
+      };
+    })
   );
 }
 
 export async function getStoryById(id: string): Promise<StoryDetail | null> {
-  if (shouldUseMock()) {
-    const mock = getMockStoryById(id);
-    if (mock) {
-      const listItem = mockStories.find(s => s.id === id);
-      return {
-        id: mock.id,
-        title: mock.title,
-        speakerLabel: mock.speakerLabel,
-        startedAtLabel: mock.startedAtLabel,
-        durationLabel: mock.durationLabel,
-        syncStatus: mock.syncStatus,
-        transcriptPreview: mock.transcriptPreview,
-        transcript: mock.transcript,
-        commentCount: mock.commentCount,
-        reactionCount: mock.reactionCount,
-        comments: mock.comments.map(c => ({
-          id: c.id,
-          userId: "user-mock",
-          authorLabel: c.actorLabel,
-          content: c.content,
-          createdAtLabel: c.createdAtLabel,
-          type: "text" as const
-        })),
-        reactions: mock.reactions,
-        viewerHasHearted: mock.viewerHasHearted,
-        playback: {
-          sourcePath: "/mock/audio/story-001.m4a",
-          signedUrl: mock.playback.signedUrl,
-          expiresLabel: "Mock expiry",
-          expiresAtEpochMs: mock.playback.expiresAtEpochMs,
-          isReady: mock.playback.isReady
-        },
-        isFavorite: mock.isFavorite
-      };
-    }
-    return null;
-  }
-
   const supabase = await createServerSupabaseClient();
   if (!supabase) {
     return null;
   }
+  const t = await getTranslations("Stories");
+  const locale = await getLocale();
 
-  const [userRes, storyRes] = await Promise.all([
+  const [userRes, storyRes, segmentsRes] = await Promise.all([
     supabase.auth.getUser(),
     supabase
       .from("audio_recordings")
       .select("id, title, started_at, duration_ms, sync_status, transcription, user_id, file_path, is_favorite")
       .eq("id", id)
       .single(),
+    supabase
+      .from("transcript_segments")
+      .select("id, story_id, segment_index, speaker, text, start_time_ms, end_time_ms, is_final")
+      .eq("story_id", id)
+      .eq("is_final", true)
+      .order("segment_index", { ascending: true }),
   ]);
 
   const user = userRes.data.user;
@@ -371,6 +464,20 @@ export async function getStoryById(id: string): Promise<StoryDetail | null> {
   if (error || !data) {
     return null;
   }
+
+  const row = data as StoryRow;
+
+  console.log(`[getStoryById] story=${id} file_path=${row.file_path ?? "NULL"} sync_status=${row.sync_status ?? "NULL"} segments=${segmentsRes.data?.length ?? 0}`);
+
+  // Map DB transcript segments to typed domain objects
+  const segments: StoryTranscriptSegment[] = (segmentsRes.data ?? []).map((s: TranscriptSegmentRow) => ({
+    id: s.id,
+    segmentIndex: s.segment_index,
+    speaker: s.speaker,
+    text: s.text,
+    startTimeMs: s.start_time_ms,
+    endTimeMs: s.end_time_ms,
+  }));
 
   const [commentCounts, reactionCounts, comments, reactions, heartReaction, playback] = await Promise.all([
     getCommentCounts([id]),
@@ -386,23 +493,25 @@ export async function getStoryById(id: string): Promise<StoryDetail | null> {
           .eq("reaction_type", "heart")
           .maybeSingle()
       : Promise.resolve({ data: null, error: null }),
-    createSignedStoryPlayback(supabase, (data as StoryRow).file_path ?? null),
+    createSignedStoryPlayback(supabase, row.file_path ?? null),
   ]);
 
-  const row = data as StoryRow;
+  console.log(`[getStoryById] story=${id} resolved playback:`, JSON.stringify(playback));
+
   const transcript =
     row.transcription?.trim() ||
-    "Transcript has not been synced yet. Protected playback wiring is ready for the next pass.";
+    t("noTranscript");
 
   return {
     id: row.id,
-    title: row.title?.trim() || "Untitled memory",
-    speakerLabel: await deriveSpeakerLabel(row.user_id),
-    startedAtLabel: await formatDateLabel(row.started_at),
+      title: row.title?.trim() || t("untitledStory"),
+      speakerLabel: await deriveSpeakerLabel(supabase, row.user_id),
+    startedAtLabel: await formatDateLabel(row.started_at, locale),
     durationLabel: formatDuration(row.duration_ms),
     syncStatus: row.sync_status ?? "unknown",
-    transcriptPreview: toPreview(transcript),
+    transcriptPreview: toPreview(transcript, t("noTranscriptPreview")),
     transcript,
+    segments,
     commentCount: commentCounts.get(row.id) ?? 0,
     reactionCount: reactionCounts.get(row.id) ?? 0,
     comments,
@@ -418,7 +527,7 @@ export async function getStoryCount(): Promise<number> {
   if (!supabase) return 0;
 
   const { count } = await supabase
-    .from("stories")
+    .from("audio_recordings")
     .select("*", { count: "estimated", head: true });
 
   return count || 0;

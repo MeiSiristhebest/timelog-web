@@ -31,8 +31,11 @@ export function EditableStoryTitle({ storyId, initialTitle }: EditableStoryTitle
 
   useEffect(() => {
     if (state.status === "success") {
-      setIsEditing(false);
+      const timer = setTimeout(() => {
+        setIsEditing(false);
+      }, 0);
       toast.success(state.message);
+      return () => clearTimeout(timer);
     } else if (state.status === "error") {
       toast.error(state.message);
     }

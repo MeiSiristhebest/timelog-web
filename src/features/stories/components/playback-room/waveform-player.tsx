@@ -1,12 +1,15 @@
 "use client";
 
-import { useEffect, useRef, useState, useCallback } from "react";
-import WaveSurfer from "wavesurfer.js";
-import { usePlayback } from "../../context/playback-context";
+import { useRef, useState, useCallback, useEffect } from "react";
 import { PlayCircle, PauseCircle, RotateCcw, RefreshCw } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { shouldRefreshPlaybackUrl } from "../../playback";
 import { cn } from "@/lib/utils";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
+import { useWaveSurfer } from "./use-wavesurfer";
+
+gsap.registerPlugin(useGSAP);
 
 interface WaveformPlayerProps {
   src: string;
@@ -23,87 +26,114 @@ export function WaveformPlayer({
 }: WaveformPlayerProps) {
   const t = useTranslations("Waveform");
   const containerRef = useRef<HTMLDivElement>(null);
-  const wavesurferRef = useRef<WaveSurfer | null>(null);
-  const {
-    isPlaying,
-    setIsPlaying,
-    setCurrentTime,
-    setDuration,
-    setIsBuffering,
-    setStoryId,
-  } = usePlayback();
-
   const [localSrc, setLocalSrc] = useState(src);
-  const [isReady, setIsReady] = useState(false);
 
-  // Initialize WaveSurfer
+  // Sync localSrc when src prop changes
   useEffect(() => {
-    if (!containerRef.current) return;
+    setLocalSrc(src);
+  }, [src]);
 
-    const ws = WaveSurfer.create({
-      container: containerRef.current,
-      waveColor: "rgba(212, 182, 122, 0.2)", // Muted Golden Sand
-      progressColor: "#d4b67a", // Golden Sand Accent
-      cursorColor: "#d4b67a",
-      barWidth: 2,
-      barGap: 3,
-      barRadius: 4,
-      height: 80,
-      normalize: true,
-      url: localSrc,
-    });
+  // Use our high-performance custom hook
+  const { isReady, isPlaying, togglePlay, setTime } = useWaveSurfer({
+    containerRef,
+    src: localSrc,
+    storyId,
+  });
 
-    wavesurferRef.current = ws;
-    setStoryId(storyId);
+  const playerRef = useRef<HTMLDivElement>(null);
+  const playButtonRef = useRef<HTMLButtonElement>(null);
+  const pulseTweenRef = useRef<gsap.core.Tween | null>(null);
+  const buttonPulseRef = useRef<gsap.core.Tween | null>(null);
 
-    ws.on("ready", () => {
-      setIsReady(true);
-      setDuration(ws.getDuration());
-      setIsBuffering(false);
-    });
+  const { contextSafe } = useGSAP({ scope: playerRef });
 
-    ws.on("play", () => setIsPlaying(true));
-    ws.on("pause", () => setIsPlaying(false));
-    ws.on("loading", () => setIsBuffering(true));
-    
-    ws.on("timeupdate", (currentTime) => {
-      setCurrentTime(currentTime);
-      
-      // Dynamic HSL Shift for Waveform Color when playing
-      if (ws.isPlaying()) {
-        const hue = (currentTime * 15) % 360; // Fluid shift
-        ws.setOptions({ progressColor: `hsla(${hue}, 45%, 72%, 0.85)` });
+  // Handle playing state breathing pulse
+  useGSAP(() => {
+    if (isPlaying) {
+      // Start elegant breathing pulse on wavesurfer container
+      pulseTweenRef.current = gsap.fromTo(
+        containerRef.current,
+        {
+          filter: "drop-shadow(0 0 2px rgba(212, 182, 122, 0.3))",
+        },
+        {
+          filter: "drop-shadow(0 0 8px rgba(212, 182, 122, 0.7))",
+          duration: 2,
+          repeat: -1,
+          yoyo: true,
+          ease: "sine.inOut",
+        }
+      );
+
+      // Start elegant breathing pulse on play button shadow/glow
+      buttonPulseRef.current = gsap.fromTo(
+        playButtonRef.current,
+        {
+          boxShadow: "0 10px 20px -5px rgba(212, 182, 122, 0.2), 0 0 0 0 rgba(212, 182, 122, 0)",
+        },
+        {
+          boxShadow: "0 12px 24px -4px rgba(212, 182, 122, 0.45), 0 0 12px 4px rgba(212, 182, 122, 0.25)",
+          duration: 1.5,
+          repeat: -1,
+          yoyo: true,
+          ease: "sine.inOut",
+        }
+      );
+    } else {
+      if (pulseTweenRef.current) {
+        pulseTweenRef.current.kill();
+        pulseTweenRef.current = null;
       }
-    });
-
-    ws.on("finish", () => {
-      setIsPlaying(false);
-      ws.setOptions({ progressColor: "#d4b67a" }); // Reset to theme gold
-    });
-
-    return () => {
-      ws.destroy();
-    };
-  }, [localSrc, setDuration, setIsBuffering, setIsPlaying, setCurrentTime, setStoryId, storyId]);
-
-  // Handle Play/Pause
-  const togglePlay = useCallback(() => {
-    if (!wavesurferRef.current) return;
-
-    // Check expiry before playing
-    if (expiresAtEpochMs && shouldRefreshPlaybackUrl({ expiresAtEpochMs })) {
-        onRefreshUrl().then(newUrl => {
-            setLocalSrc(newUrl);
-            // WaveSurfer will re-init with new URL via useEffect dependency
-        });
-        return;
+      if (buttonPulseRef.current) {
+        buttonPulseRef.current.kill();
+        buttonPulseRef.current = null;
+      }
+      gsap.killTweensOf(containerRef.current);
+      gsap.killTweensOf(playButtonRef.current);
+      gsap.set(containerRef.current, { clearProps: "filter" });
+      gsap.set(playButtonRef.current, { clearProps: "boxShadow" });
     }
+  }, { dependencies: [isPlaying], scope: playerRef });
 
-    wavesurferRef.current.playPause();
-  }, [expiresAtEpochMs, onRefreshUrl]);
+  const handleMouseEnter = contextSafe((e: React.MouseEvent) => {
+    // Hover entry animation for player container
+    gsap.to(e.currentTarget, {
+      borderColor: "rgba(212, 182, 122, 0.3)",
+      boxShadow: "0 12px 40px -12px rgba(212, 182, 122, 0.1)",
+      duration: 0.4,
+      ease: "power2.out",
+    });
+  });
+
+  const handleMouseLeave = contextSafe((e: React.MouseEvent) => {
+    // Reset hover animations
+    gsap.to(e.currentTarget, {
+      borderColor: "rgba(255, 255, 255, 0.08)", // default border-line color
+      boxShadow: "0 0 0 0 rgba(0,0,0,0)",
+      duration: 0.4,
+      ease: "power2.out",
+      clearProps: "borderColor,boxShadow",
+    });
+  });
+
+  // Handle Play/Pause with expiry check
+  const handlePlayPause = useCallback(() => {
+    if (expiresAtEpochMs && shouldRefreshPlaybackUrl({ expiresAtEpochMs })) {
+      onRefreshUrl().then((newUrl) => {
+        setLocalSrc(newUrl);
+      });
+      return;
+    }
+    togglePlay();
+  }, [expiresAtEpochMs, onRefreshUrl, togglePlay]);
 
   return (
-    <div className="rounded-[1.5rem] border border-line bg-[linear-gradient(180deg,rgba(242,214,161,0.08),transparent)] p-6">
+    <div
+      ref={playerRef}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      className="rounded-[1.5rem] border border-line bg-[linear-gradient(180deg,rgba(242,214,161,0.08),transparent)] p-6 transition-all duration-500"
+    >
       <div className="flex items-center justify-between mb-8">
         <div>
           <h3 className="display text-2xl text-ink">
@@ -116,7 +146,7 @@ export function WaveformPlayer({
         
         <div className="flex items-center gap-3">
           <button
-            onClick={() => wavesurferRef.current?.setTime(0)}
+            onClick={() => setTime(0)}
             className="p-2 rounded-full hover:bg-black/5 text-muted transition-colors"
             title={t("restart")}
           >
@@ -124,10 +154,10 @@ export function WaveformPlayer({
           </button>
           
           <button
-            onClick={togglePlay}
+            ref={playButtonRef}
+            onClick={handlePlayPause}
             className={cn(
-              "flex items-center gap-2 px-6 py-3 rounded-full bg-accent text-black font-medium uppercase tracking-[0.1em] hover:bg-accent-strong transition-all active:scale-95 shadow-lg shadow-accent/20",
-              isPlaying && "animate-pulse-subtle"
+              "flex items-center gap-2 px-6 py-3 rounded-full bg-accent text-black font-medium uppercase tracking-[0.1em] hover:bg-accent-strong transition-all active:scale-95 shadow-lg shadow-accent/20"
             )}
           >
             {isPlaying ? (

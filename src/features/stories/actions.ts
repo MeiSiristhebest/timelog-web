@@ -2,6 +2,7 @@
 
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
+import { getTranslations } from "next-intl/server";
 
 export type StoryActionState = {
   status: "idle" | "success" | "error";
@@ -12,8 +13,9 @@ export async function toggleFavoriteAction(
   storyId: string,
   currentValue: boolean
 ): Promise<StoryActionState> {
+  const tCommon = await getTranslations("Common");
   const supabase = await createServerSupabaseClient();
-  if (!supabase) return { status: "error", message: "Supabase not configured." };
+  if (!supabase) return { status: "error", message: tCommon("supabaseNotConfigured") };
 
   const { error } = await supabase
     .from("audio_recordings")
@@ -29,9 +31,11 @@ export async function toggleFavoriteAction(
   revalidatePath(`/stories/${storyId}`);
   revalidatePath("/overview");
 
+  const t = await getTranslations("Stories");
+
   return {
     status: "success",
-    message: !currentValue ? "Added to Heritage Archive." : "Removed from favorites.",
+    message: !currentValue ? t("favoriteAdded") : t("favoriteRemoved"),
   };
 }
 
@@ -39,11 +43,13 @@ export async function updateStoryTitleAction(
   storyId: string,
   newTitle: string
 ): Promise<StoryActionState> {
+  const t = await getTranslations("Stories");
+  const tCommon = await getTranslations("Common");
   const cleanTitle = newTitle.trim();
-  if (!cleanTitle) return { status: "error", message: "Title cannot be empty." };
+  if (!cleanTitle) return { status: "error", message: t("errorTitleEmpty") };
 
   const supabase = await createServerSupabaseClient();
-  if (!supabase) return { status: "error", message: "Supabase not configured." };
+  if (!supabase) return { status: "error", message: tCommon("supabaseNotConfigured") };
 
   const { error } = await supabase
     .from("audio_recordings")
@@ -60,13 +66,14 @@ export async function updateStoryTitleAction(
 
   return {
     status: "success",
-    message: "Archive title updated successfully.",
+    message: t("titleUpdated"),
   };
 }
 
 export async function archiveStoryAction(storyId: string): Promise<StoryActionState> {
+  const tCommon = await getTranslations("Common");
   const supabase = await createServerSupabaseClient();
-  if (!supabase) return { status: "error", message: "Supabase not configured." };
+  if (!supabase) return { status: "error", message: tCommon("supabaseNotConfigured") };
 
   const { error } = await supabase
     .from("audio_recordings")
@@ -82,15 +89,18 @@ export async function archiveStoryAction(storyId: string): Promise<StoryActionSt
   revalidatePath(`/stories/${storyId}`);
   revalidatePath("/overview");
 
+  const t = await getTranslations("Stories");
+
   return {
     status: "success",
-    message: "Memory has been moved to the Archive Drawer.",
+    message: t("memoryArchived"),
   };
 }
 
 export async function restoreStoryAction(storyId: string): Promise<StoryActionState> {
+  const tCommon = await getTranslations("Common");
   const supabase = await createServerSupabaseClient();
-  if (!supabase) return { status: "error", message: "Supabase not configured." };
+  if (!supabase) return { status: "error", message: tCommon("supabaseNotConfigured") };
 
   const { error } = await supabase
     .from("audio_recordings")
@@ -104,15 +114,18 @@ export async function restoreStoryAction(storyId: string): Promise<StoryActionSt
   revalidatePath("/stories");
   revalidatePath("/archive/trash");
 
+  const t = await getTranslations("Stories");
+
   return {
     status: "success",
-    message: "Memory restored to the main gallery.",
+    message: t("memoryRestored"),
   };
 }
 
 export async function permanentlyDeleteStoryAction(storyId: string): Promise<StoryActionState> {
+  const tCommon = await getTranslations("Common");
   const supabase = await createServerSupabaseClient();
-  if (!supabase) return { status: "error", message: "Supabase not configured." };
+  if (!supabase) return { status: "error", message: tCommon("supabaseNotConfigured") };
 
   // Note: RLS will handle permission check
   const { error } = await supabase
@@ -127,9 +140,11 @@ export async function permanentlyDeleteStoryAction(storyId: string): Promise<Sto
   revalidatePath("/stories");
   revalidatePath("/archive/trash");
 
+  const t = await getTranslations("Stories");
+
   return {
     status: "success",
-    message: "Memory has been permanently vanished from the archive.",
+    message: t("memoryDeleted"),
   };
 }
 
@@ -137,8 +152,9 @@ export async function updateStoryTranscriptionAction(
   storyId: string,
   newTranscription: string
 ): Promise<StoryActionState> {
+  const tCommon = await getTranslations("Common");
   const supabase = await createServerSupabaseClient();
-  if (!supabase) return { status: "error", message: "Supabase not configured." };
+  if (!supabase) return { status: "error", message: tCommon("supabaseNotConfigured") };
 
   const { error } = await supabase
     .from("audio_recordings")
@@ -153,9 +169,11 @@ export async function updateStoryTranscriptionAction(
   revalidatePath(`/stories/${storyId}`);
   revalidatePath("/stories");
 
+  const t = await getTranslations("Stories");
+
   return {
     status: "success",
-    message: "Historical transcript updated successfully.",
+    message: t("transcriptUpdated"),
   };
 }
 
@@ -163,8 +181,9 @@ export async function updateStoryTranscriptionAction(
  * 批量归档故事 (移至回收站)
  */
 export async function batchArchiveStoriesAction(ids: string[]): Promise<StoryActionState> {
+  const tCommon = await getTranslations("Common");
   const supabase = await createServerSupabaseClient();
-  if (!supabase) return { status: "error", message: "Supabase not configured" };
+  if (!supabase) return { status: "error", message: tCommon("supabaseNotConfigured") };
 
   try {
     const { error } = await supabase
@@ -177,7 +196,8 @@ export async function batchArchiveStoriesAction(ids: string[]): Promise<StoryAct
     revalidatePath("/stories");
     revalidatePath("/archive/trash");
     revalidatePath("/overview");
-    return { status: "success", message: `成功归档 ${ids.length} 项故事` };
+    const t = await getTranslations("Stories");
+    return { status: "success", message: t("batchArchivedSuccess", { count: ids.length }) };
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : "Unknown error";
     return { status: "error", message };
@@ -188,8 +208,9 @@ export async function batchArchiveStoriesAction(ids: string[]): Promise<StoryAct
  * 批量从回收站恢复故事
  */
 export async function batchRestoreStoriesAction(ids: string[]): Promise<StoryActionState> {
+  const tCommon = await getTranslations("Common");
   const supabase = await createServerSupabaseClient();
-  if (!supabase) return { status: "error", message: "Supabase not configured" };
+  if (!supabase) return { status: "error", message: tCommon("supabaseNotConfigured") };
 
   try {
     const { error } = await supabase
@@ -202,7 +223,8 @@ export async function batchRestoreStoriesAction(ids: string[]): Promise<StoryAct
     revalidatePath("/stories");
     revalidatePath("/archive/trash");
     revalidatePath("/overview");
-    return { status: "success", message: `成功恢复 ${ids.length} 项故事` };
+    const t = await getTranslations("Stories");
+    return { status: "success", message: t("batchRestoredSuccess", { count: ids.length }) };
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : "Unknown error";
     return { status: "error", message };
@@ -213,8 +235,9 @@ export async function batchRestoreStoriesAction(ids: string[]): Promise<StoryAct
  * 批量永久删除故事 (物理删除)
  */
 export async function batchPermanentlyDeleteStoriesAction(ids: string[]): Promise<StoryActionState> {
+  const tCommon = await getTranslations("Common");
   const supabase = await createServerSupabaseClient();
-  if (!supabase) return { status: "error", message: "Supabase not configured" };
+  if (!supabase) return { status: "error", message: tCommon("supabaseNotConfigured") };
 
   try {
     const { error } = await supabase
@@ -226,7 +249,8 @@ export async function batchPermanentlyDeleteStoriesAction(ids: string[]): Promis
 
     revalidatePath("/stories");
     revalidatePath("/archive/trash");
-    return { status: "success", message: `已永久移除 ${ids.length} 项资产` };
+    const t = await getTranslations("Stories");
+    return { status: "success", message: t("batchDeletedSuccess", { count: ids.length }) };
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : "Unknown error";
     return { status: "error", message };
@@ -239,18 +263,20 @@ export async function addStoryCommentAction(
   prevState: StoryActionState,
   formData: FormData
 ): Promise<StoryActionState> {
+  const t = await getTranslations("Stories");
+  const tCommon = await getTranslations("Common");
   const storyId = formData.get("storyId") as string;
   const content = formData.get("content") as string;
   const audioFile = formData.get("audio") as File | null;
 
-  if (!storyId) return { status: "error", message: "Story ID is missing." };
-  if (!content && !audioFile) return { status: "error", message: "Comment content is empty." };
+  if (!storyId) return { status: "error", message: t("errorStoryIdMissing") };
+  if (!content && !audioFile) return { status: "error", message: t("errorCommentEmpty") };
 
   const supabase = await createServerSupabaseClient();
-  if (!supabase) return { status: "error", message: "Supabase not configured." };
+  if (!supabase) return { status: "error", message: tCommon("supabaseNotConfigured") };
 
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return { status: "error", message: "Unauthorized." };
+  if (!user) return { status: "error", message: tCommon("unauthorized") };
 
   try {
     let finalContent = content;
@@ -258,7 +284,7 @@ export async function addStoryCommentAction(
     // 如果有音频文件，先上传
     if (audioFile && audioFile.size > 0) {
       const fileName = `comment_${storyId}_${user.id}_${Date.now()}.wav`;
-      const { data: uploadData, error: uploadError } = await supabase.storage
+      const { error: uploadError } = await supabase.storage
         .from("audio_recordings")
         .upload(`comments/${fileName}`, audioFile);
 
@@ -277,10 +303,11 @@ export async function addStoryCommentAction(
     if (error) throw error;
 
     revalidatePath(`/stories/${storyId}`);
-    return { status: "success", message: "Your warm response has been preserved." };
-  } catch (error: any) {
+    return { status: "success", message: t("commentAdded") };
+  } catch (error: unknown) {
     console.error("Error adding comment:", error);
-    return { status: "error", message: error.message };
+    const message = error instanceof Error ? error.message : "Unknown error";
+    return { status: "error", message };
   }
 }
 
@@ -291,16 +318,17 @@ export async function toggleStoryReactionAction(
   prevState: StoryActionState,
   formData: FormData
 ): Promise<StoryActionState> {
+  const t = await getTranslations("Stories");
+  const tCommon = await getTranslations("Common");
   const storyId = formData.get("storyId") as string;
-  const reactionType = formData.get("reactionType") as string;
 
-  if (!storyId) return { status: "error", message: "Story ID is missing." };
+  if (!storyId) return { status: "error", message: t("errorStoryIdMissing") };
 
   const supabase = await createServerSupabaseClient();
-  if (!supabase) return { status: "error", message: "Supabase not configured." };
+  if (!supabase) return { status: "error", message: tCommon("supabaseNotConfigured") };
 
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return { status: "error", message: "Unauthorized." };
+  if (!user) return { status: "error", message: tCommon("unauthorized") };
 
   try {
     // 检查是否已经点赞
@@ -312,11 +340,13 @@ export async function toggleStoryReactionAction(
       .eq("reaction_type", "heart")
       .maybeSingle();
 
+    const t = await getTranslations("Stories");
+
     if (existing) {
       // 移除
       await supabase.from("story_reactions").delete().eq("id", existing.id);
       revalidatePath(`/stories/${storyId}`);
-      return { status: "success", message: "Heart removed." };
+      return { status: "success", message: t("reactionRemoved") };
     } else {
       // 添加
       await supabase.from("story_reactions").insert({
@@ -325,7 +355,7 @@ export async function toggleStoryReactionAction(
         reaction_type: "heart",
       });
       revalidatePath(`/stories/${storyId}`);
-      return { status: "success", message: "Heart sent to the archive." };
+      return { status: "success", message: t("reactionAdded") };
     }
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : "Unknown error";

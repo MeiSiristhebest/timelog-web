@@ -1,11 +1,5 @@
 import { createServerSupabaseClient } from "@/lib/supabase/server";
-import { mockDevices } from "@/lib/mock-data";
-
-const shouldUseMock = () => {
-  const isMockFlag = process.env.NEXT_PUBLIC_USE_MOCK === "true";
-  const hasSupabase = Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY);
-  return isMockFlag || !hasSupabase;
-};
+import { getLocale, getTranslations } from "next-intl/server";
 
 export type DeviceView = {
   id: string;
@@ -23,37 +17,13 @@ type DeviceRow = {
   revoked_at: string | null;
 };
 
-const previewDevices: DeviceView[] = [
-  {
-    id: "device-preview-1",
-    deviceName: "Grandma iPhone",
-    createdAt: "Linked April 4, 2026",
-    lastSeenAt: "Seen 9 minutes ago",
-    status: "active",
-  },
-  {
-    id: "device-preview-2",
-    deviceName: "Family iPad",
-    createdAt: "Linked April 1, 2026",
-    lastSeenAt: "Seen yesterday",
-    status: "active",
-  },
-  {
-    id: "device-preview-3",
-    deviceName: "Old Android Tablet",
-    createdAt: "Linked March 18, 2026",
-    lastSeenAt: "Revoked April 6, 2026",
-    status: "revoked",
-  },
-];
-
-function formatAbsolute(input: string | null, prefix: string): string {
-  if (!input) return `${prefix} unavailable`;
+function formatAbsolute(input: string | null, prefix: string, locale: string, fallbackSuffix: string): string {
+  if (!input) return `${prefix} ${fallbackSuffix}`;
 
   const date = new Date(input);
-  if (Number.isNaN(date.getTime())) return `${prefix} unavailable`;
+  if (Number.isNaN(date.getTime())) return `${prefix} ${fallbackSuffix}`;
 
-  return `${prefix} ${new Intl.DateTimeFormat("en", {
+  return `${prefix} ${new Intl.DateTimeFormat(locale, {
     month: "long",
     day: "numeric",
     year: "numeric",
@@ -63,29 +33,25 @@ function formatAbsolute(input: string | null, prefix: string): string {
 export async function getDevices(): Promise<DeviceView[]> {
   const supabase = await createServerSupabaseClient();
   if (!supabase) {
-    return previewDevices;
+    return [];
   }
+  const t = await getTranslations("Devices");
+  const locale = await getLocale();
 
   const { data, error } = await supabase.rpc("list_family_devices");
-  if (shouldUseMock() || error || !data || data.length === 0) {
-    return mockDevices.map(row => ({
-      id: row.id,
-      deviceName: row.name,
-      createdAt: formatAbsolute(row.created_at, "Linked"),
-      lastSeenAt: row.revoked_at
-        ? formatAbsolute(row.revoked_at, "Revoked")
-        : formatAbsolute(row.last_activeAt, "Seen"),
-      status: row.revoked_at ? "revoked" : "active",
-    }));
+  if (error || !data || data.length === 0) {
+    return [];
   }
+
+  const fallbackSuffix = t("unavailable");
 
   return (data as DeviceRow[]).map((row) => ({
     id: row.id,
-    deviceName: row.device_name?.trim() || "Unnamed device",
-    createdAt: formatAbsolute(row.created_at, "Linked"),
+    deviceName: row.device_name?.trim() || t("unnamedDevice"),
+    createdAt: formatAbsolute(row.created_at, t("linked"), locale, fallbackSuffix),
     lastSeenAt: row.revoked_at
-      ? formatAbsolute(row.revoked_at, "Revoked")
-      : formatAbsolute(row.last_seen_at, "Seen"),
+      ? formatAbsolute(row.revoked_at, t("revoked"), locale, fallbackSuffix)
+      : formatAbsolute(row.last_seen_at, t("seen"), locale, fallbackSuffix),
     status: row.revoked_at ? "revoked" : "active",
   }));
 }

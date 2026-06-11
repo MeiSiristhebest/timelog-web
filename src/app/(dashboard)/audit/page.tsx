@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { Suspense } from "react";
 import { SectionPlaceholder } from "@/components/dashboard/section-placeholder";
 import { RealtimeRefresh } from "@/features/realtime/components/realtime-refresh";
@@ -5,7 +7,7 @@ import { buildInteractionRealtimeTargets } from "@/features/realtime/subscriptio
 import { getTranslations } from "next-intl/server";
 import { AuditMetrics, ActivityTimeline } from "@/features/audit/components/audit-views";
 import { Skeleton } from "@/components/ui/skeleton";
-import { getAuditOverview } from "@/features/audit/queries";
+import { getAuditOverview, type AuditOverview } from "@/features/audit/queries";
 import { PermissionWrapper } from "@/components/auth/permission-wrapper";
 
 function MetricsSkeleton() {
@@ -36,8 +38,8 @@ function TimelineSkeleton() {
   );
 }
 
-async function AuditContent() {
-  const overview = await getAuditOverview();
+async function AuditContent({ overviewPromise }: { overviewPromise: Promise<AuditOverview> }) {
+  const overview = await overviewPromise;
 
   return (
     <PermissionWrapper
@@ -64,6 +66,7 @@ async function AuditContent() {
 
 export default async function AuditPage() {
   const t = await getTranslations("Audit");
+  const overviewPromise = getAuditOverview();
 
   return (
     <SectionPlaceholder
@@ -82,7 +85,7 @@ export default async function AuditPage() {
           <TimelineSkeleton />
         </div>
       }>
-        <AuditContent />
+        <AuditContent overviewPromise={overviewPromise} />
       </Suspense>
     </SectionPlaceholder>
   );

@@ -13,7 +13,7 @@ interface FavoriteButtonProps {
 }
 
 export function FavoriteButton({ storyId, initialValue }: FavoriteButtonProps) {
-  const commonT = useTranslations("Common");
+  const t = useTranslations("Stories");
   const [isPending, startTransition] = useTransition();
 
   // React 19 Optimistic State
@@ -57,7 +57,7 @@ export function FavoriteButton({ storyId, initialValue }: FavoriteButtonProps) {
         <Star className={cn("h-6 w-6", isFavorite && "fill-current")} />
       </div>
       <span className="text-sm font-semibold tracking-widest uppercase">
-        {isFavorite ? "Heartfelt" : "Heart"}
+        {isFavorite ? t("unfavorite") : t("favorite")}
       </span>
     </button>
   );

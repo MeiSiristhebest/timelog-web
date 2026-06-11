@@ -43,7 +43,14 @@ export function LocaleProvider({
   const [, startTransition] = useTransition();
 
   const toggleLocale = () => {
-    const newLocale = locale === "en" ? "zh" : "en";
+    let newLocale = "zh";
+    if (locale === "zh") {
+      newLocale = "en";
+    } else if (locale === "en") {
+      newLocale = "th";
+    } else {
+      newLocale = "zh";
+    }
     document.cookie = `NEXT_LOCALE=${newLocale}; path=/; max-age=31536000; SameSite=Lax`;
     startTransition(() => {
       router.refresh();

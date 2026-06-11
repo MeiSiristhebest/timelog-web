@@ -24,8 +24,12 @@ import { StoryCardSkeleton } from "./story-card-skeleton";
 import { Star, CheckCircle2, Circle, MessageSquare, Heart, ChevronRight } from "lucide-react";
 import { toggleFavoriteAction } from "../actions";
 import { toast } from "sonner";
-import { useState, useTransition } from "react";
+import { useState, useTransition, useRef } from "react";
 import { Archive } from "lucide-react";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
+
+gsap.registerPlugin(useGSAP);
 
 export function StoryCard({ story, index }: { story: Story; index: number }) {
   const t = useTranslations("Stories");
@@ -60,17 +64,104 @@ export function StoryCard({ story, index }: { story: Story; index: number }) {
     });
   };
 
+  const cardRef = useRef<HTMLDivElement>(null);
+  const pulseTweenRef = useRef<gsap.core.Tween | null>(null);
+
+  useGSAP({ scope: cardRef });
+
+  // Reset animations if selection or management mode changes
+  useGSAP(() => {
+    if (isSelected || isManagementMode) {
+      if (pulseTweenRef.current) {
+        pulseTweenRef.current.kill();
+        pulseTweenRef.current = null;
+      }
+      gsap.killTweensOf(cardRef.current);
+      gsap.set(cardRef.current, { clearProps: "all" });
+    }
+  }, { dependencies: [isSelected, isManagementMode], scope: cardRef });
+
+  useEffect(() => {
+    return () => {
+      if (pulseTweenRef.current) {
+        pulseTweenRef.current.kill();
+      }
+    };
+  }, []);
+
+  const handleMouseEnter = useCallback((e: React.MouseEvent) => {
+    if (isManagementMode || isSelected) return;
+    const target = e.currentTarget;
+
+    // Kill any existing animations on this element to prevent conflicts
+    gsap.killTweensOf(target);
+    if (pulseTweenRef.current) {
+      pulseTweenRef.current.kill();
+    }
+
+    // Hover entry animation
+    gsap.to(target, {
+      y: -6,
+      borderColor: "rgba(212, 182, 122, 0.4)",
+      backgroundColor: "rgba(212, 182, 122, 0.02)",
+      duration: 0.4,
+      ease: "power2.out",
+      onComplete: () => {
+        // Start the elegant breathing pulse glow
+        pulseTweenRef.current = gsap.fromTo(
+          target,
+          {
+            boxShadow: "0 12px 24px -8px rgba(212, 182, 122, 0.15), 0 0 0 1px rgba(212, 182, 122, 0.1)",
+          },
+          {
+            boxShadow: "0 16px 32px -4px rgba(212, 182, 122, 0.25), 0 0 12px 3px rgba(212, 182, 122, 0.18)",
+            duration: 2,
+            repeat: -1,
+            yoyo: true,
+            ease: "sine.inOut",
+          }
+        );
+      },
+    });
+  }, [isManagementMode, isSelected]);
+
+  const handleMouseLeave = useCallback((e: React.MouseEvent) => {
+    if (isManagementMode || isSelected) return;
+    const target = e.currentTarget;
+
+    // Kill the pulse animation
+    if (pulseTweenRef.current) {
+      pulseTweenRef.current.kill();
+      pulseTweenRef.current = null;
+    }
+    gsap.killTweensOf(target);
+
+    // Reset animation
+    gsap.to(target, {
+      y: 0,
+      borderColor: "rgba(255, 255, 255, 0.08)", // default border-line color
+      backgroundColor: "rgba(255, 255, 255, 0.03)", // default bg-panel color
+      boxShadow: "0 0 0 0 rgba(0,0,0,0)",
+      duration: 0.4,
+      ease: "power2.out",
+      clearProps: "all", // clears inline styles to let Tailwind classes take over
+    });
+  }, [isManagementMode, isSelected]);
+
   return (
     <div ref={ref} className="min-h-[160px]">
       {isVisible ? (
         <div
+          ref={cardRef}
           onClick={() => isManagementMode ? toggleSelection(story.id) : null}
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
           className={cn(
             "card group block p-6 md:p-8 transition-all duration-500 relative overflow-hidden",
             isManagementMode ? "cursor-pointer" : "",
             isSelected 
               ? "border-accent bg-gradient-to-br from-accent/10 to-transparent shadow-[0_20px_50px_rgba(var(--color-accent),0.1)] scale-[0.99]" 
-              : "border-line bg-panel hover:border-accent/40 hover:-translate-y-1 hover:shadow-[0_32px_64px_-16px_rgba(0,0,0,0.08)]",
+              : "border-line bg-panel",
             "animate-slide-up"
           )}
           style={{ animationDelay: `${index * 0.05}s` }}
@@ -127,8 +218,8 @@ export function StoryCard({ story, index }: { story: Story; index: number }) {
                 <div className="flex flex-col items-end gap-2 shrink-0">
                   <p className="badge border-accent/20 bg-accent/5 text-accent-strong uppercase tracking-[0.2em] text-[9px] font-black px-4 py-1 rounded-full shadow-sm">
                     {story.syncStatus === "synced" 
-                      ? (t("statusSynced") || "Synchronized") 
-                      : (t("statusSyncing") || story.syncStatus)}
+                      ? t("statusSynced")
+                      : t("statusSyncing")}
                   </p>
                   <p className="display text-2xl text-line group-hover:text-muted transition-colors">
                     {story.durationLabel}

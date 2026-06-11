@@ -16,6 +16,7 @@ import {
 
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
 import { 
   Table, 
   TableBody, 
@@ -74,57 +75,60 @@ export function StoriesDataTable({ storiesPromise }: { storiesPromise: Promise<S
     <TooltipProvider delayDuration={0}>
       <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-500">
         {/* Control Bar */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 bg-canvas-elevated border border-line rounded-2xl shadow-sm">
-          <div className="relative flex-1 max-w-md group">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted group-focus-within:text-accent transition-colors" />
-            <input
-              type="text"
-              placeholder={t("Stories.searchPlaceholder") || "Search moments, speakers, or transcripts..."}
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-canvas-depth border border-line-strong rounded-xl py-2.5 pl-11 pr-4 text-sm text-ink placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-accent/20 transition-all font-bold"
-            />
-          </div>
+        <Card doubleBezel>
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-4">
+            <div className="relative flex-1 max-w-md group">
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted group-focus-within:text-accent transition-colors" />
+              <input
+                type="text"
+                placeholder={t("Stories.searchPlaceholder") || "Search moments, speakers, or transcripts..."}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full bg-white/40 dark:bg-black/40 border border-line rounded-xl py-2.5 pl-11 pr-4 text-sm text-ink placeholder:text-muted focus:outline-none focus:ring-1 focus:ring-accent/30 focus:border-accent transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] hover:border-line-strong font-bold"
+              />
+            </div>
 
-          <div className="flex items-center gap-3">
-            <button 
-              onClick={() => setManagementMode(!isManagementMode)}
-              className={cn(
-                "flex items-center gap-2 px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border outline-none",
-                isManagementMode 
-                  ? "bg-accent text-accent-foreground border-accent shadow-lg shadow-accent/20" 
-                  : "bg-canvas-depth text-muted border-line-strong hover:border-accent/40 hover:text-ink"
-              )}
-            >
-              {isManagementMode ? t("Common.exitSelect") || "Exit Selection" : t("Common.batchSelect") || "Select Multiple"}
-            </button>
-            
-            <button className="p-2.5 rounded-xl bg-canvas-depth border border-line-strong text-muted hover:text-ink hover:border-accent/40 transition-all">
-              <Filter className="h-4 w-4" />
-            </button>
+            <div className="flex items-center gap-3">
+              <button 
+                onClick={() => setManagementMode(!isManagementMode)}
+                className={cn(
+                  "flex items-center gap-2 px-5 py-2.5 rounded-full text-[10px] font-bold uppercase tracking-[0.15em] transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] border outline-none active:scale-[0.97] select-none",
+                  isManagementMode 
+                    ? "bg-accent text-canvas border-accent shadow-sm" 
+                    : "bg-canvas-depth text-muted border-line hover:border-accent/40 hover:text-ink"
+                )}
+              >
+                {isManagementMode ? t("Common.exitSelect") || "Exit Selection" : t("Common.batchSelect") || "Select Multiple"}
+              </button>
+              
+              <button className="p-2.5 rounded-full bg-canvas-depth border border-line text-muted hover:text-ink hover:border-accent/40 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.95]">
+                <Filter className="h-4 w-4" />
+              </button>
+            </div>
           </div>
-        </div>
+        </Card>
 
         {/* Main Table Container */}
-        <div className="bg-canvas-elevated border border-line rounded-2xl overflow-hidden shadow-sm">
-          <Table>
+        <Card doubleBezel className="overflow-hidden">
+          <div className="overflow-x-auto">
+            <Table>
             <TableHeader>
-              <TableRow className="hover:bg-transparent border-b border-line bg-canvas-depth/30">
+              <TableRow className="hover:bg-transparent border-b border-line bg-canvas-elevated">
                 {isManagementMode && (
                   <TableHead className="w-12 px-6 h-14">
                     <input 
                       type="checkbox" 
                       checked={isAllSelected}
                       onChange={() => isAllSelected ? clearSelection() : selectAll(allIds)}
-                      className="rounded border-line-strong text-accent focus:ring-accent accent-accent h-4 w-4 cursor-pointer"
+                      className="rounded border-line text-accent focus:ring-accent accent-accent h-4 w-4 cursor-pointer"
                     />
                   </TableHead>
                 )}
-                <TableHead className="px-6 h-14 text-[10px] font-black uppercase tracking-widest text-muted">{t("Stories.tableTitle")}</TableHead>
-                <TableHead className="px-6 h-14 text-[10px] font-black uppercase tracking-widest text-muted">{t("Stories.tableDuration")}</TableHead>
-                <TableHead className="px-6 h-14 text-[10px] font-black uppercase tracking-widest text-muted text-center">{t("Stories.tableStats") || "Interactions"}</TableHead>
-                <TableHead className="px-6 h-14 text-[10px] font-black uppercase tracking-widest text-muted">{t("Stories.tableDate")}</TableHead>
-                <TableHead className="px-6 h-14 text-[10px] font-black uppercase tracking-widest text-muted">{t("Stories.tableStatus")}</TableHead>
+                <TableHead className="px-6 h-14 text-[10px] font-bold uppercase tracking-[0.15em] text-muted">{t("Stories.tableTitle")}</TableHead>
+                <TableHead className="px-6 h-14 text-[10px] font-bold uppercase tracking-[0.15em] text-muted">{t("Stories.tableDuration")}</TableHead>
+                <TableHead className="px-6 h-14 text-[10px] font-bold uppercase tracking-[0.15em] text-muted text-center">{t("Stories.tableStats") || "Interactions"}</TableHead>
+                <TableHead className="px-6 h-14 text-[10px] font-bold uppercase tracking-[0.15em] text-muted">{t("Stories.tableDate")}</TableHead>
+                <TableHead className="px-6 h-14 text-[10px] font-bold uppercase tracking-[0.15em] text-muted">{t("Stories.tableStatus")}</TableHead>
                 <TableHead className="w-16 px-6 h-14"></TableHead>
               </TableRow>
             </TableHeader>
@@ -135,8 +139,8 @@ export function StoriesDataTable({ storiesPromise }: { storiesPromise: Promise<S
                   <TableRow 
                     key={story.id} 
                     className={cn(
-                      "group border-b border-line transition-colors",
-                      isSelected ? "bg-accent/[0.04]" : "hover:bg-accent/[0.02]"
+                      "group border-b border-line transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]",
+                      isSelected ? "bg-accent/[0.04]" : "hover:bg-accent/[0.01]"
                     )}
                   >
                     {isManagementMode && (
@@ -166,10 +170,10 @@ export function StoriesDataTable({ storiesPromise }: { storiesPromise: Promise<S
                         </Tooltip>
                         
                         <div className="min-w-0">
-                          <Link href={storyRoute(story.id)} className="text-sm font-black text-ink hover:text-accent transition-colors block leading-tight truncate">
+                          <Link href={storyRoute(story.id)} className="text-sm font-bold text-ink hover:text-accent transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] block leading-tight truncate">
                             {story.title}
                           </Link>
-                          <p className="text-[10px] text-muted font-bold mt-1.5 uppercase tracking-widest border-l-2 border-accent/30 pl-2">
+                          <p className="text-[10px] text-muted font-bold mt-1.5 uppercase tracking-[0.15em] border-l-2 border-accent/30 pl-2">
                             {story.speakerLabel}
                           </p>
                         </div>
@@ -183,13 +187,13 @@ export function StoriesDataTable({ storiesPromise }: { storiesPromise: Promise<S
                     </TableCell>
                     <TableCell className="px-6 py-5">
                       <div className="flex items-center justify-center gap-4">
-                        <div className="flex items-center gap-1.5 text-muted group-hover:text-ink transition-colors">
+                        <div className="flex items-center gap-1.5 text-muted group-hover:text-ink transition-colors duration-500">
                           <MessageCircle size={14} className="text-muted/60" />
-                          <span className="text-[10px] font-black">{story.commentCount}</span>
+                          <span className="text-[10px] font-bold">{story.commentCount}</span>
                         </div>
-                        <div className="flex items-center gap-1.5 text-muted group-hover:text-ink transition-colors">
+                        <div className="flex items-center gap-1.5 text-muted group-hover:text-ink transition-colors duration-500">
                           <CheckCircle2 size={14} className="text-muted/60" />
-                          <span className="text-[10px] font-black">{story.reactionCount}</span>
+                          <span className="text-[10px] font-bold">{story.reactionCount}</span>
                         </div>
                       </div>
                     </TableCell>
@@ -198,17 +202,12 @@ export function StoriesDataTable({ storiesPromise }: { storiesPromise: Promise<S
                     </TableCell>
                     <TableCell className="px-6 py-5">
                       <Badge 
-                        variant="outline" 
-                        className={cn(
-                          "text-[9px] font-black px-2 py-0.5 uppercase tracking-[0.1em]",
-                          story.syncStatus === "synced" 
-                            ? "border-emerald-500/20 bg-emerald-500/5 text-emerald-600" 
-                            : "border-line-strong bg-canvas-depth text-muted"
-                        )}
+                        variant={story.syncStatus === "synced" ? "success" : "outline"} 
+                        className="text-[9px] font-bold px-2 py-0.5 uppercase tracking-[0.15em]"
                       >
                         <span className={cn(
                           "h-1 w-1 rounded-full mr-1.5",
-                          story.syncStatus === "synced" ? "bg-emerald-500" : "bg-muted"
+                          story.syncStatus === "synced" ? "bg-badge-green-fg" : "bg-muted"
                         )} />
                         {story.syncStatus === "synced" 
                           ? (t("Stories.statusSynced") || "Synchronized") 
@@ -250,19 +249,20 @@ export function StoriesDataTable({ storiesPromise }: { storiesPromise: Promise<S
               })}
             </TableBody>
           </Table>
+          </div>
 
           {filteredStories.length === 0 && (
              <div className="p-32 text-center animate-in fade-in zoom-in duration-500 flex flex-col items-center">
-                <div className="h-20 w-20 rounded-2xl bg-canvas-depth flex items-center justify-center border border-dashed border-line-strong mb-6 rotate-12 group-hover:rotate-0 transition-transform">
+                <div className="h-20 w-20 rounded-2xl bg-canvas-depth flex items-center justify-center border border-dashed border-line mb-6 rotate-12 group-hover:rotate-0 transition-transform">
                   <Search className="h-8 w-8 text-muted/40" />
                 </div>
-                <h4 className="text-xl font-black text-ink tracking-tight">{t("Stories.noMatchingMemories")}</h4>
-                <p className="text-sm text-muted font-bold mt-2 max-w-xs mx-auto uppercase tracking-widest opacity-60">
+                <h4 className="text-xl font-bold text-ink tracking-tight">{t("Stories.noMatchingMemories")}</h4>
+                <p className="text-sm text-muted font-bold mt-2 max-w-xs mx-auto uppercase tracking-[0.15em] opacity-60">
                   {t("Stories.searchAdjust")}
                 </p>
              </div>
           )}
-        </div>
+        </Card>
 
         <BatchFloatingToolbar mode={isManagementMode ? "active" : "archived"} />
       </div>

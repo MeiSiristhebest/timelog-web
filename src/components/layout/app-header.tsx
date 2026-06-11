@@ -71,7 +71,7 @@ export function AppHeader({
   const breadcrumbs = getBreadcrumbs();
 
   return (
-    <header className="sticky top-0 z-40 w-full h-16 bg-[var(--header)] backdrop-blur-md border-b border-[var(--line)] px-6 flex items-center justify-between">
+    <header className="sticky top-4 z-40 mx-4 md:mx-6 mt-4 h-16 bg-[var(--header)] backdrop-blur-md border border-[var(--line)] rounded-2xl px-6 flex items-center justify-between shadow-sm transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]">
       {/* Left: Breadcrumbs */}
       <div className="flex items-center gap-4">
         <Breadcrumb className="hidden md:flex">
@@ -94,7 +94,7 @@ export function AppHeader({
             ))}
           </BreadcrumbList>
         </Breadcrumb>
-        <button className="md:hidden p-2 -ml-2 text-muted hover:text-ink transition-colors">
+        <button aria-label="Open menu" className="md:hidden p-2 -ml-2 text-muted hover:text-ink transition-colors">
           <Menu className="h-5 w-5" />
         </button>
       </div>
@@ -121,14 +121,14 @@ export function AppHeader({
 
         <ThemeToggle />
 
-        <button className="relative p-2 rounded-full hover:bg-canvas-depth transition-colors text-muted hover:text-ink">
+        <button aria-label="Notifications" className="relative p-2 rounded-full hover:bg-canvas-depth transition-colors text-muted hover:text-ink">
           <Bell className="h-5 w-5" />
           <span className="absolute top-2.5 right-2.5 h-2 w-2 bg-danger rounded-full border-2 border-canvas" />
         </button>
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button className="flex items-center gap-2 p-1 pl-3 rounded-full bg-canvas-depth border border-line ml-2 group hover:border-accent/40 transition-all outline-none">
+            <button aria-label="User menu" className="flex items-center gap-2 p-1 pl-3 rounded-full bg-canvas-depth border border-line ml-2 group hover:border-accent/40 transition-all outline-none">
                <span className="text-[10px] font-black uppercase tracking-widest text-muted">{t("Dashboard.live")}</span>
                 <Avatar className="h-6 w-6 border border-white/10">
                   <AvatarFallback className="bg-accent text-[10px] text-accent-foreground font-black">

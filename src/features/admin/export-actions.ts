@@ -1,6 +1,7 @@
 "use server";
 
 import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { getTranslations } from "next-intl/server";
 
 export type ExportActionState = {
   status: "idle" | "success" | "error";
@@ -13,8 +14,11 @@ export type ExportActionState = {
  * This satisfies the "Data Sovereignty" requirement.
  */
 export async function exportAllDataAction(): Promise<ExportActionState> {
+  const tCommon = await getTranslations("Common");
+  const tSettings = await getTranslations("Settings");
+
   const supabase = await createServerSupabaseClient();
-  if (!supabase) return { status: "error", data: null, message: "Supabase not configured." };
+  if (!supabase) return { status: "error", data: null, message: tCommon("supabaseNotConfigured") };
 
   try {
     // 1. Fetch Stories (Metadata & Transcripts)
@@ -65,11 +69,11 @@ export async function exportAllDataAction(): Promise<ExportActionState> {
     return {
       status: "success",
       data: backupData,
-      message: "家族档案数据已成功聚合，准备开始导出流程。",
+      message: tSettings("exportSuccess"),
     };
   } catch (error: unknown) {
     console.error("Export error:", error);
-    const message = error instanceof Error ? error.message : "Unknown error";
+    const message = error instanceof Error ? error.message : tCommon("unknownError");
     return { status: "error", data: null, message };
   }
 }

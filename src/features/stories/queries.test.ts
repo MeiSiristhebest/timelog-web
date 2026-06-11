@@ -28,15 +28,21 @@ describe("story query mappers", () => {
     expect(mapCommentRows(rows)).toEqual([
       {
         id: "comment-1",
+        userId: "user-12345678",
         authorLabel: "Family 12345678",
         content: "I had never heard this part before.",
         createdAtLabel: "April 7, 2026",
+        type: "text",
+        audioUrl: undefined,
       },
       {
         id: "comment-2",
+        userId: null,
         authorLabel: "Family member",
         content: "Thank you for sharing this memory.",
         createdAtLabel: "Unknown date",
+        type: "text",
+        audioUrl: undefined,
       },
     ]);
   });

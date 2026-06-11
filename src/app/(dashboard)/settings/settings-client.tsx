@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactNode, Suspense, useState } from "react";
+import { ReactNode, useState, useEffect } from "react";
 import { ArchiveNameForm } from "@/features/family/components/archive-name-form";
 import { 
   Settings as SettingsIcon, 
@@ -10,6 +10,8 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTranslation } from "@/lib/hooks/use-translation";
 import { SovereigntyTab } from "./sovereignty-tab";
+import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -44,6 +46,31 @@ export default function SettingsClient({
   const { t } = useTranslation();
 
   const [activeTab, setActiveTab] = useState("general");
+
+  const [pushEnabled, setPushEnabled] = useState(false);
+  const [aiEnabled, setAiEnabled] = useState(true);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setPushEnabled(localStorage.getItem("settings_push_enabled") === "true");
+      setAiEnabled(localStorage.getItem("settings_ai_enabled") !== "false");
+    }
+  }, []);
+
+  const togglePush = () => {
+    const newVal = !pushEnabled;
+    setPushEnabled(newVal);
+    localStorage.setItem("settings_push_enabled", String(newVal));
+    toast.success(t("Settings.preferenceUpdated"));
+  };
+
+  const toggleAi = () => {
+    const newVal = !aiEnabled;
+    setAiEnabled(newVal);
+    localStorage.setItem("settings_ai_enabled", String(newVal));
+    toast.success(t("Settings.preferenceUpdated"));
+  };
 
   return (
     <motion.div 
@@ -92,22 +119,40 @@ export default function SettingsClient({
                         {t("Settings.archivePrefs")}
                      </h4>
                      <div className="space-y-4">
-                         <div className="group flex items-center justify-between p-5 rounded-[1.5rem] bg-canvas-elevated border border-line shadow-sm hover:border-accent/20 transition-all">
+                         <div 
+                           onClick={togglePush}
+                           className="group flex items-center justify-between p-5 rounded-[1.5rem] bg-canvas-elevated border border-line shadow-sm hover:border-accent/20 transition-all cursor-pointer"
+                         >
                             <div>
                                <p className="text-sm font-black text-ink">{t("Settings.pushNotifications")}</p>
                                <p className="text-xs text-muted font-medium mt-0.5">{t("Settings.pushNotificationsDesc")}</p>
                             </div>
-                            <div className="h-6 w-11 rounded-full bg-line p-1 cursor-not-allowed opacity-50">
-                               <div className="h-4 w-4 rounded-full bg-panel shadow-sm" />
+                            <div className={cn(
+                              "h-6 w-11 rounded-full p-1 transition-all duration-300 relative flex items-center shrink-0",
+                              pushEnabled ? "bg-accent shadow-lg shadow-accent/20" : "bg-line"
+                            )}>
+                               <div className={cn(
+                                 "h-4 w-4 rounded-full bg-panel shadow-sm transform transition-transform duration-300",
+                                 pushEnabled ? "translate-x-5" : "translate-x-0"
+                               )} />
                             </div>
                          </div>
-                         <div className="group flex items-center justify-between p-5 rounded-[1.5rem] bg-canvas-elevated border border-line shadow-sm hover:border-accent/40 transition-all bg-accent/5">
+                         <div 
+                           onClick={toggleAi}
+                           className="group flex items-center justify-between p-5 rounded-[1.5rem] bg-canvas-elevated border border-line shadow-sm hover:border-accent/40 transition-all cursor-pointer"
+                         >
                             <div>
                                <p className="text-sm font-black text-ink">{t("Settings.aiGuidance")}</p>
                                <p className="text-xs text-muted font-medium mt-0.5">{t("Settings.aiGuidanceDesc")}</p>
                             </div>
-                            <div className="h-6 w-11 rounded-full bg-accent p-1 flex justify-end shadow-lg shadow-accent/20 cursor-pointer">
-                               <div className="h-4 w-4 rounded-full bg-accent-foreground shadow-sm" />
+                            <div className={cn(
+                              "h-6 w-11 rounded-full p-1 transition-all duration-300 relative flex items-center shrink-0",
+                              aiEnabled ? "bg-accent shadow-lg shadow-accent/20" : "bg-line"
+                            )}>
+                               <div className={cn(
+                                 "h-4 w-4 rounded-full bg-panel shadow-sm transform transition-transform duration-300",
+                                 aiEnabled ? "translate-x-5" : "translate-x-0"
+                               )} />
                             </div>
                          </div>
                      </div>

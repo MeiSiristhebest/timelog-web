@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { SectionPlaceholder } from "@/components/dashboard/section-placeholder";
 import { getArchivedStories } from "@/features/stories/queries";
 import { TrashList } from "@/features/stories/components/trash-list";

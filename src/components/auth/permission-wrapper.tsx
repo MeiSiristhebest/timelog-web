@@ -2,21 +2,16 @@
 
 import { ReactNode } from 'react';
 import { usePermissions } from '@/hooks/use-permissions';
+import { UserRole, UserPermissions } from '@/lib/permissions';
 
 interface PermissionWrapperProps {
-  permission: string;
+  permission: keyof UserPermissions;
   fallback?: ReactNode;
   children: ReactNode;
 }
 
 interface RoleWrapperProps {
-  minRole: string;
-  fallback?: ReactNode;
-  children: ReactNode;
-}
-
-interface RoleWrapperProps {
-  minRole: string;
+  minRole: UserRole;
   fallback?: ReactNode;
   children: ReactNode;
 }
@@ -34,7 +29,7 @@ export function PermissionWrapper({ permission, fallback, children }: Permission
 export function RoleWrapper({ minRole, fallback, children }: RoleWrapperProps) {
   const { hasRoleLevel } = usePermissions();
 
-  if (!hasRoleLevel(minRole as any)) {
+  if (!hasRoleLevel(minRole)) {
     return <>{fallback}</>;
   }
 

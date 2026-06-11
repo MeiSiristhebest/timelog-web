@@ -38,8 +38,11 @@ export function StoryCommentForm({ storyId, initialIsRecordingMode = false }: St
   useEffect(() => {
     if (state.status === "success") {
       formRef.current?.reset();
-      setAudioFile(null);
-      setIsRecordingMode(false);
+      const timer = setTimeout(() => {
+        setAudioFile(null);
+        setIsRecordingMode(false);
+      }, 0);
+      return () => clearTimeout(timer);
     }
   }, [state.status]);
 

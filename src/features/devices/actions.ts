@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { getTranslations } from "next-intl/server";
 
 export type DeviceActionState = {
   status: "idle" | "success" | "error";
@@ -19,14 +20,16 @@ export async function revokeDeviceAction(
   _prevState: DeviceActionState,
   formData: FormData
 ): Promise<DeviceActionState> {
+  const t = await getTranslations("Devices");
+  const tCommon = await getTranslations("Common");
   const deviceId = String(formData.get("deviceId") ?? "").trim();
   if (!deviceId) {
-    return deviceError("Device identifier is missing.");
+    return deviceError(t("errorDeviceIdMissing"));
   }
 
   const supabase = await createServerSupabaseClient();
   if (!supabase) {
-    return deviceError("Supabase is not configured in this environment yet.");
+    return deviceError(tCommon("supabaseNotConfigured"));
   }
 
   const {
@@ -34,7 +37,7 @@ export async function revokeDeviceAction(
   } = await supabase.auth.getUser();
 
   if (!user) {
-    return deviceError("You need an active session before revoking devices.");
+    return deviceError(tCommon("authRequired"));
   }
 
   const { error } = await supabase.rpc("revoke_device", {
@@ -49,7 +52,7 @@ export async function revokeDeviceAction(
 
   return {
     status: "success",
-    message: "Device access revoked.",
+    message: t("revokeSuccess"),
   };
 }
 
@@ -57,14 +60,16 @@ export async function verifyDeviceCodeAction(
   _prevState: DeviceActionState,
   formData: FormData
 ): Promise<DeviceActionState> {
+  const t = await getTranslations("Devices");
+  const tCommon = await getTranslations("Common");
   const code = String(formData.get("code") ?? "").trim().replace(/-/g, "");
   if (!code || code.length !== 6) {
-    return deviceError("Please enter a valid 6-digit code.");
+    return deviceError(t("errorInvalidCode"));
   }
 
   const supabase = await createServerSupabaseClient();
   if (!supabase) {
-    return deviceError("Supabase is not configured.");
+    return deviceError(tCommon("supabaseNotConfigured"));
   }
 
   const { data, error } = await supabase.rpc("verify_device_code", {
@@ -77,7 +82,7 @@ export async function verifyDeviceCodeAction(
 
   const result = data as { ok: boolean; error?: string };
   if (!result.ok) {
-    return deviceError(result.error || "Failed to verify pairing code.");
+    return deviceError(result.error || t("errorVerifyFailed"));
   }
 
   revalidatePath("/devices");
@@ -85,7 +90,7 @@ export async function verifyDeviceCodeAction(
 
   return {
     status: "success",
-    message: "Successfully linked to storyteller archive.",
+    message: t("linkSuccess"),
   };
 }
 
@@ -93,8 +98,10 @@ export async function updateDeviceNameAction(
   deviceId: string,
   newName: string
 ): Promise<DeviceActionState> {
+  const t = await getTranslations("Devices");
+  const tCommon = await getTranslations("Common");
   const supabase = await createServerSupabaseClient();
-  if (!supabase) return deviceError("Supabase not configured.");
+  if (!supabase) return deviceError(tCommon("supabaseNotConfigured"));
 
   const { error } = await supabase
     .from("devices")
@@ -110,6 +117,6 @@ export async function updateDeviceNameAction(
 
   return {
     status: "success",
-    message: "设备标识名称已更新",
+    message: t("renameSuccessMsg"),
   };
 }

@@ -71,5 +71,11 @@ async function testSupabaseConnection() {
   });
 }
 
+declare global {
+  interface Window {
+    testSupabaseConnection?: typeof testSupabaseConnection;
+  }
+}
+
 // Export for use in browser console
-(window as any).testSupabaseConnection = testSupabaseConnection;
+window.testSupabaseConnection = testSupabaseConnection;

@@ -72,7 +72,8 @@ export default function RootLayout({
       suppressHydrationWarning
       className={`${display.variable} ${body.variable} h-full`}
     >
-      <body className="min-h-full bg-canvas text-ink antialiased font-sans" suppressHydrationWarning>
+      <body className="min-h-full bg-canvas text-ink antialiased font-sans relative overflow-x-hidden" suppressHydrationWarning>
+        <div className="grain-overlay" />
         <Suspense fallback={<div className="min-h-full bg-canvas" />}>
           <LocaleShell>{children}</LocaleShell>
         </Suspense>

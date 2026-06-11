@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { FamilyInviteForm } from "@/features/family/components/family-invite-form";
 import { FamilyDataTable } from "@/features/family/components/family-data-table";
 import { getFamilyMembers } from "@/features/family/queries";
@@ -7,12 +9,31 @@ import { Users, UserPlus, Shield, Crown } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { PermissionWrapper } from "@/components/auth/permission-wrapper";
 import { Badge } from "@/components/ui/badge";
+import { createServerSupabaseClient } from "@/lib/supabase/server";
 
 export default async function FamilyPage() {
-  const t = await getTranslations();
-  const members = await getFamilyMembers();
+  const supabase = await createServerSupabaseClient();
+  let userRole = "guest";
+  if (supabase) {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", user.id)
+        .single();
+      userRole = profile?.role ?? "family_member";
+    }
+  }
+
+  const [t, members] = await Promise.all([
+    getTranslations(),
+    getFamilyMembers(),
+  ]);
   const acceptedCount = members.filter((member) => member.status === "accepted").length;
   const pendingCount = members.filter((member) => member.status !== "accepted").length;
+
+  const isAdmin = userRole === "family_owner" || userRole === "super_admin";
 
   return (
     <div className="space-y-6">
@@ -26,14 +47,23 @@ export default async function FamilyPage() {
             <h1 className="text-3xl font-bold text-ink tracking-tight">{t("Family.title")}</h1>
             <p className="text-sm text-muted mt-1">{t("Family.subtitle")}</p>
             <div className="flex items-center gap-2 mt-2">
-              <Badge variant="secondary" className="flex items-center gap-1">
-                <Crown className="h-3 w-3" />
-                <span className="text-xs">管理员</span>
-              </Badge>
-              <Badge variant="outline" className="flex items-center gap-1">
-                <Shield className="h-3 w-3" />
-                <span className="text-xs">完整权限</span>
-              </Badge>
+              {isAdmin ? (
+                <>
+                  <Badge variant="secondary" className="flex items-center gap-1">
+                    <Crown className="h-3 w-3" />
+                    <span className="text-xs">{t("Family.admin")}</span>
+                  </Badge>
+                  <Badge variant="outline" className="flex items-center gap-1">
+                    <Shield className="h-3 w-3" />
+                    <span className="text-xs">{t("Family.fullAccess")}</span>
+                  </Badge>
+                </>
+              ) : (
+                <Badge variant="outline" className="flex items-center gap-1 bg-canvas-elevated text-muted">
+                  <Users className="h-3 w-3" />
+                  <span className="text-xs">{t("Family.statusMember")}</span>
+                </Badge>
+              )}
             </div>
          </div>
          <div className="flex items-center gap-6">
@@ -70,9 +100,9 @@ export default async function FamilyPage() {
               <div className="absolute top-0 right-0 p-4 opacity-20">
                 <Shield size={60} />
               </div>
-              <h4 className="text-sm font-bold mb-2">管理员专属功能</h4>
+              <h4 className="text-sm font-bold mb-2">{t("Family.adminFeature")}</h4>
               <p className="text-xs text-white/80 leading-relaxed font-medium">
-                您拥有邀请新成员和管理家庭的完整权限
+                {t("Family.adminFeatureDesc")}
               </p>
             </div>
           </div>

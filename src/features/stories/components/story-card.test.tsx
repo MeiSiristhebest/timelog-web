@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
+import { NextIntlClientProvider } from "next-intl";
 import { StoryCard } from "./story-card";
 
 // Mock the hook and components
@@ -27,20 +28,37 @@ const mockStory = {
   isFavorite: false,
 };
 
+const messages = {
+  Stories: {
+    comments: "{count} comments",
+    reactions: "{count} reactions",
+    statusSynced: "Synced",
+    statusSyncing: "Syncing...",
+  },
+};
+
+function renderStoryCard() {
+  return render(
+    <NextIntlClientProvider locale="en" messages={messages}>
+      <StoryCard story={mockStory} index={0} />
+    </NextIntlClientProvider>
+  );
+}
+
 describe("StoryCard", () => {
   it("renders story details correctly", () => {
-    render(<StoryCard story={mockStory} index={0} />);
+    renderStoryCard();
 
     expect(screen.getByText("Test Story")).toBeDefined();
     expect(screen.getByText(/Test Speaker/)).toBeDefined();
-    expect(screen.getByText("synced")).toBeDefined();
+    expect(screen.getByText("Synced")).toBeDefined();
     expect(screen.getByText("This is a test transcript.")).toBeDefined();
     expect(screen.getByText("2 comments")).toBeDefined();
     expect(screen.getByText("5 reactions")).toBeDefined();
   });
 
   it("links to the correct story route", () => {
-    render(<StoryCard story={mockStory} index={0} />);
+    renderStoryCard();
     const link = screen.getByRole("link");
     expect(link.getAttribute("href")).toBe("/stories/1");
   });

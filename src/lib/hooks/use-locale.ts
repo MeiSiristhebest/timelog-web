@@ -10,7 +10,10 @@ export function useLocale(): "en" | "zh" {
     const match = document.cookie.match(/NEXT_LOCALE=([^;]+)/);
     const cookieLocale = match?.[1] as "en" | "zh" | undefined;
     if (cookieLocale && (cookieLocale === "en" || cookieLocale === "zh")) {
-      setLocale(cookieLocale);
+      const timer = setTimeout(() => {
+        setLocale(cookieLocale);
+      }, 0);
+      return () => clearTimeout(timer);
     }
   }, []);
 

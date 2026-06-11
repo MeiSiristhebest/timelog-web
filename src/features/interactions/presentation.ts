@@ -7,7 +7,7 @@ export type InteractionCommentRow = {
   created_at: string | null;
 };
 
-type TranslateFunction = (key: string, options?: Record<string, any>) => string;
+type TranslateFunction = (key: string, options?: Record<string, unknown>) => string;
 
 export type InteractionReactionRow = {
   id: string;

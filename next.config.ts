@@ -5,7 +5,6 @@ import createNextIntlPlugin from 'next-intl/plugin';
 const withNextIntl = createNextIntlPlugin();
 
 const nextConfig: NextConfig = {
-  cacheComponents: true,
   poweredByHeader: false,
   typedRoutes: true,
   turbopack: {

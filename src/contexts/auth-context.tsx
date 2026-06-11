@@ -1,5 +1,6 @@
 "use client";
 
+import { User } from '@supabase/supabase-js';
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { UserRole } from '@/lib/permissions';
 import { createClient } from '@/lib/supabase/client';
@@ -7,7 +8,7 @@ import { createClient } from '@/lib/supabase/client';
 interface AuthContextType {
   userRole: UserRole;
   isLoading: boolean;
-  user: any;
+  user: User | null;
   isAuthenticated: boolean;
 }
 
@@ -15,176 +16,134 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [userRole, setUserRole] = useState<UserRole>('guest');
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const getUser = async () => {
-      console.log('AuthContext - Initializing auth check');
+    let isMounted = true;
+    const supabase = createClient();
 
-      try {
-        const supabase = createClient();
-        console.log('AuthContext - Supabase client created:', !!supabase);
+    console.log('AuthContext - Initializing auth subscription');
 
-        if (!supabase) {
-          console.log('AuthContext - No Supabase client, setting guest');
-          setUserRole('guest');
-          setUser(null);
-          setIsLoading(false);
-          return;
-        }
-
-        // Get current session
-        console.log('AuthContext - Getting session...');
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-        console.log('AuthContext - Session result:', {
-          hasSession: !!session,
-          userId: session?.user?.id,
-          userEmail: session?.user?.email,
-          error: sessionError
-        });
-
-        if (sessionError) {
-          console.error('AuthContext - Session error:', sessionError);
-          setUserRole('guest');
-          setUser(null);
-          setIsLoading(false);
-          return;
-        }
-
-        if (session?.user) {
-          console.log('AuthContext - User authenticated:', session.user.email, session.user.id);
-          setUser(session.user);
-
-          try {
-            // Get user role from profiles table
-            console.log('AuthContext - Looking up profile for user:', session.user.id);
-            let profileResult = await supabase
-              .from('profiles')
-              .select('role, id, user_id')
-              .eq('id', session.user.id)
-              .single();
-
-            console.log('AuthContext - Profile lookup by id:', profileResult);
-
-            // If not found by id, try by user_id
-            if (profileResult.error || !profileResult.data) {
-              console.log('AuthContext - Profile not found by id, trying user_id');
-              const userIdResult = await supabase
-                .from('profiles')
-                .select('role, id, user_id')
-                .eq('user_id', session.user.id)
-                .single();
-
-              console.log('AuthContext - Profile lookup by user_id:', userIdResult);
-
-              if (!userIdResult.error && userIdResult.data) {
-                profileResult = userIdResult;
-                console.log('AuthContext - Found profile by user_id instead of id');
-              }
-            }
-
-            const { data: profile, error } = profileResult;
-            console.log('AuthContext - Final profile lookup result:', {
-              hasProfile: !!profile,
-              role: profile?.role,
-              profileId: profile?.id,
-              profileUserId: profile?.user_id,
-              error: error?.message || error,
-              sessionUserId: session.user.id
-            });
-
-            if (!error && profile?.role) {
-              // Validate role
-              const validRoles: UserRole[] = ['family_owner', 'family_member', 'guest'];
-              if (validRoles.includes(profile.role as UserRole)) {
-                console.log('AuthContext - Setting user role from profile:', profile.role);
-                setUserRole(profile.role as UserRole);
-              } else {
-                console.log('AuthContext - Invalid role from profile, defaulting to member');
-                setUserRole('family_member'); // Default to member
-              }
-            } else {
-              // Profile doesn't exist or has no role
-              console.log('AuthContext - No profile role found, using fallback logic');
-
-              // TEMPORARY: Force admin role for testing
-              // Check if this is the known admin user
-              if (session.user.id === '69dad30e-c5df-419b-ac09-efc5fbc8babe') {
-                console.log('AuthContext - TEMP: Setting known admin user to family_owner');
-                setUserRole('family_owner');
-              } else {
-                setUserRole('family_member');
-              }
-            }
-          } catch (error) {
-            console.error('AuthContext - Error in profile lookup:', error);
-            // TEMPORARY: Force admin role for testing even on error
-            if (session.user.id === '69dad30e-c5df-419b-ac09-efc5fbc8babe') {
-              console.log('AuthContext - TEMP: Setting known admin user to family_owner on error');
-              setUserRole('family_owner');
-            } else {
-              setUserRole('family_member'); // Default fallback
-            }
-          }
-        } else {
-          setUserRole('guest');
-          setUser(null);
-        }
-      } catch (error) {
-        console.error('AuthContext - Critical error in getUser:', error);
+    if (!supabase) {
+      console.log('AuthContext - No Supabase client, setting guest');
+      const timer = setTimeout(() => {
         setUserRole('guest');
         setUser(null);
+        setIsLoading(false);
+      }, 0);
+      return () => clearTimeout(timer);
+    }
+
+    const client = supabase;
+
+    // Helper function to resolve profile and update state
+    async function handleUserSession(session: { user: User } | null) {
+      if (!isMounted) return;
+
+      if (session?.user) {
+        setUser(session.user);
+
+        try {
+          console.log('AuthContext - Looking up profile for user:', session.user.id);
+          
+          // 1. Try fetching profile by id
+          const { data: profile, error } = await client
+            .from('profiles')
+            .select('role')
+            .eq('id', session.user.id)
+            .single();
+
+          let resolvedProfile = profile;
+
+          // 2. Try fetching profile by user_id if not found by id
+          if (error || !profile) {
+            console.log('AuthContext - Profile not found by id, trying user_id...');
+            const { data: profileByUid, error: uidError } = await client
+              .from('profiles')
+              .select('role')
+              .eq('user_id', session.user.id)
+              .single();
+
+            if (!uidError && profileByUid) {
+              resolvedProfile = profileByUid;
+            }
+          }
+
+          console.log('AuthContext - Profile resolved:', resolvedProfile);
+
+          if (isMounted) {
+            if (resolvedProfile?.role) {
+              const validRoles: UserRole[] = ['family_owner', 'family_member', 'guest'];
+              if (validRoles.includes(resolvedProfile.role as UserRole)) {
+                const timer = setTimeout(() => {
+                  setUserRole(resolvedProfile.role as UserRole);
+                }, 0);
+                return () => clearTimeout(timer);
+              } else {
+                const timer = setTimeout(() => {
+                  setUserRole('family_member');
+                }, 0);
+                return () => clearTimeout(timer);
+              }
+            } else {
+              // Default fallback for storytellers (who have role: null) or missing profiles
+              const timer = setTimeout(() => {
+                setUserRole('family_member');
+              }, 0);
+              return () => clearTimeout(timer);
+            }
+          }
+        } catch (profileError) {
+          console.error('AuthContext - Error resolving profile:', profileError);
+          if (isMounted) {
+            const timer = setTimeout(() => {
+              setUserRole('family_member');
+            }, 0);
+            return () => clearTimeout(timer);
+          }
+        }
+      } else {
+        setUser(null);
+        const timer = setTimeout(() => {
+          setUserRole('guest');
+        }, 0);
+        return () => clearTimeout(timer);
       }
 
-      setIsLoading(false);
-    };
-
-    getUser();
-
-    // Listen for auth changes
-    const supabase = createClient();
-    if (supabase) {
-      const { data: { subscription } } = supabase.auth.onAuthStateChange(
-        async (event, session) => {
-          if (session?.user) {
-            setUser(session.user);
-
-            try {
-              // Get user role from profiles table
-              const { data: profile, error } = await supabase
-                .from('profiles')
-                .select('role')
-                .eq('id', session.user.id)
-                .single();
-
-              if (!error && profile?.role) {
-                const validRoles: UserRole[] = ['family_owner', 'family_member', 'guest'];
-                if (validRoles.includes(profile.role as UserRole)) {
-                  setUserRole(profile.role as UserRole);
-                } else {
-                  setUserRole('family_member');
-                }
-              } else {
-                setUserRole('family_member');
-              }
-            } catch (error) {
-              console.error('Error fetching user role:', error);
-              setUserRole('family_member');
-            }
-          } else {
-            setUserRole('guest');
-            setUser(null);
-          }
-          setIsLoading(false);
-        }
-      );
-
-      return () => subscription.unsubscribe();
+      if (isMounted) {
+        setIsLoading(false);
+      }
     }
+
+    // 1. Get initial session manually to ensure isLoading becomes false quickly
+    client.auth.getSession().then(({ data: { session } }) => {
+      console.log('AuthContext - Initial session fetched:', session?.user?.id);
+      handleUserSession(session);
+    }).catch((err: unknown) => {
+      console.error('AuthContext - Error fetching initial session:', err);
+      if (isMounted) {
+        setIsLoading(false);
+      }
+    });
+
+    // 2. Listen for subsequent auth state changes
+    const { data: { subscription } } = client.auth.onAuthStateChange(
+      async (event, session) => {
+        console.log('AuthContext - Auth event:', event, 'user:', session?.user?.id);
+        handleUserSession(session);
+      }
+    );
+
+    return () => {
+      isMounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
-  const isAuthenticated = !!user && userRole !== 'guest';
+  // isAuthenticated = user session exists (independent of role loading)
+  // This prevents sidebar flicker where user has a valid session but role is still loading
+  const isAuthenticated = !!user;
 
   return (
     <AuthContext.Provider value={{ userRole, isLoading, user, isAuthenticated }}>

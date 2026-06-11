@@ -13,6 +13,10 @@ import {
   shouldRefreshPlaybackUrl,
 } from "../playback";
 import { useTranslations } from "next-intl";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
+
+gsap.registerPlugin(useGSAP);
 
 function formatDuration(seconds: number): string {
   if (!Number.isFinite(seconds) || seconds <= 0) {
@@ -44,6 +48,7 @@ export function StoryAudioPlayer({
   const t = useTranslations("Waveform");
   const audioRef = useRef<HTMLAudioElement>(null);
   const resumeTimeRef = useRef<number | null>(null);
+
   const [sourceUrl, setSourceUrl] = useState(src);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isBuffering, setIsBuffering] = useState(true);
@@ -56,6 +61,81 @@ export function StoryAudioPlayer({
     expiresAtEpochMs
   );
 
+  const playerRef = useRef<HTMLDivElement>(null);
+  const progressBarFillRef = useRef<HTMLDivElement>(null);
+  const sliderRef = useRef<HTMLInputElement>(null);
+  const pulseTweenRef = useRef<gsap.core.Tween | null>(null);
+
+  const { contextSafe } = useGSAP({ scope: playerRef });
+
+  // Handle playing state breathing pulse
+  useGSAP(() => {
+    if (isPlaying) {
+      // Start elegant breathing pulse on progress bar fill
+      pulseTweenRef.current = gsap.fromTo(
+        progressBarFillRef.current,
+        {
+          filter: "drop-shadow(0 0 2px rgba(212, 182, 122, 0.4))",
+        },
+        {
+          filter: "drop-shadow(0 0 8px rgba(212, 182, 122, 0.85))",
+          duration: 2,
+          repeat: -1,
+          yoyo: true,
+          ease: "sine.inOut",
+        }
+      );
+    } else {
+      if (pulseTweenRef.current) {
+        pulseTweenRef.current.kill();
+        pulseTweenRef.current = null;
+      }
+      gsap.killTweensOf(progressBarFillRef.current);
+      gsap.set(progressBarFillRef.current, { clearProps: "filter" });
+    }
+  }, { dependencies: [isPlaying], scope: playerRef });
+
+  const handleMouseEnter = contextSafe(() => {
+    // Hover entry animation for player container and slider
+    gsap.to(playerRef.current, {
+      borderColor: "rgba(212, 182, 122, 0.3)",
+      boxShadow: "0 8px 32px -8px rgba(212, 182, 122, 0.08)",
+      duration: 0.4,
+      ease: "power2.out",
+    });
+
+    gsap.to(sliderRef.current, {
+      filter: "drop-shadow(0 0 4px rgba(212, 182, 122, 0.6))",
+      duration: 0.4,
+      ease: "power2.out",
+    });
+  });
+
+  const handleMouseLeave = contextSafe(() => {
+    // Reset hover animations
+    gsap.to(playerRef.current, {
+      borderColor: "rgba(255, 255, 255, 0.08)", // default border-line color
+      boxShadow: "0 0 0 0 rgba(0,0,0,0)",
+      duration: 0.4,
+      ease: "power2.out",
+      clearProps: "borderColor,boxShadow",
+    });
+
+    gsap.to(sliderRef.current, {
+      filter: "none",
+      duration: 0.4,
+      ease: "power2.out",
+      clearProps: "filter",
+    });
+  });
+
+  // Vercel React Best Practice: rerender-dependencies & advanced-event-handler-refs
+  // Store currentTime in a ref to prevent refreshPlayback from re-creating on every second of playback
+  const currentTimeRef = useRef(0);
+  useEffect(() => {
+    currentTimeRef.current = currentTime;
+  }, [currentTime]);
+
   const refreshPlayback = useCallback(
     async (reason: "manual" | "expired" | "error") => {
       if (isRefreshing) return;
@@ -65,7 +145,7 @@ export function StoryAudioPlayer({
 
       const audio = audioRef.current;
       const shouldResume = Boolean(audio && !audio.paused);
-      resumeTimeRef.current = audio?.currentTime ?? currentTime;
+      resumeTimeRef.current = audio?.currentTime ?? currentTimeRef.current;
 
       try {
         const response = await fetch(`/api/stories/${storyId}/playback`, {
@@ -111,7 +191,7 @@ export function StoryAudioPlayer({
         setIsRefreshing(false);
       }
     },
-    [currentTime, isRefreshing, storyId]
+    [isRefreshing, storyId]
   );
 
   const progress = useMemo(() => {
@@ -163,7 +243,7 @@ export function StoryAudioPlayer({
     return () => window.clearInterval(interval);
   }, [playbackExpiry, refreshPlayback]);
 
-  function togglePlayback() {
+  const togglePlayback = useCallback(() => {
     const audio = audioRef.current;
     if (!audio) return;
 
@@ -182,9 +262,9 @@ export function StoryAudioPlayer({
     }
 
     audio.pause();
-  }
+  }, [playbackExpiry, refreshPlayback]);
 
-  function handleSeek(nextValue: string) {
+  const handleSeek = useCallback((nextValue: string) => {
     const audio = audioRef.current;
     if (!audio) return;
 
@@ -193,10 +273,15 @@ export function StoryAudioPlayer({
 
     audio.currentTime = nextTime;
     setCurrentTime(nextTime);
-  }
+  }, []);
 
   return (
-    <div className="rounded-[1.25rem] border border-line bg-[linear-gradient(180deg,rgba(242,214,161,0.12),transparent)] p-5">
+    <div
+      ref={playerRef}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      className="rounded-[1.25rem] border border-line bg-[linear-gradient(180deg,rgba(242,214,161,0.12),transparent)] p-5 transition-all duration-500"
+    >
       <audio
         ref={audioRef}
         src={sourceUrl}
@@ -238,7 +323,7 @@ export function StoryAudioPlayer({
             void refreshPlayback("error");
             return;
           }
-          setRefreshError("Protected stream could not be loaded.");
+          setRefreshError(t("protectedStreamError"));
         }}
       />
 
@@ -248,8 +333,10 @@ export function StoryAudioPlayer({
             {statusLabel}
           </p>
           <p className="mt-2 text-sm leading-6 text-muted">
-            Protected stream from Supabase Storage. Story length {durationLabel}.{" "}
-            {expiresLabel ? `Access window ${expiresLabel}.` : null}
+            {t("protectedStreamDesc", {
+              duration: durationLabel,
+              expires: expiresLabel ? `(${expiresLabel})` : "",
+            })}
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -306,18 +393,20 @@ export function StoryAudioPlayer({
             style={{ width: `${bufferedProgress}%` }}
           />
           <div
+            ref={progressBarFillRef}
             className="-mt-1.5 h-full rounded-full bg-[linear-gradient(90deg,rgba(242,214,161,0.9),rgba(242,214,161,0.35))] transition-[width]"
             style={{ width: `${progress}%` }}
           />
         </div>
         <input
+          ref={sliderRef}
           type="range"
           min={0}
           max={duration || 0}
           step={0.1}
           value={Math.min(currentTime, duration || currentTime)}
           onChange={(event) => handleSeek(event.target.value)}
-          className="mt-4 w-full accent-[var(--accent)]"
+          className="mt-4 w-full accent-[var(--accent)] transition-all duration-300"
         />
         <div className="mt-2 flex items-center justify-between text-xs uppercase tracking-[0.18em] text-muted">
           <span>{formatDuration(currentTime)}</span>

@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { Suspense } from "react";
 import { getStories } from "@/features/stories/queries";
 import { RealtimeRefresh } from "@/features/realtime/components/realtime-refresh";

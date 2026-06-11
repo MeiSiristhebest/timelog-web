@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { notFound } from "next/navigation";
 import { StoryCommentForm } from "@/features/stories/components/story-comment-form";
 import { StoryAudioPlayer } from "@/features/stories/components/story-audio-player";
@@ -30,11 +32,14 @@ async function StoryDetailContent({ storyPromise }: { storyPromise: Promise<Stor
     notFound();
   }
 
-  const handleRefreshUrl = async () => {
+  const handleRefreshUrl = async (): Promise<string> => {
     "use server";
-    const response = await fetch(`/api/stories/${story.id}/playback`, { cache: "no-store" });
-    const data = await response.json();
-    return data.signedUrl;
+    // Build an absolute URL since server actions run server-side without a base URL
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? `http://localhost:${process.env.PORT ?? 3000}`;
+    const response = await fetch(`${baseUrl}/api/stories/${story.id}/playback`, { cache: "no-store" });
+    if (!response.ok) return "";
+    const data = (await response.json()) as { signedUrl?: string };
+    return data.signedUrl ?? "";
   };
 
   return (
@@ -93,32 +98,38 @@ async function StoryDetailContent({ storyPromise }: { storyPromise: Promise<Stor
       </section>
 
       {/* Statistics Cards - Compact Grid */}
-      <div className="grid grid-cols-3 gap-3 mt-6">
-        <div className="rounded-xl border border-line/60 bg-canvas-elevated/50 p-4 text-center">
-          <p className="eyebrow text-[10px] mb-2">{t("community")}</p>
-          <div className="flex items-baseline justify-center gap-1">
-             <span className="display text-2xl text-ink font-bold">{story.reactionCount}</span>
-             <span className="text-[10px] uppercase tracking-wider text-muted/70">{t("reactions", { count: story.reactionCount })}</span>
+      <div className="grid grid-cols-3 gap-4 mt-6">
+        <div className="rounded-[1.25rem] border border-line bg-canvas-elevated/40 p-5 text-center shadow-sm hover:border-accent/40 hover:-translate-y-0.5 transition-all duration-300">
+          <p className="eyebrow text-[10px] mb-2 text-muted/80">{t("community")}</p>
+          <div className="flex flex-col items-center justify-center">
+             <span className="display text-3xl text-ink font-bold">{story.reactionCount}</span>
+             <span className="text-[9px] uppercase tracking-[0.15em] font-black text-muted/60 mt-1.5">{t("reactionsLabel")}</span>
           </div>
         </div>
-        <div className="rounded-xl border border-line/60 bg-canvas-elevated/50 p-4 text-center">
-          <p className="eyebrow text-[10px] mb-2">{t("dialogue")}</p>
-          <div className="flex items-baseline justify-center gap-1">
-             <span className="display text-2xl text-ink font-bold">{story.commentCount}</span>
-             <span className="text-[10px] uppercase tracking-wider text-muted/70">{t("comments", { count: story.commentCount })}</span>
+        <div className="rounded-[1.25rem] border border-line bg-canvas-elevated/40 p-5 text-center shadow-sm hover:border-accent/40 hover:-translate-y-0.5 transition-all duration-300">
+          <p className="eyebrow text-[10px] mb-2 text-muted/80">{t("dialogue")}</p>
+          <div className="flex flex-col items-center justify-center">
+             <span className="display text-3xl text-ink font-bold">{story.commentCount}</span>
+             <span className="text-[9px] uppercase tracking-[0.15em] font-black text-muted/60 mt-1.5">{t("commentsLabel")}</span>
           </div>
         </div>
-        <div className="rounded-xl border border-line/60 bg-canvas-elevated/50 p-4 text-center">
-          <p className="eyebrow text-[10px] mb-2">{t("duration")}</p>
-          <div className="flex items-baseline justify-center gap-1">
-             <span className="display text-xl text-ink font-bold">{story.durationLabel}</span>
+        <div className="rounded-[1.25rem] border border-line bg-canvas-elevated/40 p-5 text-center shadow-sm hover:border-accent/40 hover:-translate-y-0.5 transition-all duration-300">
+          <p className="eyebrow text-[10px] mb-2 text-muted/80">{t("duration")}</p>
+          <div className="flex flex-col items-center justify-center">
+             <span className="display text-2xl text-ink font-bold tracking-tight">{story.durationLabel}</span>
+             <span className="text-[9px] uppercase tracking-[0.15em] font-black text-muted/60 mt-1.5">&nbsp;</span>
           </div>
         </div>
       </div>
 
       {/* Transcript Section */}
       <section className="panel rounded-xl p-5 md:p-6 border border-line/40 bg-canvas-elevated/30 backdrop-blur-sm mt-8">
-        <InteractiveTranscript storyId={story.id} content={story.transcript} />
+        <InteractiveTranscript
+          storyId={story.id}
+          content={story.transcript}
+          segments={story.segments}
+          speakerName={story.speakerLabel}
+        />
       </section>
 
       {/* Interactions Section */}
@@ -128,7 +139,7 @@ async function StoryDetailContent({ storyPromise }: { storyPromise: Promise<Stor
           <div className="flex items-center justify-between mb-4">
             <p className="eyebrow">{t("interactions")}</p>
             <div className="text-xs text-muted/70 uppercase tracking-wider">
-              {story.reactions.length} reactions
+              {t("reactions", { count: story.reactions.length })}
             </div>
           </div>
 
@@ -169,7 +180,7 @@ async function StoryDetailContent({ storyPromise }: { storyPromise: Promise<Stor
           <div className="flex items-center justify-between mb-5">
             <p className="eyebrow">{t("householdConversation")}</p>
             <div className="text-xs text-muted/70 uppercase tracking-wider">
-              {story.comments.length} {t("comments", { count: story.comments.length })}
+              {t("comments", { count: story.comments.length })}
             </div>
           </div>
 

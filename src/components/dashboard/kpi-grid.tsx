@@ -61,7 +61,7 @@ export function KpiGrid({
         description={familyDesc}
         icon={Users}
         data={familyData}
-        color="#10b981"
+        color="var(--color-badge-green-fg)"
       />
       <DataCard
         title={interactionsTitle}
@@ -70,7 +70,7 @@ export function KpiGrid({
         icon={MessageSquare}
         trend={{ value: "12%", isUp: true }}
         data={interactionData}
-        color="#6366f1"
+        color="var(--color-badge-blue-fg)"
       />
       <DataCard
         title={storageTitle}
@@ -78,7 +78,7 @@ export function KpiGrid({
         description={storageDesc}
         icon={HardDrive}
         data={storageDataPoints}
-        color="#f59e0b"
+        color="var(--color-badge-yellow-fg)"
       />
     </div>
   )

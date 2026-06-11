@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { DevicePairingForm } from "@/features/devices/components/device-pairing-form";
 import { DevicesDataTable } from "@/features/devices/components/devices-data-table";
 import { getDevices } from "@/features/devices/queries";
@@ -5,8 +7,10 @@ import { Radio, RefreshCw, Cpu } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 
 export default async function DevicesPage() {
-  const t = await getTranslations();
-  const devices = await getDevices();
+  const [t, devices] = await Promise.all([
+    getTranslations(),
+    getDevices(),
+  ]);
   const activeCount = devices.filter((device) => device.status === "active").length;
   const revokedCount = devices.length - activeCount;
 

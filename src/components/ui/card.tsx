@@ -1,19 +1,40 @@
 import * as React from "react"
 import { cn } from "@/lib/utils"
 
-const Card = React.forwardRef<
-  HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => (
-  <div
-    ref={ref}
-    className={cn(
-      "rounded-3xl border border-line bg-canvas-elevated text-ink shadow-sm",
-      className
-    )}
-    {...props}
-  />
-))
+export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
+  doubleBezel?: boolean;
+}
+
+const Card = React.forwardRef<HTMLDivElement, CardProps>(
+  ({ className, doubleBezel, children, ...props }, ref) => {
+    if (doubleBezel) {
+      return (
+        <div
+          ref={ref}
+          className={cn("double-bezel-outer group/card", className)}
+          {...props}
+        >
+          <div className="double-bezel-inner h-full w-full">
+            {children}
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div
+        ref={ref}
+        className={cn(
+          "rounded-3xl border border-line bg-panel text-ink shadow-sm transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] hover:border-line-strong hover:shadow-[0_12px_40px_rgba(18,17,16,0.03)] dark:hover:shadow-[0_12px_40px_rgba(0,0,0,0.2)]",
+          className
+        )}
+        {...props}
+      >
+        {children}
+      </div>
+    );
+  }
+);
 Card.displayName = "Card"
 
 const CardHeader = React.forwardRef<

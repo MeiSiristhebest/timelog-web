@@ -1,12 +1,5 @@
 import { createServerSupabaseClient } from "@/lib/supabase/server";
-import { getTranslations } from "next-intl/server";
-import { mockFamilyMembers } from "@/lib/mock-data";
-
-const shouldUseMock = () => {
-  const isMockFlag = process.env.NEXT_PUBLIC_USE_MOCK === "true";
-  const hasSupabase = Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY);
-  return isMockFlag || !hasSupabase;
-};
+import { getTranslations, getLocale } from "next-intl/server";
 
 export type FamilyMemberView = {
   id: string;
@@ -27,34 +20,7 @@ type FamilyMemberRow = {
   user_id: string | null;
 };
 
-const previewMembers: FamilyMemberView[] = [
-  {
-    id: "family-preview-admin",
-    label: "Archive Owner",
-    email: "owner@preview.timelog",
-    role: "admin",
-    status: "accepted",
-    joinedAt: "Accepted April 7, 2026",
-  },
-  {
-    id: "family-preview-member",
-    label: "Daughter Account",
-    email: "daughter@preview.timelog",
-    role: "member",
-    status: "accepted",
-    joinedAt: "Accepted April 5, 2026",
-  },
-  {
-    id: "family-preview-pending",
-    label: "Pending Invite",
-    email: "cousin@preview.timelog",
-    role: "member",
-    status: "pending",
-    joinedAt: "Invited April 7, 2026",
-  },
-];
-
-async function formatMembershipDate(input: string | null, status: string | null): Promise<string> {
+async function formatMembershipDate(input: string | null, status: string | null, locale: string): Promise<string> {
   const t = await getTranslations("Family");
   const fallback = status === "accepted" ? t("acceptedRecently") : t("invitePending");
   if (!input) return fallback;
@@ -63,7 +29,7 @@ async function formatMembershipDate(input: string | null, status: string | null)
   if (Number.isNaN(date.getTime())) return fallback;
 
   const label = status === "accepted" ? t("accepted") : t("invited");
-  return `${label} ${new Intl.DateTimeFormat("en", {
+  return `${label} ${new Intl.DateTimeFormat(locale, {
     month: "long",
     day: "numeric",
     year: "numeric",
@@ -84,34 +50,10 @@ export async function getFamilyMembers(): Promise<FamilyMemberView[]> {
   const supabase = await createServerSupabaseClient();
   const t = await getTranslations("Family");
   const t_common = await getTranslations("Common");
+  const locale = await getLocale();
 
   if (!supabase) {
-    return [
-      {
-        id: "family-preview-admin",
-        label: t_common("owner"),
-        email: "owner@preview.timelog",
-        role: "admin",
-        status: "accepted",
-        joinedAt: t("previewDesc"),
-      },
-      {
-        id: "family-preview-member",
-        label: t("previewMember"),
-        email: "daughter@preview.timelog",
-        role: "member",
-        status: "accepted",
-        joinedAt: t("previewDesc"),
-      },
-      {
-        id: "family-preview-pending",
-        label: t("previewPending"),
-        email: "cousin@preview.timelog",
-        role: "member",
-        status: "pending",
-        joinedAt: t("previewDesc"),
-      },
-    ];
+    return [];
   }
 
   const { data, error } = await supabase
@@ -120,25 +62,11 @@ export async function getFamilyMembers(): Promise<FamilyMemberView[]> {
     .order("invited_at", { ascending: false });
 
   if (error || !data) {
-    return mockFamilyMembers.map(row => ({
-      id: row.id,
-      label: row.display_name ?? row.email,
-      email: row.email ?? t("noEmail"),
-      role: row.role ?? "member",
-      status: row.status ?? "unknown",
-      joinedAt: new Date(row.created_at).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" }),
-    }));
+    return [];
   }
 
-  if (shouldUseMock() || data.length === 0) {
-    return mockFamilyMembers.map(row => ({
-      id: row.id,
-      label: row.display_name ?? row.email,
-      email: row.email ?? t("noEmail"),
-      role: row.role ?? "member",
-      status: row.status ?? "unknown",
-      joinedAt: new Date(row.created_at).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" }),
-    }));
+  if (data.length === 0) {
+    return [];
   }
 
   return Promise.all(
@@ -150,7 +78,8 @@ export async function getFamilyMembers(): Promise<FamilyMemberView[]> {
       status: row.status ?? "unknown",
       joinedAt: await formatMembershipDate(
         row.accepted_at ?? row.invited_at,
-        row.status
+        row.status,
+        locale
       ),
     }))
   );

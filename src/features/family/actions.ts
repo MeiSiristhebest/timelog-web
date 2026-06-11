@@ -1,7 +1,9 @@
 "use server";
 
+import crypto from "crypto";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
+import { getTranslations } from "next-intl/server";
 
 export type FamilyActionState = {
   status: "idle" | "success" | "error";
@@ -18,8 +20,10 @@ export type FamilyInviteActionState = FamilyActionState & {
  * RLS on `family_members` should ideally handle the permission.
  */
 export async function removeFamilyMemberAction(memberId: string): Promise<FamilyActionState> {
+  const t = await getTranslations("Family");
+  const tCommon = await getTranslations("Common");
   const supabase = await createServerSupabaseClient();
-  if (!supabase) return { status: "error", message: "Supabase not configured." };
+  if (!supabase) return { status: "error", message: tCommon("supabaseNotConfigured") };
 
   // 1. Check if the member even exists
   const { data: member, error: fetchError } = await supabase
@@ -29,7 +33,7 @@ export async function removeFamilyMemberAction(memberId: string): Promise<Family
     .single();
 
   if (fetchError || !member) {
-    return { status: "error", message: "Family member not found." };
+    return { status: "error", message: t("errorMemberNotFound") };
   }
 
   // 2. Delete the record
@@ -48,16 +52,18 @@ export async function removeFamilyMemberAction(memberId: string): Promise<Family
 
   return {
     status: "success",
-    message: `${member.email || "The member"} has been removed from the circle.`,
+    message: t("memberRemovedSuccess", { email: member.email || t("pendingMember") }),
   };
 }
 
 export async function updateArchiveNameAction(newName: string): Promise<FamilyActionState> {
+  const t = await getTranslations("Family");
+  const tCommon = await getTranslations("Common");
   const supabase = await createServerSupabaseClient();
-  if (!supabase) return { status: "error", message: "Supabase not configured." };
+  if (!supabase) return { status: "error", message: tCommon("supabaseNotConfigured") };
 
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return { status: "error", message: "No session found." };
+  if (!user) return { status: "error", message: tCommon("authRequired") };
 
   const { error } = await supabase
     .from("profiles")
@@ -74,7 +80,7 @@ export async function updateArchiveNameAction(newName: string): Promise<FamilyAc
 
   return {
     status: "success",
-    message: `Archive rebranded to "${newName}" successfully.`,
+    message: t("archiveRebranded", { name: newName }),
   };
 }
 
@@ -82,12 +88,14 @@ export async function updateMemberRoleAction(
   memberId: string,
   newRole: string
 ): Promise<FamilyActionState> {
+  const t = await getTranslations("Family");
+  const tCommon = await getTranslations("Common");
   const supabase = await createServerSupabaseClient();
-  if (!supabase) return { status: "error", message: "Supabase not configured." };
+  if (!supabase) return { status: "error", message: tCommon("supabaseNotConfigured") };
 
   // 获取当前用户信息
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return { status: "error", message: "No authenticated user." };
+  if (!user) return { status: "error", message: tCommon("authRequired") };
 
   // 检查当前用户是否为管理员
   const { data: currentUserProfile } = await supabase
@@ -97,13 +105,13 @@ export async function updateMemberRoleAction(
     .single();
 
   if (!currentUserProfile || !["family_owner", "super_admin"].includes(currentUserProfile.role)) {
-    return { status: "error", message: "只有管理员才能修改用户角色。" };
+    return { status: "error", message: t("errorAdminOnly") };
   }
 
   // 验证新角色是否有效
   const validRoles = ["family_owner", "family_member"];
   if (!validRoles.includes(newRole)) {
-    return { status: "error", message: "无效的用户角色。" };
+    return { status: "error", message: t("errorInvalidRole") };
   }
 
   // 更新用户角色（在profiles表中）
@@ -114,7 +122,7 @@ export async function updateMemberRoleAction(
     .single();
 
   if (!member?.user_id) {
-    return { status: "error", message: "找不到对应的用户资料。" };
+    return { status: "error", message: t("errorProfileNotFound") };
   }
 
   const { error: profileError } = await supabase
@@ -141,9 +149,10 @@ export async function updateMemberRoleAction(
   revalidatePath("/family");
   revalidatePath("/audit");
 
+  const roleLabel = newRole === 'family_owner' ? t("statusAdmin") : t("statusMember");
   return {
     status: "success",
-    message: `用户角色已成功更新为${newRole === 'family_owner' ? '管理员' : '成员'}`,
+    message: t("roleUpdatedSuccess", { role: roleLabel }),
   };
 }
 
@@ -155,13 +164,19 @@ export async function createFamilyInviteAction(
   prevState: FamilyInviteActionState,
   formData: FormData
 ): Promise<FamilyInviteActionState> {
+  const t = await getTranslations("Family");
+  const tCommon = await getTranslations("Common");
   const email = formData.get("email") as string;
   if (!email || !email.includes("@")) {
-    return { status: "error", message: "A valid email address is required.", inviteToken: null };
+    return { status: "error", message: t("errorInvalidEmail"), inviteToken: null };
   }
 
   const supabase = await createServerSupabaseClient();
-  if (!supabase) return { status: "error", message: "Supabase not configured.", inviteToken: null };
+  if (!supabase) return { status: "error", message: tCommon("supabaseNotConfigured"), inviteToken: null };
+
+  // 获取当前用户信息
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { status: "error", message: tCommon("authRequired"), inviteToken: null };
 
   try {
     // 检查是否存在
@@ -172,8 +187,18 @@ export async function createFamilyInviteAction(
       .maybeSingle();
 
     if (existing) {
-       return { status: "error", message: "This email is already part of the family circle.", inviteToken: null };
+       return { status: "error", message: t("errorEmailExists"), inviteToken: null };
     }
+
+    // 1. 获取当前用户的 family_id
+    const { data: currentUserMember } = await supabase
+      .from("family_members")
+      .select("family_id")
+      .eq("user_id", user.id)
+      .maybeSingle();
+
+    // 2. 如果当前用户没有 family_id（例如他是第一个创建家庭的所有者），则生成一个新的 UUID
+    const familyId = currentUserMember?.family_id || crypto.randomUUID();
 
     // 创建邀请
     const { data, error } = await supabase
@@ -182,6 +207,8 @@ export async function createFamilyInviteAction(
         email,
         role: "member",
         status: "pending",
+        family_id: familyId,
+        invited_by: user.id,
       })
       .select()
       .single();
@@ -194,11 +221,13 @@ export async function createFamilyInviteAction(
     // For the demo/web tool, we return the ID as a "token" just to show it works.
     return { 
       status: "success", 
-      message: "The invitation has been successfully inscribed.", 
+      message: t("inviteSuccess"), 
       inviteToken: data.id 
     };
   } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : "Unknown error";
+    console.error("Error in createFamilyInviteAction:", error);
+    const err = error as { message?: string } | null;
+    const message = err?.message || (typeof error === "string" ? error : tCommon("unknownError"));
     return { status: "error", message, inviteToken: null };
   }
 }

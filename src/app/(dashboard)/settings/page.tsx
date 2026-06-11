@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import SettingsClient from "./settings-client";
 import { SettingsMonitoring } from "@/features/settings/components/settings-views";

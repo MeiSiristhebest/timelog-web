@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import Link from "next/link";
 import { RealtimeRefresh } from "@/features/realtime/components/realtime-refresh";
 import { buildInteractionRealtimeTargets, buildStoryListRealtimeTargets } from "@/features/realtime/subscriptions";
@@ -5,8 +7,9 @@ import { getStories, getStorageMetrics, type StoryListItem } from "@/features/st
 import { storyRoute } from "@/lib/routes";
 import { Suspense } from "react";
 import { Badge } from "@/components/ui/badge";
-import { getDevices } from "@/features/devices/queries";
-import { getFamilyMembers } from "@/features/family/queries";
+import { Card } from "@/components/ui/card";
+import { getDevices, type DeviceView } from "@/features/devices/queries";
+import { getFamilyMembers, type FamilyMemberView } from "@/features/family/queries";
 import {
   BookOpen,
   ArrowRight,
@@ -30,30 +33,72 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 
 
-async function OverviewContent({ storiesPromise }: { storiesPromise: Promise<StoryListItem[]> }) {
+async function OverviewContent({
+  storiesPromise,
+  devicesPromise,
+  storageMetricsPromise,
+  membersPromise,
+}: {
+  storiesPromise: Promise<StoryListItem[]>;
+  devicesPromise: Promise<DeviceView[]>;
+  storageMetricsPromise: Promise<{ totalDurationMs: number }>;
+  membersPromise: Promise<FamilyMemberView[]>;
+}) {
   const t = await getTranslations();
 
   return (
-    <Suspense fallback={<OverviewSkeleton />}>
-      <OverviewContentInner storiesPromise={storiesPromise} t={t} />
-    </Suspense>
+    <OverviewContentInner
+      storiesPromise={storiesPromise}
+      devicesPromise={devicesPromise}
+      storageMetricsPromise={storageMetricsPromise}
+      membersPromise={membersPromise}
+      t={t}
+    />
   );
 }
 
-async function OverviewContentInner({ storiesPromise, t }: { storiesPromise: Promise<StoryListItem[]>; t: any }) {
-  const [stories, devices, storageMetrics, members] = await Promise.all([
+async function OverviewContentInner({
+  storiesPromise,
+  devicesPromise,
+  storageMetricsPromise,
+  membersPromise,
+  t,
+}: {
+  storiesPromise: Promise<StoryListItem[]>;
+  devicesPromise: Promise<DeviceView[]>;
+  storageMetricsPromise: Promise<{ totalDurationMs: number }>;
+  membersPromise: Promise<FamilyMemberView[]>;
+  t: (key: string, options?: Record<string, string | number>) => string;
+}) {
+  const [stories, _devices, storageMetrics, members] = await Promise.all([
     storiesPromise,
-    getDevices(),
-    getStorageMetrics(),
-    getFamilyMembers()
+    devicesPromise,
+    storageMetricsPromise,
+    membersPromise
   ]);
 
   const syncedStories = stories.filter((story) => story.syncStatus === "synced");
   const totalComments = stories.reduce((sum, story) => sum + (story.commentCount || 0), 0);
-  const storageUsedGb = (storageMetrics.totalDurationMs / (1000 * 60 * 60 * 10)).toFixed(1);
+  
+  // Calculate actual hours and GB separately
+  const totalHours = storageMetrics.totalDurationMs / (1000 * 60 * 60);
+  const storageUsedHours = totalHours.toFixed(1);
+  const storageUsedGb = (totalHours * 0.1).toFixed(2); // Show 2 decimal places for better precision (e.g., 0.03GB)
 
   return (
     <div className="space-y-8 animate-in fade-in duration-700">
+      {/* Welcome Hero Section */}
+      <div className="relative overflow-hidden rounded-[2rem] border border-line bg-gradient-to-br from-panel-strong/40 to-canvas-depth p-8 shadow-sm backdrop-blur-sm">
+        <div className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-accent/5 blur-3xl" />
+        <div className="relative space-y-2">
+          <h1 className="font-display text-3xl md:text-4xl text-ink font-bold tracking-tight">
+            {t("Overview.title")}
+          </h1>
+          <p className="text-sm text-muted max-w-2xl font-medium leading-relaxed">
+            {t("Overview.description")}
+          </p>
+        </div>
+      </div>
 
       {/* KPI Grid with Sparklines - uses client wrapper to avoid RSC boundary */}
       <KpiGrid
@@ -67,21 +112,21 @@ async function OverviewContentInner({ storiesPromise, t }: { storiesPromise: Pro
         familyDesc={t("Family.subtitle")}
         interactionsTitle={t("Overview.unreadReplies")}
         interactionsDesc={t("Overview.freshlySynced")}
-        storageTitle={t("Overview.capacity", { used: storageUsedGb, total: 10 })}
+        storageTitle={t("Overview.capacity", { used: storageUsedHours, total: 10 })}
         storageDesc={t("Settings.cloudSync")}
       />
 
       <div className="grid gap-6 lg:grid-cols-[1fr_340px]">
         {/* Recent Stories Table */}
-        <div className="bg-canvas-elevated border border-line rounded-2xl overflow-hidden shadow-sm flex flex-col">
+        <Card doubleBezel className="overflow-hidden flex flex-col">
           <div className="p-6 border-b border-line flex items-center justify-between shrink-0">
             <div>
-              <h3 className="text-lg font-black text-ink tracking-tight">{t("Overview.recentStories")}</h3>
-              <p className="text-xs text-muted font-bold mt-1 uppercase tracking-widest">{t("Overview.recentStoriesDesc")}</p>
+              <h3 className="text-lg font-bold text-ink tracking-tight">{t("Overview.recentStories")}</h3>
+              <p className="text-[10px] text-muted font-bold mt-1 uppercase tracking-[0.15em]">{t("Overview.recentStoriesDesc")}</p>
             </div>
             <Link 
               href="/stories" 
-              className="text-xs font-black text-accent hover:underline flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-accent/5 hover:bg-accent/10 transition-all"
+              className="text-xs font-bold text-accent hover:underline flex items-center gap-1.5 px-4 py-2 rounded-full bg-accent/5 hover:bg-accent/10 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]"
             >
               {t("Common.viewAll")} <ArrowRight className="h-3 w-3" />
             </Link>
@@ -90,7 +135,7 @@ async function OverviewContentInner({ storiesPromise, t }: { storiesPromise: Pro
           <div className="flex-1 overflow-auto">
             <Table>
               <TableHeader>
-                <TableRow className="hover:bg-transparent border-b border-line bg-canvas-depth/30">
+                <TableRow className="hover:bg-transparent border-b border-line bg-canvas-elevated">
                   <TableHead className="px-6 h-12 text-[10px] font-black uppercase tracking-widest text-muted">{t("Stories.tableTitle")}</TableHead>
                   <TableHead className="px-6 h-12 text-[10px] font-black uppercase tracking-widest text-muted">{t("Stories.tableDuration")}</TableHead>
                   <TableHead className="px-6 h-12 text-[10px] font-black uppercase tracking-widest text-muted">{t("Stories.tableDate")}</TableHead>
@@ -99,13 +144,13 @@ async function OverviewContentInner({ storiesPromise, t }: { storiesPromise: Pro
               </TableHeader>
               <TableBody>
                 {syncedStories.slice(0, 5).map((story) => (
-                  <TableRow key={story.id} className="group border-b border-line hover:bg-accent/[0.02] transition-colors">
+                  <TableRow key={story.id} className="group border-b border-line hover:bg-accent/[0.01] transition-colors">
                     <TableCell className="px-6 py-4">
                       <Link href={storyRoute(story.id)} className="block space-y-0.5">
-                        <p className="text-sm font-black text-ink group-hover:text-accent transition-colors">
+                        <p className="text-sm font-bold text-ink group-hover:text-accent transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]">
                           {story.title}
                         </p>
-                        <p className="text-[10px] text-muted font-black uppercase tracking-widest">{story.speakerLabel}</p>
+                        <p className="text-[10px] text-muted font-bold uppercase tracking-[0.15em]">{story.speakerLabel}</p>
                       </Link>
                     </TableCell>
                     <TableCell className="px-6 py-4">
@@ -118,7 +163,7 @@ async function OverviewContentInner({ storiesPromise, t }: { storiesPromise: Pro
                       {story.startedAtLabel}
                     </TableCell>
                     <TableCell className="px-6 py-4 text-right">
-                      <Badge variant="outline" className="text-[10px] font-black uppercase tracking-widest border-emerald-500/20 bg-emerald-500/5 text-emerald-600">
+                      <Badge variant="success" className="text-[9px] font-bold uppercase tracking-[0.15em]">
                         {t("Stories.statusSynced")}
                       </Badge>
                     </TableCell>
@@ -129,85 +174,89 @@ async function OverviewContentInner({ storiesPromise, t }: { storiesPromise: Pro
 
             {syncedStories.length === 0 && (
               <div className="p-20 text-center flex flex-col items-center justify-center space-y-4">
-                <div className="h-12 w-12 rounded-full border-2 border-dashed border-line flex items-center justify-center text-muted">
+                <div className="h-12 w-12 rounded-full border border-dashed border-line flex items-center justify-center text-muted">
                   <BookOpen className="h-6 w-6" />
                 </div>
                 <p className="text-sm text-muted italic font-bold">{t("Overview.emptyRecent")}</p>
               </div>
             )}
           </div>
-        </div>
+        </Card>
 
         {/* Sync Feed / Right Sidebar (Activity Style) */}
         <div className="space-y-6">
-          <div className="bg-canvas-elevated border border-line rounded-2xl p-6 shadow-sm">
-            <div className="flex items-center justify-between mb-8">
-               <div className="flex items-center gap-2">
-                <div className="h-8 w-8 rounded-lg bg-accent/10 border border-accent/20 flex items-center justify-center">
-                   <History className="h-4 w-4 text-accent" />
+          <Card doubleBezel>
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-8">
+                <div className="flex items-center gap-2">
+                  <div className="h-8 w-8 rounded-lg bg-accent/10 border border-accent/20 flex items-center justify-center">
+                    <History className="h-4 w-4 text-accent" />
+                  </div>
+                  <h3 className="text-xs font-bold text-ink uppercase tracking-[0.15em]">{t("Overview.inProgress")}</h3>
                 </div>
-                <h3 className="text-xs font-black text-ink uppercase tracking-widest">{t("Overview.inProgress")}</h3>
+                <Badge variant="outline" className="text-[9px] font-bold animate-pulse bg-accent/10 text-accent border-accent/20">
+                  {t("Dashboard.activeCount", { count: stories.filter(s => s.syncStatus !== 'synced').length })}
+                </Badge>
               </div>
-              <Badge variant="outline" className="text-[9px] font-black animate-pulse bg-accent/10 text-accent border-accent/20">
-                {t("Dashboard.activeCount", { count: stories.filter(s => s.syncStatus !== 'synced').length })}
-              </Badge>
-            </div>
-            
-            <div className="space-y-6 relative before:absolute before:inset-0 before:left-3 before:w-px before:bg-line before:h-full pb-2">
-              {stories.filter(s => s.syncStatus !== 'synced').length > 0 ? (
-                stories.filter(s => s.syncStatus !== 'synced').map((story) => (
-                  <div key={story.id} className="relative pl-8 group">
-                    <div className="absolute left-[9px] top-1 h-3 w-3 rounded-full border-2 border-canvas bg-accent group-hover:scale-125 transition-transform" />
-                    <div className="p-4 rounded-xl bg-canvas-depth border border-line shadow-sm hover:border-accent/40 transition-all">
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="min-w-0">
-                          <p className="text-xs font-black text-ink truncate group-hover:text-accent transition-colors">{story.title}</p>
-                          <p className="text-[10px] text-muted font-bold mt-1 uppercase tracking-widest">
-                            {t("Stories.statusSyncing")} • {t("Overview.timeAgo", { time: "2m" })}
-                          </p>
+              
+              <div className="space-y-6 relative before:absolute before:inset-0 before:left-3 before:w-px before:bg-line before:h-full pb-2">
+                {stories.filter(s => s.syncStatus !== 'synced').length > 0 ? (
+                  stories.filter(s => s.syncStatus !== 'synced').map((story) => (
+                    <div key={story.id} className="relative pl-8 group">
+                      <div className="absolute left-[9px] top-1.5 h-2.5 w-2.5 rounded-full border border-canvas bg-accent group-hover:scale-125 transition-transform" />
+                      <div className="p-4 rounded-xl bg-canvas-depth/50 border border-line hover:border-accent/30 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]">
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="min-w-0">
+                            <p className="text-xs font-bold text-ink truncate group-hover:text-accent transition-colors">{story.title}</p>
+                            <p className="text-[10px] text-muted font-bold mt-1 uppercase tracking-[0.15em]">
+                              {t("Stories.statusSyncing")} • {t("Overview.timeAgo", { time: "2m" })}
+                            </p>
+                          </div>
+                          <div className="flex h-2 w-2 rounded-full bg-accent animate-pulse shrink-0" />
                         </div>
-                        <div className="flex h-3 w-3 rounded-full bg-accent animate-pulse shrink-0 border-2 border-white/20" />
                       </div>
                     </div>
+                  ))
+                ) : (
+                  <div className="py-12 flex flex-col items-center justify-center text-center opacity-40">
+                    <div className="h-10 w-10 rounded-xl border border-dashed border-muted flex items-center justify-center mb-4">
+                      <ShieldCheck className="h-5 w-5 text-muted" />
+                    </div>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-muted">{t("Overview.vaultSecure")}</p>
                   </div>
-                ))
-              ) : (
-                <div className="py-12 flex flex-col items-center justify-center text-center opacity-40">
-                  <div className="h-10 w-10 rounded-xl border border-dashed border-muted flex items-center justify-center mb-4">
-                     <ShieldCheck className="h-5 w-5 text-muted" />
-                  </div>
-                  <p className="text-[10px] font-black uppercase tracking-widest text-muted">{t("Overview.vaultSecure")}</p>
-                </div>
-              )}
+                )}
+              </div>
             </div>
-          </div>
+          </Card>
 
           {/* Premium Encryption Card */}
-          <div className="p-6 rounded-2xl bg-slate-900 border border-white/10 text-white relative overflow-hidden group shadow-xl">
-            <div className="absolute -top-4 -right-4 h-24 w-24 bg-accent/10 rounded-full blur-3xl group-hover:bg-accent/20 transition-all" />
-            <div className="absolute top-0 right-0 p-6 opacity-20 group-hover:scale-110 transition-transform">
-              <ShieldCheck size={50} className="text-emerald-400" />
-            </div>
-            
-            <div className="relative space-y-4">
-              <div className="inline-flex px-2 py-0.5 rounded bg-white/10 backdrop-blur-sm border border-white/10">
-                <p className="text-[9px] font-black text-emerald-400 uppercase tracking-[0.3em]">{t("Settings.tabSecurity")}</p>
+          <Card doubleBezel>
+            <div className="p-6 relative overflow-hidden group">
+              <div className="absolute -top-4 -right-4 h-24 w-24 bg-accent/5 rounded-full blur-3xl group-hover:bg-accent/10 transition-all duration-500" />
+              <div className="absolute top-0 right-0 p-6 opacity-10 group-hover:scale-110 transition-transform duration-500">
+                <ShieldCheck size={50} className="text-accent" />
               </div>
-              <h4 className="text-sm font-black tracking-tight leading-tight">{t("Settings.encryptionPolicy")}</h4>
-              <div className="space-y-2">
-                <div className="h-1.5 w-full bg-white/10 rounded-full overflow-hidden">
-                   <div className="h-full w-[85%] bg-gradient-to-r from-emerald-500 to-accent animate-in slide-in-from-left duration-1000" />
+              
+              <div className="relative space-y-4">
+                <div className="inline-flex px-2.5 py-0.5 rounded-full bg-accent/10 border border-accent/20">
+                  <p className="text-[9px] font-bold text-accent uppercase tracking-[0.25em]">{t("Settings.tabSecurity")}</p>
                 </div>
-                <div className="flex justify-between text-[9px] font-black uppercase tracking-widest text-white/40">
-                  <span>AES-256</span>
-                  <span>{t("Overview.securePercent")}</span>
+                <h4 className="text-sm font-bold tracking-tight leading-tight text-ink">{t("Settings.encryptionPolicy")}</h4>
+                <div className="space-y-2">
+                  <div className="h-1 w-full bg-line rounded-full overflow-hidden">
+                    <div className="h-full w-[85%] bg-accent transition-all duration-1000" />
+                  </div>
+                  <div className="flex justify-between text-[9px] font-bold uppercase tracking-[0.15em] text-muted">
+                    <span>AES-256</span>
+                    <span>{t("Overview.securePercent")}</span>
+                  </div>
                 </div>
+                <p className="text-[11px] text-muted font-medium leading-relaxed">
+                  {t("Settings.encryptionDesc")}
+                </p>
               </div>
-              <p className="text-[11px] text-white/60 font-medium leading-relaxed">
-                {t("Settings.encryptionDesc")}
-              </p>
             </div>
-          </div>
+          </Card>
         </div>
       </div>
     </div>
@@ -216,6 +265,9 @@ async function OverviewContentInner({ storiesPromise, t }: { storiesPromise: Pro
 
 export default function OverviewPage() {
   const storiesPromise = getStories();
+  const devicesPromise = getDevices();
+  const storageMetricsPromise = getStorageMetrics();
+  const membersPromise = getFamilyMembers();
 
   return (
     <div className="animate-fade-in">
@@ -227,7 +279,12 @@ export default function OverviewPage() {
         ]}
       />
       <Suspense fallback={<OverviewSkeleton />}>
-        <OverviewContent storiesPromise={storiesPromise} />
+        <OverviewContent
+          storiesPromise={storiesPromise}
+          devicesPromise={devicesPromise}
+          storageMetricsPromise={storageMetricsPromise}
+          membersPromise={membersPromise}
+        />
       </Suspense>
     </div>
   );

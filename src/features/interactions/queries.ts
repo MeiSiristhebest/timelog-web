@@ -6,13 +6,6 @@ import {
   type InteractionReactionRow,
   type InteractionItem,
 } from "./presentation";
-import { mockInteractions } from "@/lib/mock-data";
-
-const shouldUseMock = () => {
-  const isMockFlag = process.env.NEXT_PUBLIC_USE_MOCK === "true";
-  const hasSupabase = Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY);
-  return isMockFlag || !hasSupabase;
-};
 
 type TFunction = Awaited<ReturnType<typeof getTranslations>>;
 
@@ -28,6 +21,15 @@ export type InteractionsOverview = {
     storiesTouched: number;
   };
   items: InteractionItem[];
+};
+
+const emptyInteractionsOverview: InteractionsOverview = {
+  metrics: {
+    commentCount: 0,
+    reactionCount: 0,
+    storiesTouched: 0,
+  },
+  items: [],
 };
 
 async function getStoryTitles(
@@ -61,30 +63,12 @@ async function getStoryTitles(
 }
 
 export async function getInteractionsOverview(): Promise<InteractionsOverview> {
-  if (shouldUseMock()) {
-    return {
-      metrics: { 
-        commentCount: mockInteractions.filter(i => i.kind === "评论").length, 
-        reactionCount: mockInteractions.filter(i => i.kind === "心意").length, 
-        storiesTouched: new Set(mockInteractions.map(i => i.storyId)).size 
-      },
-      items: mockInteractions
-    };
-  }
-
   const tInteractions = await getTranslations("Interactions");
   const locale = await getLocale();
   
   const supabase = await createServerSupabaseClient();
   if (!supabase) {
-    return {
-      metrics: { 
-        commentCount: mockInteractions.filter(i => i.kind === "Comment").length, 
-        reactionCount: mockInteractions.filter(i => i.kind === "Reaction").length, 
-        storiesTouched: new Set(mockInteractions.map(i => i.storyId)).size 
-      },
-      items: mockInteractions
-    };
+    return emptyInteractionsOverview;
   }
 
   const {
@@ -92,14 +76,7 @@ export async function getInteractionsOverview(): Promise<InteractionsOverview> {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    return {
-       metrics: { 
-         commentCount: mockInteractions.filter(i => i.kind === "Comment").length, 
-         reactionCount: mockInteractions.filter(i => i.kind === "Reaction").length, 
-         storiesTouched: new Set(mockInteractions.map(i => i.storyId)).size 
-       },
-       items: mockInteractions
-     };
+    return emptyInteractionsOverview;
   }
 
   const [commentsResponse, reactionsResponse] = await Promise.all([
@@ -115,16 +92,9 @@ export async function getInteractionsOverview(): Promise<InteractionsOverview> {
       .limit(12),
   ]);
 
-if (commentsResponse.error || reactionsResponse.error) {
-     return {
-       metrics: { 
-         commentCount: mockInteractions.filter(i => i.kind === "评论").length, 
-         reactionCount: mockInteractions.filter(i => i.kind === "心意").length, 
-         storiesTouched: new Set(mockInteractions.map(i => i.storyId)).size 
-       },
-       items: mockInteractions
-      };
-   }
+  if (commentsResponse.error || reactionsResponse.error) {
+    return emptyInteractionsOverview;
+  }
 
   const commentRows = (commentsResponse.data ??
     []) as Array<Omit<InteractionCommentRow, "story_title">>;
@@ -162,3 +132,84 @@ if (commentsResponse.error || reactionsResponse.error) {
     }),
   };
 }
+
+export type FamilyQuestionView = {
+  id: string;
+  questionText: string;
+  category: string;
+  createdAtLabel: string;
+  answeredAtLabel: string | null;
+  recordingId: string | null;
+  recordingTitle: string | null;
+  seniorName: string;
+};
+
+export async function getFamilyQuestions(): Promise<FamilyQuestionView[]> {
+  const locale = await getLocale();
+  const supabase = await createServerSupabaseClient();
+  if (!supabase) return [];
+
+  const { data, error } = await supabase
+    .from("family_questions")
+    .select("id, question_text, category, created_at, answered_at, recording_id, senior_user_id")
+    .order("created_at", { ascending: false });
+
+  if (error || !data) {
+    console.error("Error fetching family questions:", error);
+    return [];
+  }
+
+  const seniorIds = data.map((q) => q.senior_user_id);
+  const recordingIds = data.map((q) => q.recording_id).filter(Boolean) as string[];
+
+  // Fetch profiles & stories in parallel
+  const [profilesRes, storiesRes] = await Promise.all([
+    supabase
+      .from("profiles")
+      .select("id, display_name, full_name")
+      .in("id", seniorIds),
+    recordingIds.length > 0
+      ? supabase
+          .from("audio_recordings")
+          .select("id, title")
+          .in("id", recordingIds)
+      : Promise.resolve({ data: null, error: null })
+  ]);
+
+  const profilesMap = new Map<string, string>();
+  if (profilesRes.data) {
+    for (const p of profilesRes.data) {
+      profilesMap.set(p.id, p.display_name || p.full_name || "Unknown");
+    }
+  }
+
+  const storiesMap = new Map<string, string>();
+  if (storiesRes.data) {
+    for (const s of storiesRes.data) {
+      storiesMap.set(s.id, s.title || "Untitled memory");
+    }
+  }
+
+  return data.map((row) => {
+    const createdDate = row.created_at ? new Date(row.created_at) : new Date();
+    const answeredDate = row.answered_at ? new Date(row.answered_at) : null;
+
+    const formatter = new Intl.DateTimeFormat(locale, {
+      month: "short",
+      day: "numeric",
+      year: "numeric"
+    });
+
+    return {
+      id: row.id,
+      questionText: row.question_text,
+      category: row.category,
+      createdAtLabel: formatter.format(createdDate),
+      answeredAtLabel: answeredDate ? formatter.format(answeredDate) : null,
+      recordingId: row.recording_id,
+      recordingTitle: row.recording_id ? (storiesMap.get(row.recording_id) ?? "Untitled memory") : null,
+      seniorName: profilesMap.get(row.senior_user_id) ?? "Elder",
+    };
+  });
+}
+

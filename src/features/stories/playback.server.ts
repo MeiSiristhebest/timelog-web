@@ -3,6 +3,7 @@ import {
   PLAYBACK_SIGNED_URL_TTL_SECONDS,
   type StoryPlayback,
 } from "./playback";
+import { getAdminSupabaseClient } from "@/lib/supabase/admin";
 
 type SupabaseStorageClient = {
   storage: {
@@ -23,29 +24,41 @@ export async function createSignedStoryPlayback(
   filePath: string | null,
   nowEpochMs?: number
 ): Promise<StoryPlayback> {
-  const fallback = buildStoryPlayback({
-    filePath,
-    signedUrl: null,
-    expiresInSeconds: PLAYBACK_SIGNED_URL_TTL_SECONDS,
-    nowEpochMs,
-  });
+  const isRemote = filePath && !filePath.startsWith("file://") && filePath !== "OFFLOADED" && filePath.includes("/");
 
-  if (!fallback.sourcePath) {
+  const fallback: StoryPlayback = {
+    sourcePath: isRemote ? filePath : null,
+    signedUrl: null,
+    expiresLabel: null,
+    expiresAtEpochMs: null,
+    isReady: false,
+  };
+
+  if (!isRemote || !filePath) {
     return fallback;
   }
 
-  const { data, error } = await supabase.storage
+  // Use admin client to bypass RLS for family member viewing storyteller recordings
+  const adminClient = getAdminSupabaseClient();
+  const storageClient = adminClient || supabase;
+
+  const { data, error } = await storageClient.storage
     .from("audio-recordings")
-    .createSignedUrl(fallback.sourcePath, PLAYBACK_SIGNED_URL_TTL_SECONDS);
+    .createSignedUrl(filePath, PLAYBACK_SIGNED_URL_TTL_SECONDS);
 
   if (error || !data?.signedUrl) {
+    console.warn(
+      `[createSignedStoryPlayback] Failed to create signed URL for path="${filePath}"`,
+      error?.message ?? "no signedUrl returned"
+    );
     return fallback;
   }
 
   return buildStoryPlayback({
-    filePath: fallback.sourcePath,
+    filePath: filePath,
     signedUrl: data.signedUrl,
     expiresInSeconds: PLAYBACK_SIGNED_URL_TTL_SECONDS,
     nowEpochMs,
   });
 }
+

@@ -2,6 +2,7 @@
 
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
+import { getTranslations } from "next-intl/server";
 
 export type InteractionActionState = {
   status: "idle" | "success" | "error";
@@ -19,20 +20,23 @@ export async function sendFamilyQuestionAction(
   _prevState: InteractionActionState,
   formData: FormData
 ): Promise<InteractionActionState> {
+  const t = await getTranslations("Interactions");
+  const tCommon = await getTranslations("Common");
+
   const seniorId = String(formData.get("seniorId") ?? "").trim();
   const questionText = String(formData.get("questionText") ?? "").trim();
 
   if (!seniorId) {
-    return interactionError("Please select a recipient.");
+    return interactionError(t("errorSelectRecipient"));
   }
 
   if (!questionText || questionText.length < 5) {
-    return interactionError("Question must be at least 5 characters long.");
+    return interactionError(t("errorQuestionTooShort"));
   }
 
   const supabase = await createServerSupabaseClient();
   if (!supabase) {
-    return interactionError("Supabase is not configured.");
+    return interactionError(tCommon("supabaseNotConfigured"));
   }
 
   const {
@@ -40,7 +44,7 @@ export async function sendFamilyQuestionAction(
   } = await supabase.auth.getUser();
 
   if (!user) {
-    return interactionError("Authentication required.");
+    return interactionError(tCommon("authRequired"));
   }
 
   const { error } = await supabase.from("family_questions").insert({
@@ -60,7 +64,7 @@ export async function sendFamilyQuestionAction(
 
   return {
     status: "success",
-    message: "Question sent to the senior's storytelling agent.",
+    message: t("questionSent"),
   };
 }
 
@@ -69,8 +73,9 @@ export async function updateCommentAction(
   newContent: string,
   storyId: string
 ): Promise<InteractionActionState> {
+  const tCommon = await getTranslations("Common");
   const supabase = await createServerSupabaseClient();
-  if (!supabase) return { status: "error", message: "Supabase not configured." };
+  if (!supabase) return { status: "error", message: tCommon("supabaseNotConfigured") };
 
   const { error } = await supabase
     .from("story_comments")
@@ -84,9 +89,10 @@ export async function updateCommentAction(
 
   revalidatePath(`/stories/${storyId}`);
 
+  const t = await getTranslations("Interactions");
   return {
     status: "success",
-    message: "留言已修正",
+    message: t("commentRevised"),
   };
 }
 
@@ -94,8 +100,9 @@ export async function deleteCommentAction(
   commentId: string,
   storyId: string
 ): Promise<InteractionActionState> {
+  const tCommon = await getTranslations("Common");
   const supabase = await createServerSupabaseClient();
-  if (!supabase) return { status: "error", message: "Supabase not configured." };
+  if (!supabase) return { status: "error", message: tCommon("supabaseNotConfigured") };
 
   const { error } = await supabase
     .from("story_comments")
@@ -109,8 +116,9 @@ export async function deleteCommentAction(
 
   revalidatePath(`/stories/${storyId}`);
 
+  const t = await getTranslations("Interactions");
   return {
     status: "success",
-    message: "留言已撤回",
+    message: t("commentWithdrawn"),
   };
 }

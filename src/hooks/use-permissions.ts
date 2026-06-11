@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from 'react';
-import { UserRole, hasPermission, hasRoleLevel } from '@/lib/permissions';
+import { UserRole, hasPermission, hasRoleLevel, UserPermissions } from '@/lib/permissions';
 import { useAuth } from '@/contexts/auth-context';
 
 export function usePermissions() {
@@ -11,12 +11,12 @@ export function usePermissions() {
     userRole,
     isLoading,
     isAuthenticated,
-    hasPermission: (permission: string) => {
+    hasPermission: (permission: keyof UserPermissions) => {
       // 如果正在加载，返回true以显示所有项目，避免闪烁
       if (isLoading) return true;
 
       try {
-        return hasPermission(userRole, permission as any);
+        return hasPermission(userRole, permission);
       } catch (error) {
         console.error('Permission check error:', permission, error);
         return false;

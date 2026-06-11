@@ -2,58 +2,82 @@
 
 :root {
   /* ── Sidebar (always dark regardless of theme) ── */
-  --sidebar: #0f172a;           /* Slate 900 */
-  --sidebar-foreground: #f1f5f9; /* Slate 100  — 14.5:1 on sidebar ✓ AAA */
-  --sidebar-muted: #f1f5f9;     /* Slate 100 — 14.5:1 on Slate 900 ✓ ULTRA AAA */
-  --sidebar-active: #1e293b;    /* Slate 800 */
-  --sidebar-hover: rgba(255, 255, 255, 0.08); /* slightly more visible */
+  --sidebar: #11100d;           /* Deep Onyx */
+  --sidebar-foreground: #f4efe6; /* Antique Parchment */
+  --sidebar-muted: #a79d89;     /* Muted Driftwood */
+  --sidebar-active: #1a1814;    /* Elevated Obsidian */
+  --sidebar-hover: rgba(208, 184, 132, 0.08);
 
-  --header: rgba(255, 255, 255, 0.96);
+  --header: rgba(251, 250, 247, 0.96);
 
-  /* ── AAA Heritage Palette — Light Mode ── */
-  --canvas: #ffffff;
-  --canvas-elevated: #f8fafc;   /* Slate 50  */
-  --canvas-depth: #f1f5f9;      /* Slate 100 – hover targets */
-  --panel: #ffffff;
-  --panel-strong: #ffffff;
-  --line: #cbd5e1;               /* Slate 300 – slightly darker than before for better visibility */
-  --line-strong: #64748b;       /* Slate 500 */
-  --ink: #020617;               /* Slate 950 — 21:1  ✓ AAA */
-  --muted: #334155;             /* Slate 700 — 10.7:1 on white ✓ AAA */
-  --accent: #7a5c1e;            /* Heritage gold — 7.6:1 ✓ AAA */
-  --accent-strong: #5c4315;     /* Deeper gold — 11:1  ✓ AAA */
+  /* ── AAA Heritage Palette — Light Mode (Warm Cream Editorial) ── */
+  --canvas: #fbfaf7;            /* Warm alabaster/cream background */
+  --canvas-elevated: #f4efe6;   /* Antique Parchment */
+  --canvas-depth: #eae3d5;      /* Hover targets / depth */
+  --panel: #ffffff;             /* Pure white for clean contrast panels */
+  --panel-strong: #f4efe6;
+  --line: rgba(140, 109, 62, 0.12); /* Ultra-thin warm gold border */
+  --line-strong: rgba(140, 109, 62, 0.25);
+  --ink: #11100d;               /* Deep Onyx */
+  --muted: #706a5e;             /* Muted Driftwood */
+  --accent: #8c6d3e;            /* Heritage gold */
+  --accent-strong: #5c4315;
   --accent-foreground: #ffffff;
-  --success: #064e3b;           /* Emerald 900 — AAA */
-  --danger: #7f1d1d;            /* Red 900 — AAA */
-  --shadow: rgba(0, 0, 0, 0.08);
+  --success: #1B4332;           /* Deep forest green */
+  --danger: #5C1D1D;            /* Deep burgundy red */
+  --shadow: rgba(18, 17, 16, 0.01);
+  --grid-line: rgba(140, 109, 62, 0.02);
+  --bg-gradient: radial-gradient(circle at 10% 0%, rgba(140, 109, 62, 0.03), transparent 40%);
+
+  /* Muted Pastels for Badges */
+  --badge-red-bg: #FDEBEC;
+  --badge-red-fg: #9F2F2D;
+  --badge-blue-bg: #E1F3FE;
+  --badge-blue-fg: #1F6C9F;
+  --badge-green-bg: #EDF3EC;
+  --badge-green-fg: #346538;
+  --badge-yellow-bg: #FBF3DB;
+  --badge-yellow-fg: #956400;
 }
 
 .dark {
   /* ── Sidebar (same dark regardless of theme) ── */
-  --sidebar: #020617;           /* Slate 950 */
-  --sidebar-foreground: #f1f5f9; /* Slate 100 — 16:1 ✓ AAA */
-  --sidebar-muted: #f1f5f9;     /* Slate 100 — 16.2:1 on Slate 950 ✓ ULTRA AAA */
-  --sidebar-active: #0f172a;
-  --sidebar-hover: rgba(255, 255, 255, 0.08);
+  --sidebar: #11100d;           /* Deep Onyx */
+  --sidebar-foreground: #f4efe6; /* Antique Parchment */
+  --sidebar-muted: #a79d89;     /* Muted Driftwood */
+  --sidebar-active: #1a1814;    /* Elevated Obsidian */
+  --sidebar-hover: rgba(208, 184, 132, 0.08);
 
-  --header: rgba(2, 6, 23, 0.96);
+  --header: rgba(17, 16, 13, 0.96);
 
-  /* ── AAA Heritage Palette — Dark Mode ── */
-  --canvas: #020617;            /* Slate 950 */
-  --canvas-elevated: #0f172a;   /* Slate 900 */
-  --canvas-depth: #1e293b;      /* Slate 800 – hover targets */
-  --panel: #0f172a;
-  --panel-strong: #1e293b;
-  --line: #1e293b;              /* Slate 800 */
-  --line-strong: #475569;       /* Slate 600 */
-  --ink: #f8fafc;               /* Slate 50  — 21:1 ✓ AAA */
-  --muted: #e2e8f0;             /* Slate 200 — 13.9:1 on #020617 ✓ AAA */
-  --accent: #e2b86d;            /* Heritage gold (dark mode) */
-  --accent-strong: #f0d08a;     /* Lighter gold – hover/emphasis */
-  --accent-foreground: #1a0f00;
-  --success: #6ee7b7;           /* Emerald 300 — AAA */
-  --danger: #fda4af;            /* Rose 300 — AAA */
-  --shadow: rgba(0, 0, 0, 0.5);
+  /* ── AAA Heritage Palette — Dark Mode (Strict Warm Dark Editorial) ── */
+  --canvas: #11100d;            /* Deep Onyx */
+  --canvas-elevated: #1a1814;   /* Elevated Obsidian */
+  --canvas-depth: #24211b;      /* Hover targets / depth */
+  --panel: #1a1814;             /* Elevated Obsidian */
+  --panel-strong: #24211b;
+  --line: rgba(208, 184, 132, 0.18); /* 1px Amber Hairline */
+  --line-strong: rgba(208, 184, 132, 0.35);
+  --ink: #f4efe6;               /* Antique Parchment */
+  --muted: #a79d89;             /* Muted Driftwood */
+  --accent: #d4b67a;            /* Golden Sand */
+  --accent-strong: #bfa165;
+  --accent-foreground: #11100d; /* Deep Onyx */
+  --success: #52B788;
+  --danger: #E63946;
+  --shadow: rgba(0, 0, 0, 0);   /* No shadow! */
+  --grid-line: rgba(208, 184, 132, 0.02);
+  --bg-gradient: radial-gradient(circle at 10% 0%, rgba(208, 184, 132, 0.02), transparent 40%);
+
+  /* Muted Pastels for Badges (Dark Mode) */
+  --badge-red-bg: rgba(159, 47, 45, 0.15);
+  --badge-red-fg: #FDA4AF;
+  --badge-blue-bg: rgba(31, 108, 159, 0.15);
+  --badge-blue-fg: #7DD3FC;
+  --badge-green-bg: rgba(52, 101, 56, 0.15);
+  --badge-green-fg: #6EE7B7;
+  --badge-yellow-bg: rgba(149, 100, 0, 0.15);
+  --badge-yellow-fg: #FDE047;
 }
 
 @theme inline {
@@ -75,23 +99,32 @@
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-muted: var(--sidebar-muted);
 
+  /* Badge Colors */
+  --color-badge-red-bg: var(--badge-red-bg);
+  --color-badge-red-fg: var(--badge-red-fg);
+  --color-badge-blue-bg: var(--badge-blue-bg);
+  --color-badge-blue-fg: var(--badge-blue-fg);
+  --color-badge-green-bg: var(--badge-green-bg);
+  --color-badge-green-fg: var(--badge-green-fg);
+  --color-badge-yellow-bg: var(--badge-yellow-bg);
+  --color-badge-yellow-fg: var(--badge-yellow-fg);
+
   /* Fonts */
   --font-sans: var(--font-body);
   --font-display: var(--font-display);
 
   /* Radius */
   --radius-panel: 2rem;
-  --radius-card: 1.5rem;
+  --radius-card: 2rem;
   --radius-badge: 9999px;
 
   /* Shadows */
-  --shadow-panel: 0 24px 80px -36px var(--shadow);
-  --shadow-panel-strong: 0 32px 120px -48px var(--shadow);
+  --shadow-panel: none;
+  --shadow-panel-strong: none;
 
   /* Animations */
-  --animate-fade-in: fade-in 0.2s ease-out;
-  --animate-slide-up: slide-up 0.3s ease-out;
-
+  --animate-fade-in: fade-in 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-slide-up: slide-up 0.5s cubic-bezier(0.16, 1, 0.3, 1);
   --animate-pulse-subtle: pulse-subtle 2s ease-in-out infinite;
 
   @keyframes fade-in {
@@ -100,8 +133,8 @@
   }
 
   @keyframes slide-up {
-    from { transform: translateY(10px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
+    from { transform: translateY(16px); opacity: 0; filter: blur(4px); }
+    to { transform: translateY(0); opacity: 1; filter: blur(0); }
   }
 
   @keyframes pulse-subtle {
@@ -124,16 +157,14 @@
 }
 
 html {
-  color-scheme: light dark;
+  color-scheme: dark light;
 }
 
 body {
   color: var(--ink);
   font-family: var(--font-body), sans-serif;
   background-color: var(--canvas);
-  background-image: 
-    radial-gradient(circle at 20% 0%, var(--accent), transparent 25%),
-    radial-gradient(circle at 100% 10%, var(--accent-strong), transparent 20%);
+  background-image: var(--bg-gradient);
   background-attachment: fixed;
   min-height: 100vh;
 }
@@ -143,12 +174,12 @@ body::before {
   position: fixed;
   inset: 0;
   pointer-events: none;
-  opacity: 0.24;
+  opacity: 1;
   background-image:
-    linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
-  background-size: 48px 48px;
-  mask-image: radial-gradient(circle at center, black 48%, transparent 100%);
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+  background-size: 64px 64px;
+  mask-image: radial-gradient(circle at center, black 30%, transparent 80%);
   z-index: -1;
 }
 
@@ -173,73 +204,96 @@ input {
 }
 
 ::selection {
-  background: rgba(212, 182, 122, 0.3);
+  background: rgba(208, 184, 132, 0.3);
   color: var(--ink);
 }
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--line-strong);
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--muted);
+}
+
+/* ── Typography Defaults ── */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display), serif;
+  font-weight: 500;
+  line-height: 0.95;
+  letter-spacing: -0.02em;
+}
+
+/* ── High-End Minimalist Utility Classes ── */
 
 .panel {
   background: var(--panel);
   border: 1px solid var(--line);
-  box-shadow: var(--shadow-panel);
-  backdrop-filter: blur(22px);
+  box-shadow: none;
+  backdrop-filter: blur(24px);
   border-radius: var(--radius-panel);
+  transition: border-color 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .panel-strong {
   background: var(--panel-strong);
   border: 1px solid var(--line-strong);
-  box-shadow: var(--shadow-panel-strong);
-  backdrop-filter: blur(28px);
+  box-shadow: none;
+  backdrop-filter: blur(32px);
   border-radius: var(--radius-panel);
 }
 
 .card {
   border-radius: var(--radius-card);
   border: 1px solid var(--line);
-  background: rgba(0, 0, 0, 0.1);
-  transition: all 0.2s ease;
+  background: var(--canvas-elevated);
+  box-shadow: none;
+  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .card:hover {
   border-color: var(--line-strong);
-  background: rgba(0, 0, 0, 0.15);
+  background: var(--canvas-depth);
+  transform: translateY(-1px);
 }
 
 .badge {
   border-radius: var(--radius-badge);
-  padding: 0.25rem 0.75rem;
-  font-size: 0.75rem;
+  padding: 0.375rem 0.875rem;
+  font-size: 0.7rem;
+  font-weight: 500;
   text-transform: uppercase;
-  letter-spacing: 0.18em;
-  border-width: 1px;
+  letter-spacing: 0.2em;
+  border: 1px solid var(--line);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .eyebrow {
-  font-size: 0.75rem;
+  color: var(--accent);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.28em;
   text-transform: uppercase;
-  letter-spacing: 0.22em;
-  color: var(--muted);
 }
 
 .display {
   font-family: var(--font-display), serif;
   font-weight: 500;
   line-height: 0.9;
+  letter-spacing: -0.03em;
+  font-variant-numeric: lining-nums;
 }
 
 .hairline {
   border-color: var(--line);
-}
-
-.eyebrow {
-  color: var(--accent);
-  font-size: 0.72rem;
-  letter-spacing: 0.26em;
-  text-transform: uppercase;
-}
-
-.display {
-  font-family: var(--font-display), serif;
 }
 
 .ambient-ring {
@@ -252,7 +306,7 @@ input {
   inset: -1px;
   border-radius: inherit;
   padding: 1px;
-  background: linear-gradient(135deg, rgba(242, 214, 161, 0.34), transparent 45%, rgba(242, 214, 161, 0.14));
+  background: linear-gradient(135deg, rgba(208, 184, 132, 0.15), transparent 45%, rgba(208, 184, 132, 0.05));
   -webkit-mask:
     linear-gradient(#fff 0 0) content-box,
     linear-gradient(#fff 0 0);
@@ -263,6 +317,33 @@ input {
 
 .story-glow {
   background:
-    radial-gradient(circle at top left, rgba(242, 214, 161, 0.12), transparent 36%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent 50%);
+    radial-gradient(circle at top left, rgba(208, 184, 132, 0.05), transparent 40%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.01), transparent 60%);
+}
+
+/* ── Double-Bezel (Doppelrand) Nested Architecture ── */
+.double-bezel-outer {
+  background: var(--canvas-elevated);
+  border: 1px solid var(--line);
+  padding: 0.5rem; /* p-2 = 8px (strictly aligned with 8px grid) */
+  border-radius: 2rem; /* rounded-[2rem] = 32px */
+  box-shadow: none;
+  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.double-bezel-inner {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: calc(2rem - 0.5rem); /* mathematically concentric = 24px */
+  box-shadow: none;
+  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ── Custom Smooth Transitions ── */
+.transition-fluid {
+  transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.transition-bounce {
+  transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
 }

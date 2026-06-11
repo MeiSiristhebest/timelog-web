@@ -2,6 +2,8 @@
 // Only handles data fetching. UI shell is delegated to DashboardShell (Client Component).
 
 import type { ReactNode } from "react";
+import { redirect } from "next/navigation";
+import { routes } from "@/lib/routes";
 import { hasSupabaseEnv } from "@/lib/supabase/env";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { DashboardShell } from "./dashboard-shell";
@@ -27,7 +29,11 @@ export default async function DashboardLayout({
         .eq("id", user.id)
         .single();
       userDisplayName = profile?.display_name ?? null;
+    } else {
+      redirect(routes.login);
     }
+  } else {
+    redirect(routes.login);
   }
 
   return (

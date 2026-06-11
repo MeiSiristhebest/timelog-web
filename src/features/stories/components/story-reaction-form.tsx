@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
+import { useTranslations } from "next-intl";
 import {
   toggleStoryReactionAction,
   type StoryActionState,
@@ -14,6 +15,7 @@ const initialState: StoryActionState = {
 
 function ReactionButton({ active }: { active: boolean }) {
   const { pending } = useFormStatus();
+  const t = useTranslations("Stories");
 
   return (
     <button
@@ -25,7 +27,7 @@ function ReactionButton({ active }: { active: boolean }) {
           : "border-line bg-black/10 text-muted hover:border-line-strong hover:text-ink"
       }`}
     >
-      {pending ? "Saving..." : active ? "Remove Heart" : "Send Heart"}
+      {pending ? t("reactionSaving") : active ? t("reactionRemove") : t("reactionSend")}
     </button>
   );
 }
@@ -38,6 +40,7 @@ export function StoryReactionForm({
   hasHearted: boolean;
 }) {
   const [state, formAction] = useActionState(toggleStoryReactionAction, initialState);
+  const t = useTranslations("Stories");
 
   return (
     <form action={formAction} className="space-y-3">
@@ -49,7 +52,7 @@ export function StoryReactionForm({
           state.status === "error" ? "text-danger" : "text-muted"
         }`}
       >
-        {state.message ?? "One reaction per person keeps the signal clean."}
+        {state.message ?? t("reactionLimit")}
       </p>
     </form>
   );

@@ -24,6 +24,11 @@ export type BatchFloatingToolbarProps = {
   mode: "active" | "archived";
 };
 
+interface ActionResponse {
+  status: string;
+  message: string;
+}
+
 export function BatchFloatingToolbar({ mode }: BatchFloatingToolbarProps) {
   const t = useTranslations("Stories");
   const { selectedIds, clearSelection, setManagementMode } = useBatchStore();
@@ -31,7 +36,7 @@ export function BatchFloatingToolbar({ mode }: BatchFloatingToolbarProps) {
   
   if (selectedIds.length === 0) return null;
 
-  const handleAction = async (action: (ids: string[]) => Promise<any>) => {
+  const handleAction = async (action: (ids: string[]) => Promise<ActionResponse>) => {
     setIsPending(true);
     try {
       const result = await action(selectedIds);

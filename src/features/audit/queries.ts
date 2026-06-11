@@ -1,12 +1,5 @@
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { getTranslations, getLocale } from "next-intl/server";
-import { mockAuditEvents } from "@/lib/mock-data";
-
-const shouldUseMock = () => {
-  const isMockFlag = process.env.NEXT_PUBLIC_USE_MOCK === "true";
-  const hasSupabase = Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY);
-  return isMockFlag || !hasSupabase;
-};
 
 type TFunction = Awaited<ReturnType<typeof getTranslations>>;
 
@@ -53,17 +46,15 @@ export type AuditOverview = {
   items: AuditEventView[];
 };
 
-async function getPreviewAuditOverview(): Promise<AuditOverview> {
-  return {
-    metrics: {
-      unreadSignals: mockAuditEvents.filter(e => e.status === "unread").length,
-      pendingInvites: 1,
-      revokedDevices: 1,
-      recentEvents: mockAuditEvents.length,
-    },
-    items: mockAuditEvents,
-  };
-}
+const emptyAuditOverview: AuditOverview = {
+  metrics: {
+    unreadSignals: 0,
+    pendingInvites: 0,
+    revokedDevices: 0,
+    recentEvents: 0,
+  },
+  items: [],
+};
 
 async function formatDateLabel(input: string, locale: string): Promise<string> {
   const date = new Date(input);
@@ -122,16 +113,12 @@ async function mapAuditEvent(row: ActivityEventRow, t: TFunction, locale: string
 }
 
 export async function getAuditOverview(): Promise<AuditOverview> {
-  if (shouldUseMock()) {
-    return getPreviewAuditOverview();
-  }
-
   const supabase = await createServerSupabaseClient();
   const t = await getTranslations("Audit");
   const locale = await getLocale();
 
   if (!supabase) {
-    return getPreviewAuditOverview();
+    return emptyAuditOverview;
   }
 
   const {
@@ -139,7 +126,7 @@ export async function getAuditOverview(): Promise<AuditOverview> {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    return getPreviewAuditOverview();
+    return emptyAuditOverview;
   }
 
   const [eventsResponse, familyResponse, devicesResponse] = await Promise.all([
@@ -153,7 +140,7 @@ export async function getAuditOverview(): Promise<AuditOverview> {
   ]);
 
   if (eventsResponse.error || familyResponse.error || devicesResponse.error) {
-    return getPreviewAuditOverview();
+    return emptyAuditOverview;
   }
 
   const eventRows = (eventsResponse.data ?? []) as ActivityEventRow[];

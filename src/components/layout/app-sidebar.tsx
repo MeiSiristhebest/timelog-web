@@ -73,11 +73,11 @@ export function AppSidebar({
     <TooltipProvider delayDuration={0}>
       <aside
         style={{
-          backgroundColor: "#0f172a",  /* Slate 900: always dark */
-          color: "#e2e8f0",            /* Slate 200: base text on this dark bg, 13.9:1 contrast — AAA */
+          backgroundColor: "var(--sidebar)",
+          color: "var(--sidebar-foreground)",
         }}
         className={cn(
-          "fixed left-0 top-0 bottom-0 border-r border-white/8 flex flex-col z-50 overflow-hidden transition-all duration-300 ease-in-out",
+          "fixed left-0 top-0 bottom-0 border-r border-white/5 flex flex-col z-50 overflow-hidden transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]",
           isSidebarCollapsed ? "w-20" : "w-60"
         )}
       >
@@ -137,14 +137,14 @@ export function AppSidebar({
                     href={item.href}
                     aria-current={isActive ? "page" : undefined}
                     style={isActive ? {
-                      backgroundColor: "#1e3a5f",
-                      color: "#e2b86d",
+                      backgroundColor: "rgba(212, 175, 55, 0.1)",
+                      color: "var(--accent)",
                     } : {
-                      color: "#cbd5e1",
+                      color: "var(--sidebar-muted)",
                     }}
                     className={cn(
-                      "group flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] font-semibold transition-all duration-150",
-                      isActive ? "shadow-md" : "hover:bg-white/8 hover:text-white",
+                      "group flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-semibold transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]",
+                      isActive ? "shadow-sm" : "hover:bg-white/5 hover:text-white",
                       isSidebarCollapsed && "justify-center px-0 h-10 w-10 mx-auto"
                     )}
                   >
@@ -190,12 +190,16 @@ export function AppSidebar({
                   style={{ color: "#94a3b8" }}
                 >
                   <Languages className="h-4 w-4 shrink-0" style={{ color: "#34d399" }} />
-                  {!isSidebarCollapsed && <span style={{ color: "#cbd5e1" }} className="animate-in fade-in duration-300">{locale === "en" ? t("Dashboard.langEn") : t("Dashboard.langZh")}</span>}
+                  {!isSidebarCollapsed && (
+                    <span style={{ color: "#cbd5e1" }} className="animate-in fade-in duration-300">
+                      {locale === "en" ? t("Dashboard.langEn") : locale === "zh" ? t("Dashboard.langZh") : t("Dashboard.langTh")}
+                    </span>
+                  )}
                 </button>
               </TooltipTrigger>
               {isSidebarCollapsed && (
                 <TooltipContent side="right" className="bg-slate-900 border-white/10 text-white font-bold">
-                  {locale === "en" ? t("Dashboard.switchToZh") : t("Dashboard.switchToEn")}
+                  {locale === "en" ? t("Dashboard.switchToTh") : locale === "zh" ? t("Dashboard.switchToEn") : t("Dashboard.switchToZh")}
                 </TooltipContent>
               )}
             </Tooltip>
