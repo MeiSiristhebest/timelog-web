@@ -1,23 +1,33 @@
+# ============================================================
+# Netlify deployment configuration for TimeLog Web
+#
+# IMPORTANT: Netlify docs say that env vars declared in this
+# [build.environment] block are ONLY available at BUILD TIME.
+# For sensitive vars (SUPABASE_SERVICE_ROLE_KEY, NEXTAUTH_SECRET)
+# or runtime vars, configure them in the Netlify Site UI:
+#   Netlify → Site → Site settings → Environment variables
+#
+#   - Mark SUPABASE_SERVICE_ROLE_KEY as "Sensitive"
+#   - NEVER commit real keys to a public source repo
+# ============================================================
+
 [build]
-  command = "pnpm install --frozen-lockfile && pnpm build"
+  command = "pnpm build"
   publish = ".next"
 
 [build.environment]
-  NODE_VERSION = "20.18.0"
-  NEXT_PUBLIC_SUPABASE_URL = "https://cazgjzgmxsctbaqeksqo.supabase.co"
-  NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY = "sb_publishable_buvEGX7wz0rB3sAy-wixPQ_w_bNALoj"
+  # Framework-prefixed public vars (inline into client bundle at build time)
+  # Replace these with YOUR PROJECT PLACEHOLDERS, then override real values
+  # in the Netlify Site UI for safety.
+  NEXT_PUBLIC_SITE_URL    = "https://your-timelog-site.netlify.app"
+  NEXT_PUBLIC_SUPABASE_URL = "https://YOUR-PROJECT-REF.supabase.co"
+  # NOTE: Official @supabase/ssr Next.js name is NEXT_PUBLIC_SUPABASE_ANON_KEY
+  # (NOT PUBLISHABLE_KEY — use the `anon public` key from Supabase → Settings → API)
+  NEXT_PUBLIC_SUPABASE_ANON_KEY = "YOUR-SUPABASE-ANON-PUBLIC-KEY-PLACEHOLDER"
 
-[[redirects]]
-  from = "/_next/static/*"
-  to = "/_next/static/:splat"
-  status = 200
+  # Netlify Next.js plugin / pnpm config
+  NEXT_TELEMETRY_DISABLED = "1"
+  PNPM_VERSION            = "10.33.0"
 
-[[redirects]]
-  from = "/api/*"
-  to = "/api/:splat"
-  status = 200
-
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
