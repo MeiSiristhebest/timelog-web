@@ -1,7 +1,7 @@
 # TimeLog Web 🕰️
 
 <p align="center">
-  <strong>Cross-Generational Family Story Preservation &amp; Governance Console — Elder voice capture + family interaction + semantic retrieval</strong>
+  <strong>Cross-Generational Family Story Preservation & Governance Console — Elder voice capture + family interaction + semantic retrieval</strong>
 </p>
 
 <p align="center">
@@ -26,7 +26,7 @@
 
 ## 📖 About
 
-**TimeLog Web** is the **central governance &amp; semantic-enrichment web console** for the distributed TimeLog family-memory system.
+**TimeLog Web** is the **central governance & semantic-enrichment web console** for the distributed TimeLog family-memory system.
 
 **The problem it solves:** In many markets where elders are the primary custodians of family oral history (particularly the Chinese "digital reverse-onboarding" context), grown-up children live far away, three-generation households are rare — and shared family stories evaporate quickly when transmitted only by word of mouth. Writing things down is too hard to sustain; traditional photo albums lack semantic search and interactivity. Audio stories captured on the elder-facing hardware / apps end up siloed and unmanageable for the rest of the family.
 
@@ -75,7 +75,7 @@
 
 ## 📦 Installation
 
-### Step 1 · Clone &amp; install dependencies
+### Step 1 · Clone & install dependencies
 
 ```bash
 git clone https://github.com/MeiSiristhebest/timelog-web.git
@@ -95,7 +95,7 @@ Create `.env.local` (Next.js standard name) at the repo root with the following 
 
 ```env
 # ============================================================
-# Supabase — ALL THREE are mandatory,缺一不可
+# Supabase — ALL THREE are mandatory — all three must be filled in
 # Get values from: Supabase Dashboard → Your Project → Settings → API
 # ============================================================
 
@@ -209,7 +209,7 @@ pnpm test
 
 ## 🏗️ Architecture Highlights
 
-### 1. Central governance &amp; realtime sync
+### 1. Central governance & realtime sync
 
 ```mermaid
 graph TD
@@ -411,7 +411,7 @@ git push origin feat/support-french-i18n
 
 ## 🔒 Security
 
-### Known high-risk scenarios &amp; corresponding mitigations
+### Known high-risk scenarios & corresponding mitigations
 
 | Scenario | Mitigation |
 |---------|-----------|
