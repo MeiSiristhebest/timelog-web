@@ -24,6 +24,23 @@
 
 ---
 
+## 📑 Table of Contents
+
+- [About](#about)
+- [Features](#features)
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [Quick Start](#quick-start)
+- [Architecture](#architecture)
+- [Project Structure](#project-structure)
+- [Development Commands](#development-commands)
+- [Contributing](#contributing)
+- [Security](#security)
+- [Deployment](#deployment)
+- [License](#license)
+
+---
+
 ## About
 
 TimeLog Web is the web console of the TimeLog family-memory system — a place where family members manage elder-recorded story audio, AI-generated transcripts, and semantic indexes.
@@ -141,6 +158,14 @@ pnpm check
 # lint → typecheck → test → build
 ```
 
+**Expected output**:
+```bash
+▲ Next.js 16.x.x
+- Local:        http://localhost:3000
+- Environments: .env.local, .env
+✓ Ready in XXX ms
+```
+
 ### Browser smoke test
 
 1. Open `http://localhost:3000`, log in with the admin account created by `supabase-quick-admin.sql`
@@ -158,41 +183,41 @@ pnpm check
 
 ```mermaid
 graph TD
-    subgraph Devices [Elder hardware / apps]
-        D1[Recorder 1]
-        D2[Recorder 2]
+    subgraph Devices["Elder hardware / apps"]
+        D1["Recorder 1"]
+        D2["Recorder 2"]
     end
 
-    subgraph Supabase [Supabase Cloud]
-        PG[PostgreSQL + pgvector]
-        STO[(Storage bucket)]
-        AUTH[Auth]
+    subgraph Supabase["Supabase Cloud"]
+        PG["PostgreSQL + pgvector"]
+        STO[("Storage bucket")]
+        AUTH["Auth"]
     end
 
-    subgraph Web [TimeLog Web · Next.js 16]
-        RT[Realtime subscriptions]
-        STORY[Gallery + Player]
-        INT[Interactions: questions + comments]
-        DEV[Device management]
-        FAM[Family + Audit]
-        ADM[JSON archive export]
+    subgraph Web["TimeLog Web · Next.js 16"]
+        RT["Realtime subscriptions"]
+        STORY["Gallery + Player"]
+        INT["Interactions: questions + comments"]
+        DEV["Device management"]
+        FAM["Family + Audit"]
+        ADM["JSON archive export"]
     end
 
-    D1 -->|upload story| PG
-    D2 -->|upload story| PG
-    D1 -->|audio file| STO
-    D2 -->|audio file| STO
+    D1 -->|"upload story"| PG
+    D2 -->|"upload story"| PG
+    D1 -->|"audio file"| STO
+    D2 -->|"audio file"| STO
 
-    PG -->|Realtime push| RT
-    RT -->|UI refresh| STORY
-    RT -->|UI refresh| INT
+    PG -->|"Realtime push"| RT
+    RT -->|"UI refresh"| STORY
+    RT -->|"UI refresh"| INT
 
-    INT -->|family question| PG
-    DEV -->|pairing check| PG
-    FAM -->|role change| PG
+    INT -->|"family question"| PG
+    DEV -->|"pairing check"| PG
+    FAM -->|"role change"| PG
 
-    ADM -->|aggregate export| PG
-    ADM -->|signed playback URL| STO
+    ADM -->|"aggregate export"| PG
+    ADM -->|"signed playback URL"| STO
 ```
 
 ### Secure audio playback
@@ -201,22 +226,22 @@ graph TD
 sequenceDiagram
     actor F as Family browser
     participant SC as Server Component
-    participant AS as Server Action<br>playback.server.ts
-    participant ADM as admin.ts<br>(Service Role Key)
+    participant AS as "Server Action<br/>playback.server.ts"
+    participant ADM as "admin.ts<br/>(Service Role Key)"
     participant SUPA as Supabase Storage
 
     F->>SC: Open family story
-    SC->>AS: createSignedStoryPlayback(storyId, familyId, user)
-    AS->>AS: Check: does user belong to this family?
+    SC->>AS: "createSignedStoryPlayback(storyId, familyId, user)"
+    AS->>AS: "Check: does user belong to this family?"
     alt Allowed
-        AS->>ADM: createSignedUrl(path, 900s)
-        ADM->>SUPA: Generate signature (bypass RLS)
-        SUPA-->>ADM: signed URL
-        ADM-->>AS: signed URL
-        AS-->>SC: Pass to client
-        SC-->>F: WaveSurfer.js loads audio
+        AS->>ADM: "createSignedUrl(path, 900s)"
+        ADM->>SUPA: "Generate signature (bypass RLS)"
+        SUPA-->>ADM: "signed URL"
+        ADM-->>AS: "signed URL"
+        AS-->>SC: "Pass to client"
+        SC-->>F: "WaveSurfer.js loads audio"
     else Forbidden
-        AS-->>SC: 403 Forbidden
+        AS-->>SC: "403 Forbidden"
         SC-->>F: "No permission"
     end
 ```

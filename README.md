@@ -24,6 +24,23 @@
 
 ---
 
+## 📑 目录
+
+- [关于](#-关于)
+- [核心功能](#-核心功能)
+- [环境要求](#-环境要求)
+- [安装](#-安装)
+- [快速开始](#-快速开始)
+- [架构概览](#-架构概览)
+- [项目结构](#-项目结构)
+- [开发命令](#-开发命令)
+- [参与贡献](#-参与贡献)
+- [安全说明](#-安全说明)
+- [部署](#-部署)
+- [许可证](#-许可证)
+
+---
+
 ## 📖 关于
 
 TimeLog Web 是 TimeLog 分布式家庭记忆系统的 Web 控制台，供家属统一管理长辈端录制的故事音频、AI 转写文本与语义索引。
@@ -141,6 +158,14 @@ pnpm check
 # lint → typecheck → test → build
 ```
 
+**预期输出**：
+```bash
+▲ Next.js 16.x.x
+- Local:        http://localhost:3000
+- Environments: .env.local, .env
+✓ Ready in XXX ms
+```
+
 ### 浏览器端到端验证
 
 1. 打开 `http://localhost:3000`，用 `supabase-quick-admin.sql` 创建的管理员账号登录
@@ -158,41 +183,41 @@ pnpm check
 
 ```mermaid
 graph TD
-    subgraph Devices [长辈端设备 / APP]
-        D1[录音设备 1]
-        D2[录音设备 2]
+    subgraph Devices["长辈端设备 / APP"]
+        D1["录音设备 1"]
+        D2["录音设备 2"]
     end
 
-    subgraph Supabase [Supabase Cloud]
-        PG[PostgreSQL + pgvector]
-        STO[(Storage 私有桶)]
-        AUTH[Auth]
+    subgraph Supabase["Supabase Cloud"]
+        PG["PostgreSQL + pgvector"]
+        STO[("Storage 私有桶")]
+        AUTH["Auth"]
     end
 
-    subgraph Web [TimeLog Web · Next.js 16]
-        RT[Realtime 订阅]
-        STORY[故事画廊 + 播放器]
-        INT[互动：提问 + 评论]
-        DEV[设备管理]
-        FAM[家庭成员 + 审计]
-        ADM[JSON 归档导出]
+    subgraph Web["TimeLog Web · Next.js 16"]
+        RT["Realtime 订阅"]
+        STORY["故事画廊 + 播放器"]
+        INT["互动：提问 + 评论"]
+        DEV["设备管理"]
+        FAM["家庭成员 + 审计"]
+        ADM["JSON 归档导出"]
     end
 
-    D1 -->|上传故事| PG
-    D2 -->|上传故事| PG
-    D1 -->|音频文件| STO
-    D2 -->|音频文件| STO
+    D1 -->|"上传故事"| PG
+    D2 -->|"上传故事"| PG
+    D1 -->|"音频文件"| STO
+    D2 -->|"音频文件"| STO
 
-    PG -->|Realtime push| RT
-    RT -->|UI 刷新| STORY
-    RT -->|UI 刷新| INT
+    PG -->|"Realtime push"| RT
+    RT -->|"UI 刷新"| STORY
+    RT -->|"UI 刷新"| INT
 
-    INT -->|家属提问| PG
-    DEV -->|配对校验| PG
-    FAM -->|角色变更| PG
+    INT -->|"家属提问"| PG
+    DEV -->|"配对校验"| PG
+    FAM -->|"角色变更"| PG
 
-    ADM -->|聚合导出| PG
-    ADM -->|签名播放 URL| STO
+    ADM -->|"聚合导出"| PG
+    ADM -->|"签名播放 URL"| STO
 ```
 
 ### 安全音频播放流程
@@ -201,22 +226,22 @@ graph TD
 sequenceDiagram
     actor F as 家属浏览器
     participant SC as Server Component
-    participant AS as Server Action<br>playback.server.ts
-    participant ADM as admin.ts<br>(Service Role Key)
+    participant AS as "Server Action<br/>playback.server.ts"
+    participant ADM as "admin.ts<br/>(Service Role Key)"
     participant SUPA as Supabase Storage
 
     F->>SC: 打开家庭故事
-    SC->>AS: createSignedStoryPlayback(storyId, familyId, user)
-    AS->>AS: 权限校验：用户是否属于该家庭
+    SC->>AS: "createSignedStoryPlayback(storyId, familyId, user)"
+    AS->>AS: "权限校验：用户是否属于该家庭"
     alt 权限合法
-        AS->>ADM: createSignedUrl(path, 900s)
-        ADM->>SUPA: 生成签名（绕过 RLS）
-        SUPA-->>ADM: signed URL
-        ADM-->>AS: signed URL
-        AS-->>SC: 传给客户端
-        SC-->>F: WaveSurfer.js 加载音频
+        AS->>ADM: "createSignedUrl(path, 900s)"
+        ADM->>SUPA: "生成签名（绕过 RLS）"
+        SUPA-->>ADM: "signed URL"
+        ADM-->>AS: "signed URL"
+        AS-->>SC: "传给客户端"
+        SC-->>F: "WaveSurfer.js 加载音频"
     else 权限非法
-        AS-->>SC: 403 Forbidden
+        AS-->>SC: "403 Forbidden"
         SC-->>F: "无权访问此故事"
     end
 ```
@@ -363,7 +388,7 @@ git push origin feat/your-feature
 
 ## 📄 许可证
 
-MIT License。详见 [LICENSE](LICENSE) 文件。
+**MIT License**。详见 [LICENSE](LICENSE) 文件。
 
 ---
 
