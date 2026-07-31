@@ -364,7 +364,7 @@ git push origin feat/your-feature
 | **配对码暴力破解** | 10 分钟 5 次错误锁定 |
 | **归档导出泄露** | 仅管理员可执行，所有操作记入审计日志 |
 
-**漏洞上报**：发现安全问题请直接发邮件至 **`timelog-security [at] googlegroups [dot] com`**，不要公开在 Issue 里。承诺 24 小时内首次响应。
+**漏洞上报**：发现安全问题请直接发邮件至 **`maox_neta@foxmail.com`**，不要公开在 Issue 里。承诺 24 小时内首次响应。
 
 ---
 

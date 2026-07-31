@@ -364,7 +364,7 @@ git push origin feat/your-feature
 | **Pairing code brute-force** | 5 attempts per 10 minutes → lockout |
 | **Archive export leak** | Admin-only; all actions logged |
 
-**Vulnerability disclosure**: Email **`timelog-security [at] googlegroups [dot] com`** — do not file a public issue. We commit to a first response within 24 hours.
+**Vulnerability disclosure**: Email **`maox_neta@foxmail.com`** — do not file a public issue. We commit to a first response within 24 hours.
 
 ---
 
