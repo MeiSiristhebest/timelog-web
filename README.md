@@ -327,19 +327,18 @@ timelog-web/
 │   ├── hooks/                              # 共享 React Hooks（useTranslation...）
 │   ├── i18n/                               # next-intl 配置（Locale 路由/消息）
 │   ├── lib/                                # 底层库封装
-│   │   └── supabase/
-│   │       ├── client.ts                   # 客户端 SupabaseClient（anon key）
-│   │       ├── server.ts                   # 服务端 RSC / Action（anon key）
-│   │       ├── admin.ts                    # ★★★ Service Role Key，仅限 白名单函数调用 ★★★
-│   │       └── env.ts                      # 环境变量 zod 校验
+│   │   ├── supabase/
+│   │   │   ├── client.ts                   # 客户端 SupabaseClient（anon key）
+│   │   │   ├── server.ts                   # 服务端 RSC / Action（anon key）
+│   │   │   ├── admin.ts                    # ★★★ Service Role Key，仅限 白名单函数调用 ★★★
+│   │   │   └── env.ts                      # 环境变量 zod 校验
+│   │   └── hooks/                          # Zustand stores（UI 状态：播放器/语言/通知）
 │   └── types/                              # 全局 TS：Story / Prompt / Comment / FamilyMember
 ├── AGENTS.md                               # AI Coding Agent（Agent 行为约束）
 ├── CLAUDE.md                               # Claude Code 开发指令（架构模式、代码风格、命令）
 ├── DESIGN.md                               # 完整设计系统规范（色板、字型、间距、WCAG 2.2 AAA 检查项）
 ├── GEMINI.md                               # 开发纪实与变更日志
 ├── LICENSE                                 # （若缺失请补充 MIT）
-├── DESIGN.md                               # 设计系统规范
-├── GEMINI.md                               # 开发纪实
 ├── middleware.ts                           # Next.js 中间件（鉴权、i18n locale 重写）
 ├── next.config.ts                          # Next.js 配置
 ├── netlify.toml                            # Netlify Deploy Config（构建命令、Node 版本、Env 注入）
