@@ -1,10 +1,6 @@
 # TimeLog Web 🕰️
 
 <p align="center">
-  <strong>Cross-Generational Family Story Preservation & Governance Console — Elder voice capture + family interaction + semantic retrieval</strong>
-</p>
-
-<p align="center">
   <a href="https://github.com/MeiSiristhebest/timelog-web/actions/workflows/ci.yml"><img src="https://github.com/MeiSiristhebest/timelog-web/actions/workflows/ci.yml/badge.svg?branch=master" alt="CI" /></a>
   <a href="https://app.netlify.com/sites/timelog-web/deploys"><img src="https://img.shields.io/badge/Deploy-Netlify-00C7B7?style=flat-square&logo=netlify" alt="Netlify Deploy" /></a>
   <a href="https://github.com/MeiSiristhebest/timelog-web/blob/master/LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue?style=flat-square" alt="License" /></a>
@@ -16,13 +12,15 @@
   <a href="DESIGN.md"><img src="https://img.shields.io/badge/WCAG-2.2_AAA-7A7A7A?style=flat-square" alt="Accessibility" /></a>
 </p>
 
----
-
 <p align="center">
-  <a href="README.md">🇨🇳 中文</a> &nbsp;·&nbsp; <a href="README_EN.md">🇺🇸 English</a> &nbsp;·&nbsp; <a href="README_TH.md">🇹🇭 ไทย</a>
+  <a href="README.md">🇨🇳 中文</a> &nbsp;|&nbsp; <a href="README_EN.md">🇺🇸 English</a> &nbsp;|&nbsp; <a href="README_TH.md">🇹🇭 ไทย</a>
 </p>
 
 ---
+
+<p align="center">
+    <strong>Cross-Generational Family Story Preservation & Governance Console — Elder voice capture + family interaction + semantic retrieval</strong>
+</p>
 
 ## 📑 Table of Contents
 
