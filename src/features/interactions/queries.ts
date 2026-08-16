@@ -128,7 +128,7 @@ export async function getInteractionsOverview(): Promise<InteractionsOverview> {
       comments,
       reactions,
       locale,
-      t: tInteractions
+      t: tInteractions as any
     }),
   };
 }
