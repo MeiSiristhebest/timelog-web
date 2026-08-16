@@ -24,7 +24,7 @@ import { StoryCardSkeleton } from "./story-card-skeleton";
 import { Star, CheckCircle2, Circle, MessageSquare, Heart, ChevronRight } from "lucide-react";
 import { toggleFavoriteAction } from "../actions";
 import { toast } from "sonner";
-import { useState, useTransition, useRef } from "react";
+import { useState, useTransition, useRef, useEffect, useCallback } from "react";
 import { Archive } from "lucide-react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
