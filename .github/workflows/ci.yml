@@ -1,48 +1,48 @@
-name: CI
+name: CI Pipeline
 
 on:
   push:
-    branches: [main, master]
+    branches: [main]
   pull_request:
-    branches: [main, master]
-  workflow_dispatch:
+    branches: [main]
 
 jobs:
-  build:
-    name: Lint · Typecheck · Test · Build (Next.js 16)
-    runs-on: ubuntu-latest
+  test:
+    name: Test & Build (${{ matrix.os }}, Node ${{ matrix.node-version }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        node-version: [20.x, 22.x]
+
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
           version: 10.33.0
-          run_install: false
 
-      - name: Setup Node.js 20.19.x (engines.node=20.x)
+      - name: Setup Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
-          node-version: 20.19.0
-          cache: pnpm
+          node-version: ${{ matrix.node-version }}
+          cache: 'pnpm'
 
-      - name: Install dependencies (frozen lockfile)
-        run: pnpm install --frozen-lockfile
+      - name: Install Dependencies
+        run: pnpm install --no-frozen-lockfile
 
-      - name: Lint (ESLint · max-warnings=0)
-        run: pnpm lint
+      - name: Lint Check
+        run: pnpm run lint --if-present
 
-      - name: Type check (tsc --noEmit · TS 6.0.2)
-        run: pnpm typecheck
+      - name: Typecheck
+        run: pnpm run typecheck --if-present
 
-      - name: Unit tests (Vitest · jsdom)
-        run: pnpm test || echo "⚠️ No vitest test files yet — skipping"
+      - name: Run Tests
+        run: pnpm run test --if-present
 
-      - name: Build (Next.js production build)
+      - name: Build Check
+        run: pnpm run build --if-present
         env:
-          # Minimal stubs — build-phase only; REAL values must come from
-          # Netlify Site UI → Environment variables (or Vercel Project Envs)
-          NEXT_PUBLIC_SITE_URL: http://localhost
-          NEXT_PUBLIC_SUPABASE_URL: https://stub-project.supabase.co
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: stub-anon-key
+          NEXT_TELEMETRY_DISABLED: 1
