@@ -26,7 +26,7 @@ export type BatchFloatingToolbarProps = {
 
 interface ActionResponse {
   status: string;
-  message: string;
+  message: string | null;
 }
 
 export function BatchFloatingToolbar({ mode }: BatchFloatingToolbarProps) {
