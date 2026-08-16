@@ -65,7 +65,7 @@ export function AppSidebar({
   console.log('- canViewAudit:', hasPermission('canViewAudit'));
   console.log('- canManageDevices:', hasPermission('canManageDevices'));
 
-  const navItems = getNavItems(hasPermission);
+  const navItems = getNavItems(hasPermission as any);
   const { t, locale, toggleLocale } = useTranslation();
   const initials = (userDisplayName || userEmail || "A")[0].toUpperCase();
 
