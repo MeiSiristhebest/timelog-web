@@ -12,13 +12,13 @@ describe("Badge", () => {
   it("renders with success variant", () => {
     render(<Badge variant="success">Success</Badge>);
     const badge = screen.getByText("Success");
-    expect(badge.className).toContain("bg-success/10");
+    expect(badge.className).toContain("bg-badge-green-bg");
   });
 
   it("renders with destructive variant", () => {
     render(<Badge variant="destructive">Destructive</Badge>);
     const badge = screen.getByText("Destructive");
-    expect(badge.className).toContain("bg-danger/10");
+    expect(badge.className).toContain("bg-badge-red-bg");
   });
 
   it("applies custom className", () => {
