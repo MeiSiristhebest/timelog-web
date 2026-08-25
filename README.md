@@ -20,6 +20,10 @@
   <a href="README.md">🇨🇳 中文</a> &nbsp;|&nbsp; <a href="README_EN.md">🇺🇸 English</a> &nbsp;|&nbsp; <a href="README_TH.md">🇹🇭 ไทย</a>
 </p>
 
+> [!TIP]
+> 💡 **如果本项目的架构设计、工程实践或开源基础设施对您有所启发，欢迎点亮右上角 ⭐ Star 支持创作者！**
+> 📚 查阅核心架构推演：[ARCHITECTURE.md](./ARCHITECTURE.md)
+
 ---
 
 <p align="center">
@@ -414,6 +418,15 @@ git push origin feat/your-feature
 ---
 
 ## ⭐ 支持与 Star
+
+### 🌟 Stargazers Over Time
+[![Stargazers repo roster for @MeiSiristhebest/timelog-web](https://reporoster.com/stars/MeiSiristhebest/timelog-web)](https://github.com/MeiSiristhebest/timelog-web/stargazers)
+
+### 🤝 Contributors
+<a href="https://github.com/MeiSiristhebest/timelog-web/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=MeiSiristhebest/timelog-web" alt="Contributors" />
+</a>
+
 
 如果本项目对您的学习、研究或工程落地有所帮助，欢迎给本项目点亮一颗 ⭐ **Star**！这是对开源创作者最大的鼓励与支持。
 
