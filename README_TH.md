@@ -411,29 +411,6 @@ git push origin feat/your-feature
 
 ---
 
----
-
-## ⭐ สนับสนุนและให้ Star
-
-หากโครงการนี้มีประโยชน์หรือสร้างแรงบันดาลใจให้กับการเรียนรู้หรือการพัฒนาของคุณ โปรดสนับสนุนด้วยการกด ⭐ **Star** บน GitHub!
-
-<p align="left">
-  <a href="https://github.com/MeiSiristhebest/timelog-web/stargazers">
-    <img src="https://img.shields.io/github/stars/MeiSiristhebest/timelog-web?style=for-the-badge&logo=apachespark&color=f59e0b" alt="Stargazers" />
-  </a>
-  <a href="https://github.com/MeiSiristhebest/timelog-web/network/members">
-    <img src="https://img.shields.io/github/forks/MeiSiristhebest/timelog-web?style=for-the-badge&color=3b82f6" alt="Forks" />
-  </a>
-  <a href="https://star-history.com/#MeiSiristhebest/timelog-web&Date">
-    <img src="https://img.shields.io/badge/Star%20History-ดูประวัติ-FF6B6B?style=for-the-badge&logo=github" alt="Star History" />
-  </a>
-</p>
-
-### 🤝 ผู้มีส่วนร่วมพัฒนา (Contributors)
-<a href="https://github.com/MeiSiristhebest/timelog-web/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=MeiSiristhebest/timelog-web" alt="Contributors" />
-</a>
-
 ## สัญญาอนุญาต (License)
 
 MIT License ดูที่ [LICENSE](LICENSE)
@@ -443,6 +420,23 @@ MIT License ดูที่ [LICENSE](LICENSE)
 <p align="center">
   <em>สร้างด้วย ❤️ สำหรับโครงการอาวุโส · มาตรฐานการเข้าถึงได้ WCAG 2.2 AAA สำหรับผู้สูงอายุ</em>
 </p>
+
+---
+
+## ⭐ สนับสนุนและให้ Star
+
+หากโครงการนี้มีประโยชน์หรือสร้างแรงบันดาลใจให้กับการเรียนรู้หรือการพัฒนาของคุณ โปรดสนับสนุนด้วยการกด ⭐ **Star** บน GitHub!
+
+<p align="center">
+  <a href="https://star-history.com/#MeiSiristhebest/timelog-web&Date">
+    <img src="https://api.star-history.com/svg?repos=MeiSiristhebest/timelog-web&type=Date" alt="Star History Chart" width="100%" />
+  </a>
+</p>
+
+### 🤝 ผู้มีส่วนร่วมพัฒนา (Contributors)
+<a href="https://github.com/MeiSiristhebest/timelog-web/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=MeiSiristhebest/timelog-web" alt="Contributors" />
+</a>
 
 <!-- Scarf Telemetry Pixel -->
 <img referrerpolicy="no-referrer-when-downgrade" src="https://static.scarf.sh/a.png?x-pxid=p2L36r5iF7fAu6cd2J2Y41Cp6Z3YJHInGjzgouIZuLLHJhyoV9" />
