@@ -427,9 +427,12 @@ MIT License ดูที่ [LICENSE](LICENSE)
 
 หากโครงการนี้มีประโยชน์หรือสร้างแรงบันดาลใจให้กับการเรียนรู้หรือการพัฒนาของคุณ โปรดสนับสนุนด้วยการกด ⭐ **Star** บน GitHub!
 
-<p align="center">
-  <a href="https://star-history.com/#MeiSiristhebest/timelog-web&Date">
-    <img src="https://api.star-history.com/svg?repos=MeiSiristhebest/timelog-web&type=Date" alt="Star History Chart" width="100%" />
+<p align="left">
+  <a href="https://github.com/MeiSiristhebest/timelog-web/stargazers">
+    <img src="https://img.shields.io/github/stars/MeiSiristhebest/timelog-web?style=for-the-badge&logo=apachespark&color=f59e0b" alt="Stargazers" />
+  </a>
+  <a href="https://github.com/MeiSiristhebest/timelog-web/network/members">
+    <img src="https://img.shields.io/github/forks/MeiSiristhebest/timelog-web?style=for-the-badge&color=3b82f6" alt="Forks" />
   </a>
 </p>
 
