@@ -4,13 +4,13 @@
   <b>English | <a href="./ARCHITECTURE_zh.md">简体中文</a></b>
 </p>
 
-This document details the Next.js 15, Supabase Row-Level Security, and cross-generational storytelling curation dashboard powering **TimeLog Web**.
+This document details the Next.js 16, Supabase Row-Level Security, and cross-generational storytelling curation dashboard powering **TimeLog Web**.
 
 ```mermaid
 graph TD
-    Client[Browser / Next.js 15 Client] -->|Server Actions / SSR| Server[Next.js App Router Server]
+    Client[Browser / Next.js 16 Client] -->|Server Actions / SSR| Server[Next.js App Router Server]
 
-    subgraph "Next.js 15 Web Application"
+    subgraph "Next.js 16 Web Application"
         Server --> AuthGuard[Supabase SSR Auth Guard]
         Server --> VoicePlayer[WaveSurfer Audio Player]
         Server --> Timeline[Family Storyline Timeline Engine]
