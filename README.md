@@ -5,7 +5,7 @@
 # TimeLog Web 🕰️
 
 <p align="center">
-  <b>English | <a href="./README_zh.md">简体中文</a></b>
+  <b>English | <a href="./README_zh.md">简体中文</a> | <a href="./README_TH.md">ภาษาไทย</a></b>
 </p>
 
 > [!TIP]
