@@ -1,3 +1,7 @@
+<!-- 
+  Designed & Built with ❤️ by MeiSiristhebest (https://github.com/MeiSiristhebest)
+  If this repository helps your learning or engineering, please consider dropping a ⭐ Star!
+-->
 # TimeLog Web 🕰️
 
 <p align="center">
@@ -406,6 +410,14 @@ git push origin feat/your-feature
 同样支持，将上述环境变量配到 Vercel Project Settings 即可。
 
 ---
+
+---
+
+## ⭐ 支持与 Star
+
+如果本项目对您的学习、研究或工程落地有所帮助，欢迎给本项目点亮一颗 ⭐ **Star**！这是对开源创作者最大的鼓励与支持。
+
+[![Star History Chart](https://api.star-history.com/svg?repos=MeiSiristhebest/timelog-web&type=Date)](https://star-history.com/#MeiSiristhebest/timelog-web&Date)
 
 ## 许可证 (License)
 
