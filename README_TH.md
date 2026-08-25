@@ -1,4 +1,17 @@
+<!-- 
+  Designed & Built with ❤️ by MeiSiristhebest (https://github.com/MeiSiristhebest)
+  If this repository helps your learning or engineering, please consider dropping a ⭐ Star!
+-->
 # TimeLog Web 🕰️
+
+<p align="center">
+  <b><a href="./README.md">English</a> | <a href="./README_zh.md">简体中文</a> | ภาษาไทย</b>
+</p>
+
+> [!TIP]
+> 💡 **หากสถาปัตยกรรมหรือโค้ดของโครงการนี้มีประโยชน์ต่อคุณ โปรดสนับสนุนด้วยการกด ⭐ Star!**
+> 📚 อ่านเอกสารสถาปัตยกรรม: [ARCHITECTURE.md](./ARCHITECTURE.md)
+
 
 <p align="center">
   <a href="https://github.com/MeiSiristhebest/timelog-web/actions/workflows/ci.yml"><img src="https://github.com/MeiSiristhebest/timelog-web/actions/workflows/ci.yml/badge.svg?branch=master" alt="CI" /></a>
@@ -397,6 +410,29 @@ git push origin feat/your-feature
 ก็รองรับ เพิ่มตัวแปรสภาพแวดล้อมเดียวกันใน Vercel Project Settings
 
 ---
+
+---
+
+## ⭐ สนับสนุนและให้ Star
+
+หากโครงการนี้มีประโยชน์หรือสร้างแรงบันดาลใจให้กับการเรียนรู้หรือการพัฒนาของคุณ โปรดสนับสนุนด้วยการกด ⭐ **Star** บน GitHub!
+
+<p align="left">
+  <a href="https://github.com/MeiSiristhebest/timelog-web/stargazers">
+    <img src="https://img.shields.io/github/stars/MeiSiristhebest/timelog-web?style=for-the-badge&logo=apachespark&color=f59e0b" alt="Stargazers" />
+  </a>
+  <a href="https://github.com/MeiSiristhebest/timelog-web/network/members">
+    <img src="https://img.shields.io/github/forks/MeiSiristhebest/timelog-web?style=for-the-badge&color=3b82f6" alt="Forks" />
+  </a>
+  <a href="https://star-history.com/#MeiSiristhebest/timelog-web&Date">
+    <img src="https://img.shields.io/badge/Star%20History-ดูประวัติ-FF6B6B?style=for-the-badge&logo=github" alt="Star History" />
+  </a>
+</p>
+
+### 🤝 ผู้มีส่วนร่วมพัฒนา (Contributors)
+<a href="https://github.com/MeiSiristhebest/timelog-web/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=MeiSiristhebest/timelog-web" alt="Contributors" />
+</a>
 
 ## สัญญาอนุญาต (License)
 
