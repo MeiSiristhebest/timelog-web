@@ -4,13 +4,13 @@
   <b><a href="./ARCHITECTURE.md">English</a> | 简体中文</b>
 </p>
 
-本文档阐述 **TimeLog Web** 基于 Next.js 15、Supabase 行级安全权限 (RLS) 与跨代际家庭故事策展工作台的架构实现。
+本文档阐述 **TimeLog Web** 基于 Next.js 16、Supabase 行级安全权限 (RLS) 与跨代际家庭故事策展工作台的架构实现。
 
 ```mermaid
 graph TD
-    Client[浏览器 / Next.js 15 客户端] -->|Server Actions / SSR| Server[Next.js App Router 服务端]
+    Client[浏览器 / Next.js 16 客户端] -->|Server Actions / SSR| Server[Next.js App Router 服务端]
 
-    subgraph "Next.js 15 Web 应用架构"
+    subgraph "Next.js 16 Web 应用架构"
         Server --> AuthGuard[Supabase SSR 鉴权守卫]
         Server --> VoicePlayer[WaveSurfer 音频波形渲染]
         Server --> Timeline[家庭时光轴策展引擎]
